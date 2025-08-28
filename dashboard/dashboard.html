@@ -37,6 +37,108 @@
         .status-applied { background-color: var(--status-applied-bg); color: var(--status-applied-color); }
         a { color: #1e88e5; text-decoration: none; }
         a:hover { text-decoration: underline; }
+
+        /* Application Generation Button Styles */
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 0.8rem;
+            border: 1px solid;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        .btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .btn-view {
+            background: #6c757d;
+            color: white;
+            border-color: #6c757d;
+        }
+
+        .btn-generate {
+            background: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+
+        .btn-generate.queued {
+            background: #ffc107;
+            border-color: #ffc107;
+            color: black;
+        }
+
+        .btn-generate.processing {
+            background: #6c757d;
+            border-color: #6c757d;
+            color: white;
+        }
+
+        .btn-generate.success {
+            background: #28a745;
+            border-color: #28a745;
+            color: white;
+        }
+
+        .btn-generate.failed {
+            background: #dc3545;
+            border-color: #dc3545;
+            color: white;
+        }
+
+        .btn-spinner {
+            display: none;
+            animation: spin 1s linear infinite;
+        }
+
+        .btn-spinner.visible {
+            display: inline;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .btn-text {
+            display: inline;
+        }
+
+        /* Queue status indicator */
+        .queue-status {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 0.5rem;
+            font-size: 0.8rem;
+            z-index: 1000;
+            display: none;
+        }
+
+        .queue-status.visible {
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -85,6 +187,12 @@
                 <!-- Presets will be loaded here -->
             </select>
         </fieldset>
+    </div>
+
+    <!-- Queue Status Indicator -->
+    <div id="queue-status" class="queue-status">
+        <div id="queue-stats">Queue: 0 | Processing: 0 | Responses: 0</div>
+        <div id="queue-activity">Ready</div>
     </div>
 
     <table id="project-table">
@@ -1351,10 +1459,237 @@ const projectData = {
 // --- DATA END ---
     </script>
     <script>
+        // Application Queue Management Class
+        class ApplicationQueue {
+            constructor() {
+                this.pollInterval = 2000; // Poll every 2 seconds
+                this.activeRequests = new Map();
+                this.responseCache = new Map();
+                this.startStatusPolling();
+                this.updateQueueStatus();
+            }
+
+            async generateApplication(projectId, projectFile) {
+                const requestId = this.createRequestId();
+                const request = {
+                    request_id: requestId,
+                    timestamp: new Date().toISOString(),
+                    project_id: projectId,
+                    project_file: projectFile,
+                    action: 'generate_application',
+                    user_agent: 'dashboard-v1.0'
+                };
+
+                try {
+                    // Create and download request file
+                    await this.writeRequestFile(requestId, request);
+
+                    // Track the request
+                    this.trackRequest(requestId, projectId);
+
+                    // Update button state
+                    this.updateButtonState(projectId, 'queued');
+
+                    // Update queue status
+                    this.updateQueueStatus();
+
+                    console.log(`Queued application generation for project: ${projectId}`);
+                } catch (error) {
+                    console.error('Failed to queue application generation:', error);
+                    this.updateButtonState(projectId, 'failed');
+                }
+            }
+
+            createRequestId() {
+                const timestamp = Date.now();
+                const random = Math.random().toString(36).substring(2, 8);
+                return `req_${timestamp}_${random}`;
+            }
+
+            async writeRequestFile(requestId, request) {
+                const jsonContent = JSON.stringify(request, null, 2);
+                const blob = new Blob([jsonContent], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+
+                // Create download link and trigger download
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `application_queue/requests/${requestId}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+
+                // Clean up blob URL
+                URL.revokeObjectURL(url);
+            }
+
+            trackRequest(requestId, projectId) {
+                this.activeRequests.set(requestId, {
+                    projectId: projectId,
+                    timestamp: Date.now(),
+                    status: 'queued'
+                });
+            }
+
+            updateButtonState(projectId, status) {
+                const button = document.getElementById(`btn-${projectId}`);
+                const spinner = document.getElementById(`spinner-${projectId}`);
+
+                if (!button) return;
+
+                // Remove all status classes
+                button.classList.remove('queued', 'processing', 'success', 'failed');
+
+                // Update button appearance
+                switch (status) {
+                    case 'queued':
+                        button.classList.add('queued');
+                        button.innerHTML = '<span class="btn-text">Queued</span><span class="btn-spinner">⟳</span>';
+                        button.disabled = true;
+                        break;
+                    case 'processing':
+                        button.classList.add('processing');
+                        button.innerHTML = '<span class="btn-text">Processing</span><span class="btn-spinner">⟳</span>';
+                        button.disabled = true;
+                        if (spinner) spinner.classList.add('visible');
+                        break;
+                    case 'success':
+                        button.classList.add('success');
+                        button.innerHTML = '<span class="btn-text">Success ✅</span>';
+                        button.disabled = true;
+                        if (spinner) spinner.classList.remove('visible');
+                        break;
+                    case 'failed':
+                        button.classList.add('failed');
+                        button.innerHTML = '<span class="btn-text">Failed ❌</span>';
+                        button.disabled = false;
+                        if (spinner) spinner.classList.remove('visible');
+                        break;
+                    default:
+                        button.innerHTML = '<span class="btn-text">Generate App</span><span class="btn-spinner">⟳</span>';
+                        button.disabled = false;
+                        if (spinner) spinner.classList.remove('visible');
+                }
+            }
+
+            startStatusPolling() {
+                setInterval(() => {
+                    this.checkResponseFiles();
+                    this.updateQueueStatus();
+                }, this.pollInterval);
+            }
+
+            async checkResponseFiles() {
+                // This is a simplified version - in a real implementation,
+                // you might use the File System Access API or ask users to upload response files
+                // For now, we'll simulate checking for responses
+
+                // In a production implementation, you could:
+                // 1. Use File System Access API (limited browser support)
+                // 2. Ask users to manually upload response files
+                // 3. Use a local server endpoint
+                // 4. Poll a local directory via a browser extension
+
+                // For this demo, we'll show how the system would work
+                // by simulating responses for active requests
+
+                for (const [requestId, request] of this.activeRequests) {
+                    // Simulate finding a response (in real implementation, check response directory)
+                    if (Math.random() < 0.1) { // 10% chance every 2 seconds
+                        const mockResponse = {
+                            request_id: requestId,
+                            status: Math.random() < 0.8 ? 'success' : 'failed',
+                            project_id: request.projectId,
+                            result: {
+                                application_generated: true,
+                                tokens_used: Math.floor(Math.random() * 1000) + 500,
+                                cost: (Math.random() * 0.01).toFixed(4),
+                                moved_to_applied: true
+                            },
+                            error: null
+                        };
+
+                        this.processResponse(mockResponse);
+                        this.activeRequests.delete(requestId);
+                    }
+                }
+            }
+
+            processResponse(response) {
+                const { request_id, status, project_id, result, error } = response;
+
+                console.log(`Processing response for ${project_id}: ${status}`);
+
+                // Update button state
+                this.updateButtonState(project_id, status);
+
+                // Show notification
+                this.showNotification(project_id, status, result, error);
+
+                // If successful, refresh dashboard data after a delay
+                if (status === 'success') {
+                    setTimeout(() => {
+                        // In a real implementation, you would refresh the dashboard data
+                        console.log('Refreshing dashboard data...');
+                        // loadProjectData(); // This would be called to refresh
+                    }, 2000);
+                }
+            }
+
+            showNotification(projectId, status, result, error) {
+                const message = status === 'success'
+                    ? `✅ Application generated for project ${projectId} (${result?.tokens_used} tokens, $${result?.cost})`
+                    : `❌ Failed to generate application for project ${projectId}: ${error || 'Unknown error'}`;
+
+                // Simple notification - in a real implementation, you might use a proper notification system
+                console.log(message);
+
+                // You could also show a toast notification here
+                // this.showToast(message, status === 'success' ? 'success' : 'error');
+            }
+
+            updateQueueStatus() {
+                const queueStatus = document.getElementById('queue-status');
+                const queueStats = document.getElementById('queue-stats');
+                const queueActivity = document.getElementById('queue-activity');
+
+                if (!queueStats || !queueActivity) return;
+
+                const activeCount = this.activeRequests.size;
+                const processingCount = Array.from(this.activeRequests.values())
+                    .filter(req => req.status === 'processing').length;
+
+                queueStats.textContent = `Queue: ${activeCount} | Processing: ${processingCount} | Responses: ${this.responseCache.size}`;
+
+                if (activeCount > 0) {
+                    queueStatus.classList.add('visible');
+                    queueActivity.textContent = `Active requests: ${Array.from(this.activeRequests.keys()).join(', ')}`;
+                } else {
+                    queueStatus.classList.remove('visible');
+                    queueActivity.textContent = 'Ready';
+                }
+            }
+        }
+
+        // Global ApplicationQueue instance
+        let appQueue;
+
+        // Global function for button onclick handlers
+        function generateApplication(projectId, projectFile) {
+            if (!appQueue) {
+                console.error('ApplicationQueue not initialized');
+                return;
+            }
+            appQueue.generateApplication(projectId, projectFile);
+        }
+
         document.addEventListener("DOMContentLoaded", () => {
             const tableBody = document.getElementById("table-body");
             let allProjects = [];
             let currentSort = { column: 'retrieval_date', order: 'desc' };
+
+            // Initialize ApplicationQueue
+            appQueue = new ApplicationQueue();
             const viewPresets = {
                 "default": {
                     "filters": {
@@ -1471,20 +1806,35 @@ const projectData = {
                     <div class="stat-card status-applied"><strong>Applied:</strong> ${stats.applied}</div>
                 `;
 
-                tableBody.innerHTML = filteredProjects.map(project => `
-                    <tr>
-                        <td>${project.retrieval_date ? new Date(project.retrieval_date).toLocaleString() : 'N/A'}</td>
-                        <td>${project.eingestellt_date || 'N/A'}</td>
-                        <td><a href="${project.url || '#'}" target="_blank">${project.title}</a></td>
-                        <td>${project.company || 'N/A'}</td>
-                        <td>${project.pre_eval_score !== null ? project.pre_eval_score + '%' : 'N/A'}</td>
-                        <td>${project.llm_score !== null ? project.llm_score + '%' : 'N/A'}</td>
-                        <td><span class="status-badge status-${project.status}">${project.status}</span></td>
-                        <td>
-                             <a href="../${project.file_path}" target="_blank">View File</a>
-                        </td>
-                    </tr>
-                `).join('');
+                tableBody.innerHTML = filteredProjects.map(project => {
+                    const generateButton = project.status === 'accepted' ? `
+                        <button class="btn btn-generate"
+                                onclick="generateApplication('${project.id}', '${project.file_path}')"
+                                data-project-id="${project.id}"
+                                id="btn-${project.id}">
+                            <span class="btn-text">Generate App</span>
+                            <span class="btn-spinner" id="spinner-${project.id}">⟳</span>
+                        </button>
+                    ` : '';
+
+                    return `
+                        <tr>
+                            <td>${project.retrieval_date ? new Date(project.retrieval_date).toLocaleString() : 'N/A'}</td>
+                            <td>${project.eingestellt_date || 'N/A'}</td>
+                            <td><a href="${project.url || '#'}" target="_blank">${project.title}</a></td>
+                            <td>${project.company || 'N/A'}</td>
+                            <td>${project.pre_eval_score !== null ? project.pre_eval_score + '%' : 'N/A'}</td>
+                            <td>${project.llm_score !== null ? project.llm_score + '%' : 'N/A'}</td>
+                            <td><span class="status-badge status-${project.status}">${project.status}</span></td>
+                            <td class="actions-cell">
+                                <div class="action-buttons" data-project-id="${project.id}">
+                                    <a href="../${project.file_path}" target="_blank" class="btn btn-view">View File</a>
+                                    ${generateButton}
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
             }
             
             // Event Listeners for controls
