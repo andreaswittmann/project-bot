@@ -1,0 +1,74 @@
+# Sensitive Configuration Files
+config.yaml
+*.key
+
+# Personal Data Files
+cv.md
+CV_*.md
+
+# Generated/Runtime Data Files
+applications_status.json
+processed_projects.log
+dashboard/applications_status.json
+dashboard/dashboard_data.json
+
+# Project Data Directories
+projects/
+projects_accepted/
+projects_rejected/
+projects_applied/
+
+# Log Directories and Files
+projects_log/
+*.log
+
+# RSS Data Files
+de.xml
+at-*.xml
+ch-*.xml
+int-*.xml
+
+# Python Cache and Virtual Environment
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# IDE and Editor Files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# System Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary Files
+*.tmp
+*.temp
+.cache/
+
+# Database Files
+*.db
+*.sqlite
+*.sqlite3
+
+# Environment Variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local

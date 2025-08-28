@@ -1,0 +1,8 @@
+pyyaml
+openai
+anthropic
+google-generativeai
+pandas
+requests
+beautifulsoup4
+lxml

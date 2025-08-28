@@ -1,0 +1,193 @@
+# Configuration Template for Bewerbungs-Bot
+# Copy this file to config.yaml and fill in your API key
+
+llm:
+  provider: OpenAI  # Options: OpenAI, Anthropic, Google
+  model: gpt-4o     # OpenAI: gpt-4o, gpt-4-turbo | Anthropic: claude-3-sonnet-20240229 | Google: gemini-pro
+  api_key: YOUR_API_KEY_HERE  # Replace with your actual API key
+
+settings:
+  acceptance_threshold: 85  # LLM evaluation threshold (0-100)
+
+pre_evaluation:
+  acceptance_threshold: 10  # Pre-evaluation threshold (0-100)
+  required_tags: []         # Tags that must be present
+  weighted_tags:
+    # Current Core Technologies (Highest Value)
+    'aws': 30
+    'amazon': 25
+    'bedrock': 25
+    'ai': 25
+    'ki': 25
+    'llm': 30
+    'openai': 20
+    'claude': 20
+    'chatgpt': 20
+    'generative': 20
+    'machine learning': 20
+    'ml': 20
+    
+    # Cloud & Infrastructure (High Value)
+    'cloud': 25
+    'terraform': 25
+    'kubernetes': 20
+    'k8s': 20
+    'docker': 15
+    'container': 15
+    'helm': 10
+    'argo': 10
+    'prometheus': 10
+    'grafana': 10
+    'monitoring': 10
+    
+    # Architecture & Consulting (High Value)
+    'architect': 25
+    'architekt': 25
+    'solution architect': 30
+    'cloud architect': 30
+    'enterprise architect': 25
+    'lösungsarchitekt': 25
+    'systemarchitekt': 20
+    'architecture': 20
+    'architektur': 20
+    
+    # DevOps & Automation (High Value)
+    'devops': 20
+    'cicd': 15
+    'ci/cd': 15
+    'pipeline': 15
+    'jenkins': 10
+    'gitlab': 10
+    'automation': 15
+    'infrastructure as code': 20
+    'iac': 20
+    'ansible': 10
+    'saltstack': 10
+    
+    # Programming & Development (Medium-High Value)
+    'python': 20
+    'bash': 10
+    'shell': 10
+    'scripting': 15
+    'git': 10
+    'github': 15
+    'copilot': 20
+    'api': 15
+    'rest': 15
+    'soap': 10
+    'json': 10
+    
+    # Enterprise Technologies (Medium Value)
+    'oracle': 15
+    'weblogic': 10
+    'database': 15
+    'sql': 10
+    'enterprise': 15
+    'middleware': 15
+    'integration': 15
+    'esb': 10
+    'service bus': 15
+    
+    # Security & Compliance (Medium Value)
+    'security': 15
+    'ssl': 10
+    'saml': 10
+    'iam': 15
+    'compliance': 15
+    'encryption': 10
+    'authentication': 10
+    'authorization': 10
+    
+    # Methodologies (Medium Value)
+    'agile': 15
+    'scrum': 15
+    'kanban': 10
+    'devops': 20
+    'lean': 10
+    'continuous': 15
+    'deployment': 15
+    'integration': 15
+    
+    # Linux & Systems (Medium Value)
+    'linux': 15
+    'unix': 10
+    'redhat': 10
+    'rhel': 10
+    'ubuntu': 10
+    'centos': 10
+    'systemd': 5
+    
+    # Consulting & Business (Medium Value)
+    'consultant': 15
+    'berater': 15
+    'beratung': 15
+    'consulting': 15
+    'projektmanagement': 15
+    'project management': 15
+    'mentoring': 10
+    'coaching': 10
+    'training': 10
+    'schulung': 10
+    'workshop': 10
+    
+    # Data & Analytics (Medium Value)
+    'data': 15
+    'analytics': 15
+    'big data': 15
+    'etl': 10
+    'pipeline': 15
+    'streaming': 10
+    
+    # High Availability & Performance (Medium Value)
+    'hochverfügbarkeit': 15
+    'high availability': 15
+    'scalability': 15
+    'skalierbarkeit': 15
+    'performance': 15
+    'load balancing': 10
+    'clustering': 10
+    'failover': 10
+    
+    # Work Arrangements (Positive Modifiers)
+    'remote': 15
+    'hybrid': 10
+    'freelance': 10
+    'freiberufler': 10
+    'selbständig': 10
+    'interim': 10
+    'projekt': 10
+    'project': 10
+    
+    # Tools & Platforms (Lower Value)
+    'jira': 5
+    'confluence': 5
+    'emacs': 5
+    'vscode': 5
+    'eclipse': 5
+    'maven': 5
+    'ant': 5
+    'yaml': 5
+    'xml': 5
+
+  forbidden_tags:
+    - betriebsleiter  # Add keywords that should automatically reject projects
+
+# Configuration Notes:
+# 
+# LLM Providers:
+# - OpenAI: Requires OpenAI API key, models: gpt-4o, gpt-4-turbo, gpt-3.5-turbo
+# - Anthropic: Requires Anthropic API key, models: claude-3-sonnet-20240229, claude-3-haiku-20240307
+# - Google: Requires Google AI API key, models: gemini-pro, gemini-1.5-flash
+#
+# Thresholds:
+# - acceptance_threshold: Final threshold for accepting projects after LLM evaluation
+# - pre_evaluation.acceptance_threshold: Initial filter threshold using keyword scoring
+#
+# Weighted Tags:
+# - Higher values = more important for your profile
+# - Values are additive - projects can score multiple keywords
+# - Adjust weights based on your skills and preferences
+#
+# Forbidden Tags:
+# - Projects containing these keywords are automatically rejected
+# - Use for roles or industries you want to avoid
