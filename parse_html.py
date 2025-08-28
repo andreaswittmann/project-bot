@@ -1,9 +1,11 @@
-import json, re, math, time, datetime as dt, os, argparse
+import argparse
+import datetime as dt
+import os
+import re
 from typing import Dict, List, Optional
+
 import requests
 from bs4 import BeautifulSoup, Tag
-
-URL = "https://www.freelancermap.at/projekt/freiberuflicher-handelsvertreter-ki-loesungen-vertrieb-auf-provisionsbasis-fjuture-ai-solutions"
 
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
@@ -56,6 +58,13 @@ def html_to_markdown(tag: Tag) -> str:
 def get_heading_block(soup: BeautifulSoup, heading_text: str) -> Optional[str]:
     """
     Find the section for a heading and convert its content to markdown.
+    
+    Args:
+        soup: BeautifulSoup object containing the parsed HTML
+        heading_text: Text to search for in heading tags
+        
+    Returns:
+        Markdown content of the section or None if not found
     """
     hdr = soup.find(lambda tag: tag.name in {"h1", "h2", "h3", "h4"}
                               and tag.get_text(strip=True).lower().startswith(heading_text.lower()))
@@ -127,6 +136,18 @@ def extract_keywords(soup: BeautifulSoup) -> List[str]:
     return [kw for kw in keywords if kw]
 
 def parse_project(url: str) -> Dict:
+    """
+    Parse a FreelancerMap project page and extract structured data.
+    
+    Args:
+        url: URL of the project page to parse
+        
+    Returns:
+        Dictionary containing project metadata and content
+        
+    Raises:
+        requests.RequestException: If HTML fetching fails
+    """
     html = fetch_html(url)
     soup = BeautifulSoup(html, "lxml")
 
@@ -136,7 +157,7 @@ def parse_project(url: str) -> Dict:
     beschreibung = get_heading_block(soup, "Beschreibung")
 
     fields = extract_kv_labels(soup, LABELS)
-    # Normalize keys you care about:
+    
     result = {
         "url": url,
         "titel": title_text,
@@ -155,7 +176,15 @@ def parse_project(url: str) -> Dict:
     return result
 
 def to_markdown(data: Dict) -> str:
-    """Converts the project data dictionary to a markdown string."""
+    """
+    Convert project data dictionary to markdown format.
+    
+    Args:
+        data: Project data dictionary from parse_project()
+        
+    Returns:
+        Formatted markdown string
+    """
     title = data.get("titel", "N/A")
     lines = [f"# {title}"]
 

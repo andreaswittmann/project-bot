@@ -1,36 +1,46 @@
-import os
-import yaml
-import re
-import json
-import shutil
 import argparse
-from pathlib import Path
+import json
+import os
+import re
+import shutil
 from datetime import datetime
-from openai import OpenAI, RateLimitError, AuthenticationError
-from anthropic import Anthropic, APIStatusError as AnthropicAPIStatusError
+from pathlib import Path
+from typing import Optional, Tuple, Dict, Any, Callable
+
+import yaml
 import google.generativeai as genai
+from anthropic import Anthropic, APIStatusError as AnthropicAPIStatusError
+from openai import OpenAI, RateLimitError, AuthenticationError
 
 LOG_DIR = 'projects_log'
 Path(LOG_DIR).mkdir(exist_ok=True)
 
-def setup_logging(log_file_name):
-    """Sets up a log file for a specific project evaluation."""
+def setup_logging(log_file_name: str) -> Callable[[str], None]:
+    """
+    Sets up a log file for a specific project evaluation.
+    
+    Args:
+        log_file_name: Name of the log file to create
+        
+    Returns:
+        Logging function that accepts message strings
+    """
     log_path = os.path.join(LOG_DIR, log_file_name)
-    def log_message(message):
+    def log_message(message: str) -> None:
         """Writes a timestamped message to the log file."""
         with open(log_path, 'a', encoding='utf-8') as f:
             f.write(f"[{datetime.now().isoformat()}] {message}\n")
     return log_message
 
-def load_config(config_path):
+def load_config(config_path: str) -> Optional[Dict[str, Any]]:
     """
     Loads the configuration from the specified YAML file.
 
     Args:
-        config_path (str): The path to the configuration file.
+        config_path: The path to the configuration file.
 
     Returns:
-        dict: The loaded configuration.
+        The loaded configuration dictionary, or None if loading failed.
     """
     try:
         with open(config_path, 'r', encoding='utf-8') as f:
@@ -47,15 +57,15 @@ def load_config(config_path):
         print(f"Error parsing YAML file: {e}")
         return None
 
-def parse_cv(cv_path):
+def parse_cv(cv_path: str) -> Optional[str]:
     """
     Parses the CV file and returns its content.
 
     Args:
-        cv_path (str): The path to the CV file.
+        cv_path: The path to the CV file.
 
     Returns:
-        str: The content of the CV.
+        The content of the CV, or None if loading failed.
     """
     try:
         with open(cv_path, 'r', encoding='utf-8') as f:
@@ -64,15 +74,15 @@ def parse_cv(cv_path):
         print(f"Error: CV file not found at '{cv_path}'")
         return None
 
-def parse_input_file(file_path):
+def parse_input_file(file_path: str) -> Optional[str]:
     """
     Parses a single project offer file (email or Markdown).
 
     Args:
-        file_path (str): The path to the input file.
+        file_path: The path to the input file.
 
     Returns:
-        str: The cleaned content of the file, or None if an error occurs.
+        The cleaned content of the file, or None if an error occurs.
     """
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
@@ -89,17 +99,17 @@ def parse_input_file(file_path):
         print(f"Error reading file {file_path}: {e}")
         return None
 
-def pre_evaluate_project(project_content, config, log):
+def pre_evaluate_project(project_content: str, config: Dict[str, Any], log: Callable[[str], None]) -> Tuple[int, str]:
     """
     Performs a pre-evaluation of the project based on keywords.
 
     Args:
-        project_content (str): The content of the project offer.
-        config (dict): The pre-evaluation configuration.
-        log (function): The logging function to use.
+        project_content: The content of the project offer.
+        config: The pre-evaluation configuration.
+        log: The logging function to use.
 
     Returns:
-        tuple: A tuple containing the fit score (int) and a rationale (str).
+        A tuple containing the fit score (int) and a rationale (str).
     """
     pre_eval_config = config.get('pre_evaluation', {})
     if not pre_eval_config:
@@ -147,17 +157,17 @@ def pre_evaluate_project(project_content, config, log):
     return fit_score, rationale
 
 
-def analyze_with_llm(cv_content, project_offer, config):
+def analyze_with_llm(cv_content: str, project_offer: str, config: Dict[str, Any]) -> Dict[str, Any]:
     """
     Analyzes the project offer against the CV using the configured LLM.
 
     Args:
-        cv_content (str): The content of the CV.
-        project_offer (str): The content of the project offer.
-        config (dict): The configuration dictionary.
+        cv_content: The content of the CV.
+        project_offer: The content of the project offer.
+        config: The configuration dictionary.
 
     Returns:
-        dict: A dictionary with 'fit_score' and 'rationale'.
+        A dictionary with 'fit_score' and 'rationale'.
     """
     provider = config.get('llm', {}).get('provider')
     model = config.get('llm', {}).get('model')
@@ -242,109 +252,186 @@ def analyze_with_llm(cv_content, project_offer, config):
         return {"fit_score": 0, "rationale": f"An unexpected error occurred with {provider}: {e}"}
 
 
-def process_project_file(project_path, config, cv_content, log_func=None):
+def setup_project_logging(project_path: str, log_func: Optional[Callable[[str], None]]) -> Callable[[str], None]:
     """
-    Processes a single project file: logs, analyzes, and moves it.
-    If a log_func is not provided, it sets one up.
+    Set up logging for a project evaluation.
+    
+    Args:
+        project_path: Path to the project file
+        log_func: Optional existing log function
+        
+    Returns:
+        Logging function to use for this project
     """
+    if log_func is not None:
+        return log_func
+    
     project_filename = os.path.basename(project_path)
-    # Use the passed logger or set up a new one
-    if log_func is None:
-        log_filename = f"{os.path.splitext(project_filename)[0]}.log"
-        log = setup_logging(log_filename)
-    else:
-        log = log_func
-    log("="*50)
-    log(f"Starting evaluation for: {project_filename}")
+    log_filename = f"{os.path.splitext(project_filename)[0]}.log"
+    return setup_logging(log_filename)
 
 
-    # Parse Project File
+def load_and_validate_project(project_path: str, log: Callable[[str], None]) -> Optional[str]:
+    """
+    Load and validate project content from file.
+    
+    Args:
+        project_path: Path to the project file
+        log: Logging function
+        
+    Returns:
+        Project content string or None if loading failed
+    """
     log(f"Parsing project file: {project_path}")
     project_content = parse_input_file(project_path)
     if not project_content:
         log("Fatal: Could not parse project file. Aborting this file.")
-        return
+        return None
+    return project_content
 
-    # Pre-evaluation
+
+def move_project_file(project_path: str, dest_folder: str, log: Callable[[str], None]) -> bool:
+    """
+    Move project file to destination folder.
+    
+    Args:
+        project_path: Current path of the project file
+        dest_folder: Destination folder name
+        log: Logging function
+        
+    Returns:
+        True if move was successful, False otherwise
+    """
+    project_filename = os.path.basename(project_path)
+    Path(dest_folder).mkdir(exist_ok=True)
+    destination_path = os.path.join(dest_folder, project_filename)
+    
+    try:
+        shutil.move(project_path, destination_path)
+        log(f"File moved to '{destination_path}'.")
+        return True
+    except Exception as e:
+        error_msg = f"Fatal: Error moving file: {e}"
+        log(error_msg)
+        print(error_msg)
+        return False
+
+
+def handle_pre_evaluation(project_content: str, config: Dict[str, Any], log: Callable[[str], None]) -> Tuple[int, str, bool]:
+    """
+    Handle pre-evaluation phase of project processing.
+    
+    Args:
+        project_content: Content of the project file
+        config: Configuration dictionary
+        log: Logging function
+        
+    Returns:
+        Tuple of (score, rationale, should_continue)
+    """
     pre_eval_score, pre_eval_rationale = pre_evaluate_project(project_content, config, log)
     pre_eval_threshold = config.get('pre_evaluation', {}).get('acceptance_threshold', 50)
     log(f"Pre-evaluation score: {pre_eval_score}% (Threshold: {pre_eval_threshold}%)")
     log(f"Pre-evaluation rationale: {pre_eval_rationale}")
-
-    # Decide action based on pre-evaluation score
-    passed_pre_eval = pre_eval_score >= pre_eval_threshold
-    dest_folder = 'projects_accepted' if passed_pre_eval else 'projects_rejected'
     
-    # If in pre-eval-only mode, move the file and stop.
-    if config.get('pre_eval_only', False):
-        log(f"Result: Pre-evaluation only mode. Score: {pre_eval_score}%.")
-        Path(dest_folder).mkdir(exist_ok=True)
-        destination_path = os.path.join(dest_folder, project_filename)
-        try:
-            shutil.move(project_path, destination_path)
-            log(f"File moved to '{destination_path}'.")
-            print(f"-> Processed {project_filename} | Pre-eval Score: {pre_eval_score:<3}% | Moved to '{dest_folder}'")
-        except Exception as e:
-            error_msg = f"Fatal: Error moving file: {e}"
-            log(error_msg)
-            print(error_msg)
-        log("Evaluation finished.")
-        log("="*50 + "\n")
-        return
+    passed_pre_eval = pre_eval_score >= pre_eval_threshold
+    return pre_eval_score, pre_eval_rationale, passed_pre_eval
+
+
+def handle_llm_evaluation(cv_content: str, project_content: str, config: Dict[str, Any], log: Callable[[str], None]) -> Tuple[int, str]:
+    """
+    Handle LLM evaluation phase of project processing.
+    
+    Args:
+        cv_content: Content of the CV
+        project_content: Content of the project file
+        config: Configuration dictionary
+        log: Logging function
         
-    # If not passed, reject and stop
-    if not passed_pre_eval:
-        log("Result: Rejected based on pre-evaluation.")
-        Path(dest_folder).mkdir(exist_ok=True)
-        destination_path = os.path.join(dest_folder, project_filename)
-        try:
-            shutil.move(project_path, destination_path)
-            log(f"File moved to '{destination_path}'.")
-            print(f"-> Processed {project_filename} | Pre-eval Score: {pre_eval_score:<3}% | Moved to '{dest_folder}'")
-        except Exception as e:
-            error_msg = f"Fatal: Error moving file: {e}"
-            log(error_msg)
-            print(error_msg)
-        log("Evaluation finished.")
-        log("="*50 + "\n")
-        return
-
-    log("Result: Passed pre-evaluation. Proceeding to LLM analysis.")
-
-    # Get LLM acceptance threshold from config
+    Returns:
+        Tuple of (fit_score, formatted_rationale)
+    """
     acceptance_threshold = config.get('settings', {}).get('acceptance_threshold', 85)
     log(f"Using LLM acceptance threshold of {acceptance_threshold}%.")
-
-    # Analyze with LLM
+    
     log("Sending data to LLM for analysis...")
     analysis = analyze_with_llm(cv_content, project_content, config)
     fit_score = analysis.get('fit_score', 0)
     rationale = analysis.get('rationale', 'No rationale provided.')
     log(f"LLM analysis complete. Fit Score: {fit_score}%.")
-
-    # Handle rationale if it's a list
+    
+    # Handle rationale formatting
     if isinstance(rationale, list):
         rationale_text = "\n".join(f"- {item}" for item in rationale)
     else:
         rationale_text = str(rationale).strip()
-
+    
     log(f"Rationale:\n{rationale_text}")
+    return fit_score, rationale_text
 
-    # Decision and File Move
-    dest_folder = 'projects_accepted' if fit_score >= acceptance_threshold else 'projects_rejected'
-    Path(dest_folder).mkdir(exist_ok=True)
-    destination_path = os.path.join(dest_folder, project_filename)
 
-    try:
-        shutil.move(project_path, destination_path)
-        log(f"File moved to '{destination_path}'.")
-        print(f"-> Processed {project_filename} | Score: {fit_score:>3}% | Moved to '{dest_folder}'")
-    except Exception as e:
-        error_msg = f"Fatal: Error moving file: {e}"
-        log(error_msg)
-        print(error_msg)
+def process_project_file(project_path: str, config: Dict[str, Any], cv_content: str, log_func: Optional[Callable[[str], None]] = None) -> None:
+    """
+    Process a single project file through the complete evaluation pipeline.
+    
+    Args:
+        project_path: Path to the project file to process
+        config: Configuration dictionary
+        cv_content: Content of the CV for comparison
+        log_func: Optional existing log function to use
+    """
+    project_filename = os.path.basename(project_path)
+    
+    # Set up logging
+    log = setup_project_logging(project_path, log_func)
+    log("=" * 50)
+    log(f"Starting evaluation for: {project_filename}")
+    
+    # Load and validate project content
+    project_content = load_and_validate_project(project_path, log)
+    if not project_content:
+        return
+    
+    # Run pre-evaluation
+    pre_eval_score, pre_eval_rationale, passed_pre_eval = handle_pre_evaluation(project_content, config, log)
+    
+    # Determine destination folder
+    dest_folder = 'projects_accepted' if passed_pre_eval else 'projects_rejected'
+    
+    # Handle pre-eval-only mode
+    if config.get('pre_eval_only', False):
+        log(f"Result: Pre-evaluation only mode. Score: {pre_eval_score}%.")
+        success = move_project_file(project_path, dest_folder, log)
+        if success:
+            print(f"-> Processed {project_filename} | Pre-eval Score: {pre_eval_score:<3}% | Moved to '{dest_folder}'")
+        log("Evaluation finished.")
+        log("=" * 50 + "\n")
+        return
+    
+    # Handle pre-evaluation failure
+    if not passed_pre_eval:
+        log("Result: Rejected based on pre-evaluation.")
+        success = move_project_file(project_path, dest_folder, log)
+        if success:
+            print(f"-> Processed {project_filename} | Pre-eval Score: {pre_eval_score:<3}% | Moved to '{dest_folder}'")
+        log("Evaluation finished.")
+        log("=" * 50 + "\n")
+        return
+    
+    # Proceed with LLM evaluation
+    log("Result: Passed pre-evaluation. Proceeding to LLM analysis.")
+    fit_score, rationale_text = handle_llm_evaluation(cv_content, project_content, config, log)
+    
+    # Final decision and file move
+    acceptance_threshold = config.get('settings', {}).get('acceptance_threshold', 85)
+    final_dest_folder = 'projects_accepted' if fit_score >= acceptance_threshold else 'projects_rejected'
+    
+    success = move_project_file(project_path, final_dest_folder, log)
+    if success:
+        print(f"-> Processed {project_filename} | Score: {fit_score:>3}% | Moved to '{final_dest_folder}'")
+    
     log("Evaluation finished.")
-    log("="*50 + "\n")
+    log("=" * 50 + "\n")
 
 def main():
     """Main function to run the project evaluation script."""

@@ -133,12 +133,15 @@ bewerbungs-bot/
 ├── requirements.txt          # Python dependencies
 ├── dashboard/
 │   ├── dashboard.html        # Interactive dashboard
-│   ├── generate_dashboard_data.py
-│   └── update_dashboard.py
-└── docs/
-    ├── dashboard_plan.md     # Dashboard architecture
-    ├── plan.md               # Project planning
-    └── refactor_plan.md      # Development notes
+│   ├── generate_dashboard_data.py  # Data extraction script
+│   └── update_dashboard.py   # Dashboard update utility
+├── projects/                 # Scraped projects (temporary)
+├── projects_accepted/        # Accepted projects
+├── projects_rejected/        # Rejected projects
+├── projects_applied/         # Applied projects
+├── projects_log/             # Evaluation logs
+├── applications_status.json  # Application tracking
+└── dashboard_guide.md        # Dashboard documentation
 ```
 
 ## Workflow
