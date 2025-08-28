@@ -36,6 +36,13 @@ This bot helps freelancers automate the complete process of:
 - **Cost Tracking**: Monitors token usage and costs for all generated applications
 - **Manual Override**: Command-line options for manual application generation
 
+### 🗂️ Intelligent File Purging
+- **Granular Retention**: Different retention periods for each project status and file type
+- **Automatic Cleanup**: Integrated into main workflow for logs and temporary files
+- **Smart Timestamp Detection**: Uses filename timestamps or creation time for accurate age calculation
+- **Safety Features**: Dry-run mode, confirmation prompts, and comprehensive exclusions
+- **Manual Control**: Command-line options for targeted purging of specific categories
+
 ### 🔧 Multi-LLM Support
 - OpenAI GPT models
 - Anthropic Claude
@@ -107,6 +114,30 @@ application_generator:
     availability: "sofort, vollzeit, remote und vor Ort"
 ```
 
+### File Purging Configuration
+Configure automatic file cleanup with granular retention periods:
+
+```yaml
+purging:
+ enabled: true
+ dry_run: false  # Set to true for safe testing
+
+ # Retention periods in days for different file types
+ retention_periods:
+   logs: 30                    # Log files older than 30 days
+   projects_rejected: 1        # Rejected projects: 1 day
+   projects_accepted: 14       # Accepted projects: 14 days
+   projects_applied: 90        # Applied projects: 90 days
+   projects: 90                # General projects: 90 days
+   applications: 180           # Application data: 180 days
+   temp_files: 7               # Temporary files: 7 days
+   backups: 365                # Backup files: 1 year
+
+ # Safety settings
+ max_deletions_per_run: 1000   # Maximum files to delete in one run
+ confirmation_required: true   # Require user confirmation before deletion
+```
+
 ## Usage
 
 ### Complete Workflow (Recommended)
@@ -176,6 +207,53 @@ python dashboard/generate_dashboard_data.py
 # View dashboard: open dashboard/dashboard.html in your browser
 ```
 
+### File Purging
+
+#### Automatic Purging (Integrated)
+```bash
+# Complete workflow with automatic purging of logs and temp files
+python main.py
+
+# Skip automatic purging for this run
+python main.py --no-purge
+```
+
+#### Manual Purging
+```bash
+# Preview what would be purged (safe, no deletion)
+python file_purger.py --preview
+
+# Purge specific categories
+python file_purger.py --categories projects_rejected    # 1-day retention
+python file_purger.py --categories projects_accepted    # 14-day retention
+python file_purger.py --categories projects_applied     # 90-day retention
+python file_purger.py --categories logs                 # 30-day retention
+
+# Purge multiple categories
+python file_purger.py --categories projects_rejected projects_accepted logs
+
+# Dry-run mode (show what would be deleted without actually deleting)
+python file_purger.py --dry-run --categories projects_rejected
+
+# Force purge without confirmation prompts
+python file_purger.py --force --categories projects_rejected
+
+# Clean up empty directories after purging
+python file_purger.py --cleanup-dirs --categories projects_rejected
+```
+
+#### Advanced Purging Options
+```bash
+# Purge all categories with confirmation
+python file_purger.py
+
+# Quiet mode (suppress progress output)
+python file_purger.py --quiet --categories logs
+
+# Use custom configuration file
+python file_purger.py --config custom_config.yaml --categories projects_rejected
+```
+
 ## Project Structure
 
 ```
@@ -184,6 +262,7 @@ bewerbungs-bot/
 ├── rss_helper.py             # RSS feed processing
 ├── evaluate_projects.py      # Project evaluation engine
 ├── application_generator.py  # Application generation engine
+├── file_purger.py            # Intelligent file purging system
 ├── parse_html.py             # HTML parsing utilities
 ├── config.yaml               # Configuration (not in git)
 ├── cv.md                     # Your CV (not in git)
@@ -225,11 +304,20 @@ bewerbungs-bot/
    - Dashboard HTML file is updated with latest data
 
 5. **Management Phase:**
-   - Open `dashboard/dashboard.html` to review all processed projects
-   - Filter and sort projects by status (accepted/rejected/applied), scores, or dates
-   - View generated applications directly in project files
-   - Track application costs and token usage
-   - Monitor application generation success rates
+    - Open `dashboard/dashboard.html` to review all processed projects
+    - Filter and sort projects by status (accepted/rejected/applied), scores, or dates
+    - View generated applications directly in project files
+    - Track application costs and token usage
+    - Monitor application generation success rates
+
+6. **Purging Phase:** *(Automatic & Manual)*
+    - **Automatic**: Logs and temporary files are cleaned up during main workflow
+    - **Granular Control**: Different retention periods for each project status:
+      - Rejected projects: 1 day (aggressive cleanup)
+      - Accepted projects: 14 days (moderate retention)
+      - Applied projects: 90 days (long-term reference)
+    - **Smart Detection**: Uses filename timestamps or creation time for accurate age calculation
+    - **Manual Control**: Command-line options for targeted purging of specific categories
 
 ## Advanced Features
 
@@ -282,6 +370,34 @@ The dashboard is a self-contained HTML file that can be:
 - Extended with additional JavaScript features
 - Deployed to any web server if needed
 - Enhanced with application-specific visualizations
+
+### Intelligent File Purging System
+Manage storage efficiently with configurable retention policies:
+
+**Key Features:**
+- **Granular Control**: Separate retention periods for each project status and file type
+- **Smart Age Detection**: Uses filename timestamps (e.g., `20250827_104303`) or creation time for accurate age calculation
+- **Safety First**: Dry-run mode, confirmation prompts, and comprehensive exclusion patterns
+- **Automatic Integration**: Runs automatically during main workflow for logs and temp files
+- **Manual Control**: Command-line options for targeted cleanup of specific categories
+
+**Retention Examples:**
+```bash
+# Aggressive cleanup for rejected projects (1 day)
+python file_purger.py --categories projects_rejected
+
+# Moderate retention for accepted projects (14 days)
+python file_purger.py --categories projects_accepted
+
+# Long-term retention for applied projects (90 days)
+python file_purger.py --categories projects_applied
+```
+
+**Safety Features:**
+- Preview mode to see what would be deleted without actually deleting
+- Confirmation prompts (can be bypassed with `--force`)
+- Comprehensive exclusion patterns to protect important files
+- Maximum deletion limits per run to prevent accidents
 
 ## Security
 

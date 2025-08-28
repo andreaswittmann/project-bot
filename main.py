@@ -7,6 +7,7 @@ from pathlib import Path
 from rss_helper import generate_rss_urls, fetch_and_process_rss
 import evaluate_projects
 from application_generator import create_application_generator, load_application_config
+from file_purger import FilePurger
 
 
 def load_cv_content(cv_file: str) -> str:
@@ -107,6 +108,79 @@ def generate_applications_for_accepted_projects(config_path: str, cv_content: st
 
     except Exception as e:
         print(f"❌ Error during application generation: {e}")
+
+
+def handle_file_purging(args) -> None:
+    """
+    Handle file purging operations.
+
+    Args:
+        args: Parsed command-line arguments
+    """
+    try:
+        print("🗑️  Initializing File Purger...")
+
+        # Create purger instance
+        purger = FilePurger(args.config)
+
+        # Override dry-run if specified
+        if args.purge_dry_run:
+            purger.config['dry_run'] = True
+
+        # Determine categories to purge
+        categories = args.purge if args.purge else None
+
+        if args.purge_preview:
+            # Show preview
+            print("\n🔍 Generating purge preview...")
+            preview = purger.get_purge_preview(categories)
+
+            print("\n📋 File Purge Preview:")
+            print("=" * 60)
+
+            total_files = 0
+            for category, files in preview.items():
+                if files:
+                    retention_days = purger.config['retention_periods'][category]
+                    print(f"\n📁 {category.title()} (>{retention_days} days old, {len(files)} files):")
+                    for file_path, age_days in files[:10]:  # Show first 10 files
+                        print(f"   • {file_path} ({age_days:.1f} days old)")
+                    if len(files) > 10:
+                        print(f"   ... and {len(files) - 10} more files")
+                    total_files += len(files)
+                else:
+                    print(f"\n📁 {category.title()}: No files to purge")
+
+            print(f"\n📊 Total files to purge: {total_files}")
+
+            if total_files > 0 and not args.purge_dry_run:
+                print("\n💡 Use --purge-dry-run to test deletion safely")
+                print("💡 Use --purge-force to skip confirmation prompts")
+
+        else:
+            # Execute purge
+            print(f"\n🗑️  Starting file purge...")
+            if purger.config['dry_run']:
+                print("🔍 DRY RUN MODE - No files will be deleted")
+
+            force = args.purge_force
+            stats = purger.purge_files(categories=categories, force=force, interactive=True)
+
+            # Cleanup empty directories
+            print("\n🧹 Cleaning up empty directories...")
+            removed_dirs = purger.cleanup_empty_directories()
+            if removed_dirs > 0:
+                print(f"✅ Removed {removed_dirs} empty directories")
+
+            print("\n🎉 File purging completed!")
+            if stats.get('total_deleted', 0) > 0:
+                print(f"📊 Summary: {stats.get('total_deleted', 0)} files deleted")
+                if stats.get('errors', 0) > 0:
+                    print(f"⚠️  {stats.get('errors', 0)} errors occurred")
+
+    except Exception as e:
+        print(f"❌ Error during file purging: {e}")
+        sys.exit(1)
 
 
 def handle_manual_application_generation(args) -> None:
@@ -216,8 +290,25 @@ Examples:
                         help="Path to CV file (default: cv.md)")
     parser.add_argument("--config", default="config.yaml",
                         help="Path to configuration file (default: config.yaml)")
+
+    # File purging arguments
+    parser.add_argument("--purge", nargs="*", metavar="CATEGORY",
+                        help="Purge old files by category (logs, projects, applications, temp_files, backups) or all if no category specified")
+    parser.add_argument("--purge-dry-run", action="store_true",
+                        help="Show what files would be purged without actually deleting them")
+    parser.add_argument("--purge-force", action="store_true",
+                        help="Skip confirmation prompts when purging files")
+    parser.add_argument("--purge-preview", action="store_true",
+                        help="Show preview of files that would be purged")
+    parser.add_argument("--no-purge", action="store_true",
+                        help="Skip automatic file purging")
     
     args = parser.parse_args()
+
+    # Handle file purging first
+    if args.purge is not None or args.purge_preview:
+        handle_file_purging(args)
+        sys.exit(0)
 
     # Handle manual application generation first
     if args.generate_applications is not None:
@@ -288,6 +379,27 @@ Examples:
             print(f"Error details: {e.stderr.strip()}")
     except FileNotFoundError:
         print("⚠️  Warning: Dashboard generation script not found at 'dashboard/generate_dashboard_data.py'")
+
+    # After dashboard update, run automatic file purging (unless disabled)
+    if not args.no_purge:
+        try:
+            print("\n🗑️  Running automatic file purging...")
+            purger = FilePurger(args.config)
+
+            # Only purge logs and temp files automatically to be safe
+            auto_categories = ['logs', 'temp_files']
+            stats = purger.purge_files(categories=auto_categories, force=True, interactive=False)
+
+            if stats.get('total_deleted', 0) > 0:
+                print(f"✅ Automatic purge completed: {stats.get('total_deleted', 0)} files cleaned up")
+            else:
+                print("ℹ️  No files needed purging")
+
+        except Exception as e:
+            print(f"⚠️  Warning: Automatic file purging failed: {e}")
+            print("   Continuing with workflow completion...")
+    else:
+        print("\n⏭️  Skipping automatic file purging (--no-purge flag set)")
 
     print("\n🎉 Complete workflow finished!")
     print("📊 View your dashboard: open dashboard/dashboard.html in your browser")
