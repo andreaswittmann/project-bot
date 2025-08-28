@@ -88,19 +88,27 @@ pre_evaluation:
 
 ## Usage
 
-### Basic Project Scraping
+### Complete Workflow (Recommended)
 ```bash
-# Scrape 5 projects from Germany
+# Complete workflow: scrape → evaluate → update dashboard
 python main.py
 
-# Scrape 10 projects from multiple regions
+# Scrape 10 projects from multiple regions with full workflow
 python main.py -n 10 -r germany switzerland austria
 
-# Scrape from all regions
+# Scrape from all regions with full workflow
 python main.py -r all
 ```
 
-### Evaluation Only
+**What happens:**
+1. Scrapes projects from RSS feeds
+2. Evaluates projects using AI
+3. **Automatically updates dashboard data**
+4. Ready to view results in `dashboard/dashboard.html`
+
+### Individual Components
+
+#### Evaluation Only
 ```bash
 # Evaluate all projects in projects/ directory
 python evaluate_projects.py
@@ -112,12 +120,12 @@ python evaluate_projects.py projects/project_file.md
 python evaluate_projects.py --pre-eval-only
 ```
 
-### Dashboard
+#### Dashboard Update
 ```bash
-# Generate dashboard data
+# Manually update dashboard data
 python dashboard/generate_dashboard_data.py
 
-# Open dashboard/dashboard.html in your browser
+# View dashboard: open dashboard/dashboard.html in your browser
 ```
 
 ## Project Structure
@@ -156,10 +164,16 @@ bewerbungs-bot/
    - Projects passing threshold get full LLM evaluation
    - Files automatically sorted into `projects_accepted/` or `projects_rejected/`
 
-3. **Management Phase:**
-   - Use dashboard to review accepted projects
+3. **Dashboard Update Phase:** *(Automatic)*
+   - Dashboard data is automatically generated after evaluation
+   - All project scores, statuses, and metadata are consolidated
+   - Dashboard HTML file is updated with latest data
+
+4. **Management Phase:**
+   - Open `dashboard/dashboard.html` to review all processed projects
+   - Filter and sort projects by status, scores, or dates
    - Mark projects as "applied" when you submit applications
-   - Track application status and outcomes
+   - Track application status and outcomes over time
 
 ## Advanced Features
 

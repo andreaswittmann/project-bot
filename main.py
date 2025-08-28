@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import argparse
+import subprocess
 import sys
 from rss_helper import generate_rss_urls, fetch_and_process_rss
 import evaluate_projects
@@ -45,3 +46,22 @@ Examples:
     # Clear argv to prevent evaluate_projects.py from parsing parent script's arguments
     sys.argv = [sys.argv[0]]
     evaluate_projects.main()
+    
+    # After evaluation, update the dashboard data
+    print("\nUpdating dashboard data...")
+    try:
+        result = subprocess.run([
+            sys.executable, "dashboard/generate_dashboard_data.py"
+        ], capture_output=True, text=True, check=True)
+        print("✅ Dashboard data updated successfully")
+        if result.stdout:
+            print(result.stdout.strip())
+    except subprocess.CalledProcessError as e:
+        print(f"⚠️  Warning: Dashboard update failed: {e}")
+        if e.stderr:
+            print(f"Error details: {e.stderr.strip()}")
+    except FileNotFoundError:
+        print("⚠️  Warning: Dashboard generation script not found at 'dashboard/generate_dashboard_data.py'")
+    
+    print("\n🎉 Complete workflow finished!")
+    print("📊 View your dashboard: open dashboard/dashboard.html in your browser")
