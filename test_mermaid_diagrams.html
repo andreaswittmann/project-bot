@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mermaid Diagrams Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .diagram-container {
+            background: white;
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+        .mermaid {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>Bewerbungs-Bot Workflow Diagrams Test</h1>
+    
+    <div class="diagram-container">
+        <h2>Complete System Flow</h2>
+        <div class="mermaid">
+flowchart TD
+    A["Start: python main.py"] --> B["Generate RSS URLs"]
+    B --> C["Fetch & Process RSS"]
+    C --> D["Save to projects/ directory"]
+    D --> E["Run evaluate_projects.py"]
+    
+    E --> F{"Pre-evaluation"}
+    F -->|Pass| G["LLM Evaluation"]
+    F -->|Fail| H["Move to projects_rejected/"]
+    
+    G --> I{"Fit Score >= 85%?"}
+    I -->|Yes| J["Move to projects_accepted/"]
+    I -->|No| H
+    
+    J --> K{"Application Generator Enabled?"}
+    K -->|No| P["Update Dashboard"]
+    K -->|Yes| L{"Fit Score >= 90%?"}
+    
+    L -->|No| P
+    L -->|Yes| M["Generate Application"]
+    
+    M --> N["Append to Markdown"]
+    N --> O["Move to projects_applied/"]
+    O --> P["Update Dashboard"]
+    
+    H --> P
+    P --> Q["Complete"]
+
+    style M fill:#e1f5fe
+    style N fill:#e8f5e8
+    style O fill:#fff3e0
+    style P fill:#f3e5f5
+        </div>
+    </div>
+
+    <div class="diagram-container">
+        <h2>Application Generation Detail Flow</h2>
+        <div class="mermaid">
+flowchart TD
+    A["Project in projects_accepted/"] --> B["Load Application Config"]
+    B --> C["Validate Fit Score >= 90%"]
+    C --> D{"Score Check"}
+    D -->|Fail| E["Skip - Log Decision"]
+    D -->|Pass| F["Load CV Content"]
+    
+    F --> G["Extract Project Metadata"]
+    G --> H["Generate Application with LLM"]
+    H --> I["Format Application Section"]
+    I --> J["Append to Markdown File"]
+    J --> K["Move to projects_applied/"]
+    K --> L["Log Success & Costs"]
+    
+    E --> M["End"]
+    L --> M
+
+    style H fill:#ffecb3
+    style J fill:#e8f5e8
+    style K fill:#fff3e0
+        </div>
+    </div>
+
+    <div class="diagram-container">
+        <h2>Manual Application Generation Flow</h2>
+        <div class="mermaid">
+flowchart TD
+    A["python main.py --generate-applications"] --> B["Parse Command Arguments"]
+    B --> C{"Specific Files?"}
+    C -->|Yes| D["Process Specified Files"]
+    C -->|No| E["Process All Accepted Projects"]
+    
+    D --> F["For Each File"]
+    E --> F
+    F --> G["Load Project Content"]
+    G --> H["Generate Application"]
+    H --> I["Append to File"]
+    I --> J["Move to Applied"]
+    J --> K["Update Dashboard"]
+    K --> L{"More Files?"}
+    L -->|Yes| F
+    L -->|No| M["Complete"]
+
+    style H fill:#ffecb3
+    style I fill:#e8f5e8
+    style J fill:#fff3e0
+        </div>
+    </div>
+
+    <div class="diagram-container">
+        <h2>Configuration Structure</h2>
+        <div class="mermaid">
+graph TD
+    A["config.yaml"] --> B["llm: Project Evaluation"]
+    A --> C["settings: General Settings"]
+    A --> D["pre_evaluation: Filtering Rules"]
+    A --> E["application_generator: NEW"]
+    
+    E --> F["enabled: true"]
+    E --> G["auto_generation_threshold: 90"]
+    E --> H["llm: Independent LLM Config"]
+    E --> I["template: German Template Settings"]
+    
+    H --> J["provider: Anthropic"]
+    H --> K["model: claude-sonnet-4-20250514"]
+    H --> L["api_key: API Key"]
+    
+    I --> M["salary_expectation"]
+    I --> N["availability"]
+    I --> O["custom_sections"]
+
+    style E fill:#e1f5fe
+    style H fill:#ffecb3
+    style I fill:#e8f5e8
+        </div>
+    </div>
+
+    <div class="diagram-container">
+        <h2>Error Handling Flow</h2>
+        <div class="mermaid">
+flowchart TD
+    A["Application Generation Request"] --> B["Validate Configuration"]
+    B --> C{"Config Valid?"}
+    C -->|No| D["Log Error - Skip"]
+    C -->|Yes| E["Load CV Content"]
+    
+    E --> F{"CV Loaded?"}
+    F -->|No| G["Log Error - Skip"]  
+    F -->|Yes| H["Call LLM API"]
+    
+    H --> I{"API Success?"}
+    I -->|No| J["Retry with Backoff"]
+    J --> K{"Retry Success?"}
+    K -->|No| L["Log Error - Skip"]
+    K -->|Yes| M["Process Response"]
+    I -->|Yes| M
+    
+    M --> N["Append to File"]
+    N --> O{"File Write Success?"}
+    O -->|No| P["Log Error - Rollback"]
+    O -->|Yes| Q["Move to Applied"]
+    
+    Q --> R{"Move Success?"}
+    R -->|No| S["Log Error - Manual Intervention"]
+    R -->|Yes| T["Success - Update Dashboard"]
+    
+    D --> U["End"]
+    G --> U
+    L --> U
+    P --> U
+    S --> U
+    T --> U
+
+    style J fill:#fff3e0
+    style P fill:#ffcdd2
+    style S fill:#ffcdd2
+        </div>
+    </div>
+
+    <script>
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'default',
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true
+            }
+        });
+    </script>
+</body>
+</html>
