@@ -18,6 +18,8 @@
         }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 2rem; background-color: #fafafa; }
         h1 { text-align: center; color: #333; }
+        .header-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        #last-updated { font-size: 0.8rem; color: #666; background-color: #f0f0f0; padding: 0.3rem 0.6rem; border-radius: 4px; }
         #dashboard-controls { display: flex; justify-content: space-between; align-items: stretch; margin-bottom: 1rem; padding: 1rem; background: #fff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); gap: 1rem; }
         .control-group { border: 1px solid #e0e0e0; padding: 0.75rem; border-radius: 6px; display: flex; flex-direction: column; gap: 0.5rem; }
         .control-group legend { font-weight: bold; padding: 0 0.25rem; font-size: 0.9rem; color: #333; }
@@ -39,7 +41,10 @@
 </head>
 <body>
 
-    <h1>Project Application Dashboard</h1>
+    <div class="header-container">
+        <h1>Project Application Dashboard</h1>
+        <div id="last-updated">Last Updated: Loading...</div>
+    </div>
 
     <div id="dashboard-controls">
         <fieldset class="control-group">
@@ -103,8 +108,8 @@
     <script id="project-data-script">
 // --- DATA START ---
 const projectData = {
-  "generated_at": "2025-08-28T11:25:27.282386",
-  "total_projects": 46,
+  "generated_at": "2025-08-28T11:33:10.339448",
+  "total_projects": 51,
   "projects": [
     {
       "id": "20250827_164939_Junior_oder_Senior_AILLM_Engineer",
@@ -133,6 +138,19 @@ const projectData = {
       "application_date": null
     },
     {
+      "id": "20250828_113258_90%_Remote__Python_Entwickler___Architekt_(m_w_d)_Automatisierung_&_IT-Security_-_Kostenl._Einarbeit",
+      "title": "90% Remote: Python Entwickler / Architekt (m/w/d) Automatisierung & IT-Security - Kostenl. Einarbeit",
+      "retrieval_date": "2025-08-28T11:32:58",
+      "eingestellt_date": "2025-08-28",
+      "pre_eval_score": 25,
+      "llm_score": 85,
+      "status": "accepted",
+      "file_path": "projects_accepted/20250828_113258_90%_Remote__Python_Entwickler___Architekt_(m_w_d)_Automatisierung_&_IT-Security_-_Kostenl._Einarbeit.md",
+      "url": "https://www.freelancermap.de/projekt/90-prozent-remote-python-entwickler-architekt-m-w-d-automatisierung-und-it-security-kostenl-einarbeit?ref=rss",
+      "company": "Nemensis AG",
+      "application_date": null
+    },
+    {
       "id": "20250827_105449_SAPI-248_Expert_Business-Analyst_in___BizDevOps_Engineer_(Business_Job)",
       "title": "SAPI-248 Expert Business-Analyst:in / BizDevOps Engineer (Business Job)",
       "retrieval_date": "2025-08-27T10:54:49",
@@ -143,6 +161,19 @@ const projectData = {
       "file_path": "projects_accepted/20250827_105449_SAPI-248_Expert_Business-Analyst_in___BizDevOps_Engineer_(Business_Job).md",
       "url": "https://www.freelancermap.ch/projekt/sapi-248-expert-business-analyst-in-bizdevops-engineer-business-job?ref=rss",
       "company": "Yes and Why GmbH",
+      "application_date": null
+    },
+    {
+      "id": "20250828_113258_Cloud_Engineer,_Software_Developer",
+      "title": "Cloud Engineer, Software Developer",
+      "retrieval_date": "2025-08-28T11:32:58",
+      "eingestellt_date": "2025-08-28",
+      "pre_eval_score": 23,
+      "llm_score": 85,
+      "status": "accepted",
+      "file_path": "projects_accepted/20250828_113258_Cloud_Engineer,_Software_Developer.md",
+      "url": "https://www.freelancermap.de/projekt/cloud-engineer-software-developer?ref=rss",
+      "company": "Robert Bosch GmbH",
       "application_date": null
     },
     {
@@ -234,6 +265,19 @@ const projectData = {
       "file_path": "projects_rejected/20250827_110825_SAP_PP_Senior_Berater___Stream_Lead_(m_w_d).md",
       "url": "https://www.freelancermap.de/projekt/sap-pp-senior-berater-stream-lead-m-w-d?ref=rss",
       "company": "Peak One GmbH",
+      "application_date": null
+    },
+    {
+      "id": "20250828_113257_Kreditanalyst_(m_w_d)",
+      "title": "Kreditanalyst (m/w/d)",
+      "retrieval_date": "2025-08-28T11:32:57",
+      "eingestellt_date": "2025-08-28",
+      "pre_eval_score": 3,
+      "llm_score": null,
+      "status": "rejected",
+      "file_path": "projects_rejected/20250828_113257_Kreditanalyst_(m_w_d).md",
+      "url": "https://www.freelancermap.de/projekt/kreditanalyst-m-w-d-2913331?ref=rss",
+      "company": "Randstad Professional GmbH (vorm. GULP)",
       "application_date": null
     },
     {
@@ -351,6 +395,19 @@ const projectData = {
       "file_path": "projects_rejected/20250827_105448_Laboratory_Technician_(m_w_d).md",
       "url": "https://www.freelancermap.ch/projekt/laboratory-technician-m-w-d-2912723?ref=rss",
       "company": "ITech Consult AG",
+      "application_date": null
+    },
+    {
+      "id": "20250828_113258_Supplier_Performance_Manager_-_Hamburg_Germany",
+      "title": "Supplier Performance Manager -  Hamburg Germany",
+      "retrieval_date": "2025-08-28T11:32:58",
+      "eingestellt_date": "2025-08-28",
+      "pre_eval_score": 9,
+      "llm_score": null,
+      "status": "rejected",
+      "file_path": "projects_rejected/20250828_113258_Supplier_Performance_Manager_-_Hamburg_Germany.md",
+      "url": "https://www.freelancermap.de/projekt/supplier-performance-manager-hamburg-germany?ref=rss",
+      "company": "AMM ENTERPRISE GmbH",
       "application_date": null
     },
     {
@@ -588,6 +645,19 @@ const projectData = {
       "application_date": null
     },
     {
+      "id": "20250828_113257_OSPlus_Kredit_Experte_(m_w_d)",
+      "title": "OSPlus Kredit Experte (m/w/d)",
+      "retrieval_date": "2025-08-28T11:32:57",
+      "eingestellt_date": "2025-08-28",
+      "pre_eval_score": 6,
+      "llm_score": null,
+      "status": "rejected",
+      "file_path": "projects_rejected/20250828_113257_OSPlus_Kredit_Experte_(m_w_d).md",
+      "url": "https://www.freelancermap.de/projekt/osplus-kredit-experte-m-w-d?ref=rss",
+      "company": "Akkodis Germany Tech Freelance GmbH",
+      "application_date": null
+    },
+    {
       "id": "20250827_105450_SAP_S_4HANA_Embedded_Analytics_Consultant_(f_m_x)",
       "title": "SAP S/4HANA Embedded Analytics Consultant (f/m/x)",
       "retrieval_date": "2025-08-27T10:54:50",
@@ -757,6 +827,10 @@ const projectData = {
                 try {
                     if (typeof projectData !== 'undefined' && projectData && projectData.projects) {
                         allProjects = projectData.projects;
+                        if (projectData.generated_at) {
+                            const lastUpdated = new Date(projectData.generated_at).toLocaleString();
+                            document.getElementById('last-updated').textContent = `Last Updated: ${lastUpdated}`;
+                        }
                         renderTable();
                     } else {
                          throw new Error("Project data is not defined or invalid.");
