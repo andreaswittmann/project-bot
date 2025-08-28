@@ -25,7 +25,7 @@ Examples:
    python main.py -o ./output_folder
 """
     )
-    parser.add_argument("-r", "--regions", nargs="+", default=["germany"],
+    parser.add_argument("-r", "--regions", nargs="+", default=["germany", "austria", "switzerland"],
                        choices=["international", "austria", "switzerland", "germany", "all"],
                        help="Regions to search in")
     parser.add_argument("-n", "--number", type=int, default=5, help="Number of projects to scrape")
