@@ -130,7 +130,7 @@ def execute_script(script_name, params=None):
 
         # Test the command manually to see if it works
         try:
-            test_cmd = ['python', 'application_generator.py', 'projects_rejected/20250829_105201_SAPI-249_Senior_Programmleiter_in_Projektleiter_in_für_AI@IT_(IT_Governance).md']
+            test_cmd = ['python', 'application_generator.py', 'projects/20250829_105201_SAPI-249_Senior_Programmleiter_in_Projektleiter_in_für_AI@IT_(IT_Governance).md']
             print(f"DEBUG: Testing command manually: {' '.join(test_cmd)}")
             test_result = subprocess.run(test_cmd, capture_output=True, text=True, timeout=10)
             print(f"DEBUG: Manual test return code: {test_result.returncode}")
@@ -180,20 +180,7 @@ def dashboard_files(filename):
     except FileNotFoundError:
         return f"File not found: {filename}", 404
 
-@app.route('/projects_accepted/<path:filename>')
-def serve_accepted_projects(filename):
-    """Serve files from projects_accepted directory"""
-    return serve_file_with_headers('projects_accepted', filename)
-
-@app.route('/projects_rejected/<path:filename>')
-def serve_rejected_projects(filename):
-    """Serve files from projects_rejected directory"""
-    return serve_file_with_headers('projects_rejected', filename)
-
-@app.route('/projects_applied/<path:filename>')
-def serve_applied_projects(filename):
-    """Serve files from projects_applied directory"""
-    return serve_file_with_headers('projects_applied', filename)
+# Single projects directory route - clean and simple
 
 @app.route('/projects/<path:filename>')
 def serve_projects(filename):
