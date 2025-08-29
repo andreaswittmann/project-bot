@@ -290,22 +290,86 @@ def load_and_validate_project(project_path: str, log: Callable[[str], None]) -> 
     return project_content
 
 
+def append_evaluation_results_to_markdown(project_path: str, pre_eval_score: int, pre_eval_rationale: str,
+                                        fit_score: int, rationale_text: str, final_decision: str,
+                                        acceptance_threshold: int, config: Dict[str, Any], log: Callable[[str], None]) -> bool:
+    """
+    Append LLM validation rationale and statistics to the project markdown file.
+
+    Args:
+        project_path: Path to the project file
+        pre_eval_score: Pre-evaluation score (0-100)
+        pre_eval_rationale: Pre-evaluation rationale text
+        fit_score: LLM fit score (0-100)
+        rationale_text: LLM evaluation rationale text
+        final_decision: Final decision ('accepted' or 'rejected')
+        acceptance_threshold: Acceptance threshold used
+        log: Logging function
+
+    Returns:
+        True if append was successful, False otherwise
+    """
+    try:
+        # Read the original content
+        with open(project_path, 'r', encoding='utf-8') as f:
+            original_content = f.read()
+
+        # Create evaluation results section
+        evaluation_section = f"""
+
+---
+
+## 🤖 AI Evaluation Results
+
+**Evaluation Timestamp:** {datetime.now().isoformat()}
+
+### Pre-Evaluation Phase
+- **Score:** {pre_eval_score}/100
+- **Threshold:** {config.get('pre_evaluation', {}).get('acceptance_threshold', 50)}/100
+- **Result:** {'✅ Passed' if pre_eval_score >= config.get('pre_evaluation', {}).get('acceptance_threshold', 50) else '❌ Failed'}
+- **Rationale:** {pre_eval_rationale}
+
+### LLM Analysis Phase
+- **Fit Score:** {fit_score}/100
+- **Acceptance Threshold:** {acceptance_threshold}/100
+- **Final Decision:** {'✅ ACCEPTED' if final_decision == 'accepted' else '❌ REJECTED'}
+
+#### Detailed Rationale
+{rationale_text}
+
+---
+"""
+
+        # Append evaluation results to the file
+        with open(project_path, 'w', encoding='utf-8') as f:
+            f.write(original_content + evaluation_section)
+
+        log(f"Evaluation results appended to markdown file.")
+        return True
+
+    except Exception as e:
+        error_msg = f"Error appending evaluation results to markdown: {e}"
+        log(error_msg)
+        print(error_msg)
+        return False
+
+
 def move_project_file(project_path: str, dest_folder: str, log: Callable[[str], None]) -> bool:
     """
     Move project file to destination folder.
-    
+
     Args:
         project_path: Current path of the project file
         dest_folder: Destination folder name
         log: Logging function
-        
+
     Returns:
         True if move was successful, False otherwise
     """
     project_filename = os.path.basename(project_path)
     Path(dest_folder).mkdir(exist_ok=True)
     destination_path = os.path.join(dest_folder, project_filename)
-    
+
     try:
         shutil.move(project_path, destination_path)
         log(f"File moved to '{destination_path}'.")
@@ -401,9 +465,20 @@ def process_project_file(project_path: str, config: Dict[str, Any], cv_content: 
     # Handle pre-eval-only mode
     if config.get('pre_eval_only', False):
         log(f"Result: Pre-evaluation only mode. Score: {pre_eval_score}%.")
+
+        # Append pre-evaluation results to markdown file
+        acceptance_threshold = config.get('settings', {}).get('acceptance_threshold', 85)
+        final_decision = 'accepted' if pre_eval_score >= config.get('pre_evaluation', {}).get('acceptance_threshold', 50) else 'rejected'
+        append_success = append_evaluation_results_to_markdown(
+            project_path, pre_eval_score, pre_eval_rationale,
+            0, "LLM evaluation skipped (pre-evaluation only mode)", final_decision, acceptance_threshold, config, log
+        )
+
         success = move_project_file(project_path, dest_folder, log)
         if success:
             print(f"-> Processed {project_filename} | Pre-eval Score: {pre_eval_score:<3}% | Moved to '{dest_folder}'")
+            if append_success:
+                print(f"   ✓ Pre-evaluation results appended to markdown")
         log("Evaluation finished.")
         log("=" * 50 + "\n")
         return
@@ -411,9 +486,19 @@ def process_project_file(project_path: str, config: Dict[str, Any], cv_content: 
     # Handle pre-evaluation failure
     if not passed_pre_eval:
         log("Result: Rejected based on pre-evaluation.")
+
+        # Append pre-evaluation results to markdown file
+        acceptance_threshold = config.get('settings', {}).get('acceptance_threshold', 85)
+        append_success = append_evaluation_results_to_markdown(
+            project_path, pre_eval_score, pre_eval_rationale,
+            0, "LLM evaluation skipped (failed pre-evaluation)", 'rejected', acceptance_threshold, config, log
+        )
+
         success = move_project_file(project_path, dest_folder, log)
         if success:
             print(f"-> Processed {project_filename} | Pre-eval Score: {pre_eval_score:<3}% | Moved to '{dest_folder}'")
+            if append_success:
+                print(f"   ✓ Pre-evaluation results appended to markdown")
         log("Evaluation finished.")
         log("=" * 50 + "\n")
         return
@@ -421,15 +506,24 @@ def process_project_file(project_path: str, config: Dict[str, Any], cv_content: 
     # Proceed with LLM evaluation
     log("Result: Passed pre-evaluation. Proceeding to LLM analysis.")
     fit_score, rationale_text = handle_llm_evaluation(cv_content, project_content, config, log)
-    
+
     # Final decision and file move
     acceptance_threshold = config.get('settings', {}).get('acceptance_threshold', 85)
     final_dest_folder = 'projects_accepted' if fit_score >= acceptance_threshold else 'projects_rejected'
-    
+    final_decision = 'accepted' if fit_score >= acceptance_threshold else 'rejected'
+
+    # Append evaluation results to markdown file
+    append_success = append_evaluation_results_to_markdown(
+        project_path, pre_eval_score, pre_eval_rationale,
+        fit_score, rationale_text, final_decision, acceptance_threshold, config, log
+    )
+
     success = move_project_file(project_path, final_dest_folder, log)
     if success:
         print(f"-> Processed {project_filename} | Score: {fit_score:>3}% | Moved to '{final_dest_folder}'")
-    
+        if append_success:
+            print(f"   ✓ Evaluation results appended to markdown")
+
     log("Evaluation finished.")
     log("=" * 50 + "\n")
 
