@@ -74,6 +74,33 @@
             border-color: #6c757d;
         }
 
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+            border-color: #6c757d;
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: #007bff;
+            border-color: #007bff;
+        }
+
+        .btn-outline:hover {
+            background: #007bff;
+            color: white;
+        }
+
+        .btn-move {
+            font-size: 0.75rem;
+            padding: 0.2rem 0.4rem;
+        }
+
+        .btn-script {
+            font-size: 0.75rem;
+            padding: 0.2rem 0.4rem;
+        }
+
         .btn-generate {
             background: #007bff;
             color: white;
@@ -187,6 +214,24 @@
                 <!-- Presets will be loaded here -->
             </select>
         </fieldset>
+
+        <fieldset class="control-group">
+            <legend>Actions</legend>
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                <button class="btn btn-primary" onclick="executeScript('main')" data-script="main">
+                    Run Full Workflow
+                </button>
+                <button class="btn btn-outline" onclick="executeScript('evaluate')" data-script="evaluate">
+                    Evaluate All Projects
+                </button>
+                <button class="btn btn-outline" onclick="executeScript('generate')" data-script="generate">
+                    Generate Applications
+                </button>
+                <button class="btn btn-outline" onclick="dashboardAPI.refreshDashboard().then(result => { if(result.success) location.reload(); })">
+                    Refresh Dashboard
+                </button>
+            </div>
+        </fieldset>
     </div>
 
     <!-- Queue Status Indicator -->
@@ -216,22 +261,9 @@
     <script id="project-data-script">
 // --- DATA START ---
 const projectData = {
-  "generated_at": "2025-08-29T10:52:29.486544",
-  "total_projects": 111,
+  "generated_at": "2025-08-29T12:59:39.487151",
+  "total_projects": 119,
   "projects": [
-    {
-      "id": "test_project",
-      "title": "Test AI/ML Project",
-      "retrieval_date": null,
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": 18,
-      "llm_score": null,
-      "status": "accepted",
-      "file_path": "projects_accepted/test_project.md",
-      "url": "https://example.com/test-project",
-      "company": "Test Company",
-      "application_date": null
-    },
     {
       "id": "20250828_162706_Anforderungsmanager__Testmanager_(m_w_d)",
       "title": "Anforderungsmanager/ Testmanager (m/w/d)",
@@ -373,6 +405,19 @@ const projectData = {
       "file_path": "projects_rejected/20250828_122517_Frontend_Developer.md",
       "url": "https://www.freelancermap.de/projekt/frontend-developer-2913355?ref=rss",
       "company": "Source Group International",
+      "application_date": null
+    },
+    {
+      "id": "20250829_124952_Senior_System-_und_Cloudarchitekt_(m_w_d)_-_Open_Source_Virtualisierungsplattform_(6284)",
+      "title": "Senior System- und Cloudarchitekt (m/w/d) - Open Source Virtualisierungsplattform (6284)",
+      "retrieval_date": "2025-08-29T12:49:52",
+      "eingestellt_date": "2025-08-29",
+      "pre_eval_score": 24,
+      "llm_score": 72,
+      "status": "rejected",
+      "file_path": "projects_rejected/20250829_124952_Senior_System-_und_Cloudarchitekt_(m_w_d)_-_Open_Source_Virtualisierungsplattform_(6284).md",
+      "url": "https://www.freelancermap.de/projekt/senior-system-und-cloudarchitekt-m-w-d-open-source-virtualisierungsplattform-6284?ref=rss",
+      "company": "mindheads GmbH",
       "application_date": null
     },
     {
@@ -649,6 +694,19 @@ const projectData = {
       "application_date": null
     },
     {
+      "id": "20250829_124951_Projekteiter_(m_w_d)_Migration_CAS_Merlin_CPQ",
+      "title": "Projekteiter (m/w/d) Migration CAS Merlin CPQ",
+      "retrieval_date": "2025-08-29T12:49:51",
+      "eingestellt_date": "2025-08-29",
+      "pre_eval_score": 4,
+      "llm_score": null,
+      "status": "rejected",
+      "file_path": "projects_rejected/20250829_124951_Projekteiter_(m_w_d)_Migration_CAS_Merlin_CPQ.md",
+      "url": "https://www.freelancermap.de/projekt/projekteiter-m-w-d-migration-cas-merlin-cpq?ref=rss",
+      "company": "TCI Transformation Consulting International GmbH",
+      "application_date": null
+    },
+    {
       "id": "20250828_145742_Senior_Hardware_Typetest_Engineer_R&D_(m_w_d)",
       "title": "Senior Hardware Typetest Engineer R&D (m/w/d)",
       "retrieval_date": "2025-08-28T14:57:42",
@@ -870,6 +928,19 @@ const projectData = {
       "application_date": null
     },
     {
+      "id": "20250829_124953_IT-Infrastruktur_Architekt_für_internationales_Logistik-Startup",
+      "title": "IT-Infrastruktur Architekt für internationales Logistik-Startup",
+      "retrieval_date": "2025-08-29T12:49:53",
+      "eingestellt_date": "2025-08-29",
+      "pre_eval_score": 7,
+      "llm_score": null,
+      "status": "rejected",
+      "file_path": "projects_rejected/20250829_124953_IT-Infrastruktur_Architekt_für_internationales_Logistik-Startup.md",
+      "url": "https://www.freelancermap.at/projekt/it-infrastruktur-architekt-fuer-internationales-logistik-startup?ref=rss",
+      "company": "Eurotransline Gmbh.",
+      "application_date": null
+    },
+    {
       "id": "20250828_145746_Auftrag_A8843_-_Program_Manager_AI_@_IT_Potenzial_(contract)",
       "title": "Auftrag A8843 - Program Manager AI @ IT Potenzial (contract)",
       "retrieval_date": "2025-08-28T14:57:46",
@@ -1023,6 +1094,19 @@ const projectData = {
       "file_path": "projects_rejected/20250828_164358_Senior_IT-Projektleiter_(m_w_d)_–_System,_Datacenter_und_M365_(80-100%).md",
       "url": "https://www.freelancermap.ch/projekt/senior-it-projektleiter-m-w-d-system-datacenter-und-m365-80-100-prozent?ref=rss",
       "company": "Wavestone Germany",
+      "application_date": null
+    },
+    {
+      "id": "20250829_124951_Solution_Architect_–_Optimierung_von_IPAM_DNS_und_DevOps-Infrastrukturen_(m_w_d)",
+      "title": "Solution Architect – Optimierung von IPAM/DNS und DevOps-Infrastrukturen (m/w/d)",
+      "retrieval_date": "2025-08-29T12:49:51",
+      "eingestellt_date": "2025-08-29",
+      "pre_eval_score": 31,
+      "llm_score": 48,
+      "status": "rejected",
+      "file_path": "projects_rejected/20250829_124951_Solution_Architect_–_Optimierung_von_IPAM_DNS_und_DevOps-Infrastrukturen_(m_w_d).md",
+      "url": "https://www.freelancermap.de/projekt/solution-architect-optimierung-von-ipam-dns-und-devops-infrastrukturen-m-w-d?ref=rss",
+      "company": "freelance.de GmbH",
       "application_date": null
     },
     {
@@ -1338,6 +1422,19 @@ const projectData = {
       "application_date": null
     },
     {
+      "id": "20250829_124954_Freelancer-Unterstützung_im_Bereich_Wasser_&_Umwelttechnik",
+      "title": "Freelancer-Unterstützung im Bereich Wasser & Umwelttechnik",
+      "retrieval_date": "2025-08-29T12:49:54",
+      "eingestellt_date": "2025-08-29",
+      "pre_eval_score": 3,
+      "llm_score": null,
+      "status": "rejected",
+      "file_path": "projects_rejected/20250829_124954_Freelancer-Unterstützung_im_Bereich_Wasser_&_Umwelttechnik.md",
+      "url": "https://www.freelancermap.ch/projekt/freelancer-unterstuetzung-im-bereich-wasser-und-umwelttechnik?ref=rss",
+      "company": "TopTeam Engineering GmbH",
+      "application_date": null
+    },
+    {
       "id": "20250828_162709_ICT_Product_Owner_mit_PSP_(Personensicherheitsprüfung)",
       "title": "ICT Product Owner mit PSP (Personensicherheitsprüfung)",
       "retrieval_date": "2025-08-28T16:27:09",
@@ -1468,6 +1565,19 @@ const projectData = {
       "application_date": null
     },
     {
+      "id": "20250829_124952_Technical_Pre-Sales_Manager___Low-Code_Plattformen_-_remote_-_6_Monate_-_Start__15.09.",
+      "title": "Technical Pre-Sales Manager / Low-Code Plattformen - remote - 6 Monate - Start: 15.09.",
+      "retrieval_date": "2025-08-29T12:49:52",
+      "eingestellt_date": "2025-08-29",
+      "pre_eval_score": 8,
+      "llm_score": null,
+      "status": "rejected",
+      "file_path": "projects_rejected/20250829_124952_Technical_Pre-Sales_Manager___Low-Code_Plattformen_-_remote_-_6_Monate_-_Start__15.09..md",
+      "url": "https://www.freelancermap.de/projekt/technical-pre-sales-manager-low-code-plattformen-remote-6-monate-start-15-09?ref=rss",
+      "company": "Optimus Search GmbH",
+      "application_date": null
+    },
+    {
       "id": "20250829_105156_Baufeldfreiheitsmanager_(m_w_d)",
       "title": "Baufeldfreiheitsmanager (m/w/d)",
       "retrieval_date": "2025-08-29T10:51:56",
@@ -1494,19 +1604,6 @@ const projectData = {
       "application_date": null
     },
     {
-      "id": "20250829_105200_Senior_IT-Projektleiter_-_System,_Datacenter_&_M365",
-      "title": "Senior IT-Projektleiter - System, Datacenter & M365",
-      "retrieval_date": "2025-08-29T10:52:00",
-      "eingestellt_date": "2025-08-29",
-      "pre_eval_score": 8,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250829_105200_Senior_IT-Projektleiter_-_System,_Datacenter_&_M365.md",
-      "url": "https://www.freelancermap.ch/projekt/senior-it-projektleiter-system-datacenter-und-m365?ref=rss",
-      "company": "Pragmatica AG",
-      "application_date": null
-    },
-    {
       "id": "20250828_145740_Westhouse_Job__Assistenz_der_Geschäftsführung_(m_w_d)",
       "title": "Westhouse Job: Assistenz der Geschäftsführung (m/w/d)",
       "retrieval_date": "2025-08-28T14:57:40",
@@ -1520,6 +1617,32 @@ const projectData = {
       "application_date": null
     },
     {
+      "id": "20250829_124954_WIEN__Netzwerk_Experte_(all_genders),_Start_asap",
+      "title": "WIEN: Netzwerk Experte (all genders), Start asap",
+      "retrieval_date": "2025-08-29T12:49:54",
+      "eingestellt_date": "2025-08-29",
+      "pre_eval_score": 10,
+      "llm_score": 65,
+      "status": "rejected",
+      "file_path": "projects_rejected/20250829_124954_WIEN__Netzwerk_Experte_(all_genders),_Start_asap.md",
+      "url": "https://www.freelancermap.at/projekt/wien-netzwerk-experte-all-genders-start-asap?ref=rss",
+      "company": "Flux Consulting GmbH",
+      "application_date": null
+    },
+    {
+      "id": "20250829_124952_Infrastructure_Engineer_(m_w_d)",
+      "title": "Infrastructure Engineer (m/w/d)",
+      "retrieval_date": "2025-08-29T12:49:52",
+      "eingestellt_date": "2025-08-29",
+      "pre_eval_score": 8,
+      "llm_score": null,
+      "status": "rejected",
+      "file_path": "projects_rejected/20250829_124952_Infrastructure_Engineer_(m_w_d).md",
+      "url": "https://www.freelancermap.de/projekt/infrastructure-engineer-m-w-d-2913778?ref=rss",
+      "company": "Pont Connects e.K.",
+      "application_date": null
+    },
+    {
       "id": "20250828_162707_SAP-Berater_EDM_und_MeMi_(m_w_d)",
       "title": "SAP-Berater EDM und MeMi (m/w/d)",
       "retrieval_date": "2025-08-28T16:27:07",
@@ -1530,32 +1653,6 @@ const projectData = {
       "file_path": "projects_rejected/20250828_162707_SAP-Berater_EDM_und_MeMi_(m_w_d).md",
       "url": "https://www.freelancermap.de/projekt/sap-berater-edm-und-memi-m-w-d?ref=rss",
       "company": "SOLCOM GmbH",
-      "application_date": null
-    },
-    {
-      "id": "20250829_105201_SAPI-250_Senior_ICT-Architekt_in_für_AI@IT_(IT_Governance)",
-      "title": "SAPI-250 Senior ICT-Architekt:in für AI@IT (IT Governance)",
-      "retrieval_date": "2025-08-29T10:52:01",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": 10,
-      "llm_score": 82,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250829_105201_SAPI-250_Senior_ICT-Architekt_in_für_AI@IT_(IT_Governance).md",
-      "url": "https://www.freelancermap.ch/projekt/sapi-250-senior-ict-architekt-in-fuer-ai-it-it-governance?ref=rss",
-      "company": "Yes and Why GmbH",
-      "application_date": null
-    },
-    {
-      "id": "20250829_105201_SAPI-249_Senior_Programmleiter_in_Projektleiter_in_für_AI@IT_(IT_Governance)",
-      "title": "SAPI-249 Senior Programmleiter:in/Projektleiter:in für AI@IT (IT Governance)",
-      "retrieval_date": "2025-08-29T10:52:01",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": 7,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250829_105201_SAPI-249_Senior_Programmleiter_in_Projektleiter_in_für_AI@IT_(IT_Governance).md",
-      "url": "https://www.freelancermap.ch/projekt/sapi-249-senior-programmleiter-in-projektleiter-in-fuer-ai-it-it-governance?ref=rss",
-      "company": "Yes and Why GmbH",
       "application_date": null
     },
     {
@@ -1624,6 +1721,19 @@ const projectData = {
       "application_date": null
     },
     {
+      "id": "test_project",
+      "title": "Test AI/ML Project",
+      "retrieval_date": null,
+      "eingestellt_date": "2025-08-28",
+      "pre_eval_score": 18,
+      "llm_score": null,
+      "status": "applied",
+      "file_path": "projects_applied/test_project.md",
+      "url": "https://example.com/test-project",
+      "company": "Test Company",
+      "application_date": null
+    },
+    {
       "id": "20250827_105449_SAPI-248_Expert_Business-Analyst_in___BizDevOps_Engineer_(Business_Job)",
       "title": "SAPI-248 Expert Business-Analyst:in / BizDevOps Engineer (Business Job)",
       "retrieval_date": "2025-08-27T10:54:49",
@@ -1634,6 +1744,19 @@ const projectData = {
       "file_path": "projects_applied/20250827_105449_SAPI-248_Expert_Business-Analyst_in___BizDevOps_Engineer_(Business_Job).md",
       "url": "https://www.freelancermap.ch/projekt/sapi-248-expert-business-analyst-in-bizdevops-engineer-business-job?ref=rss",
       "company": "Yes and Why GmbH",
+      "application_date": null
+    },
+    {
+      "id": "20250829_105200_Senior_IT-Projektleiter_-_System,_Datacenter_&_M365",
+      "title": "Senior IT-Projektleiter - System, Datacenter & M365",
+      "retrieval_date": "2025-08-29T10:52:00",
+      "eingestellt_date": "2025-08-29",
+      "pre_eval_score": 12,
+      "llm_score": 75,
+      "status": "applied",
+      "file_path": "projects_applied/20250829_105200_Senior_IT-Projektleiter_-_System,_Datacenter_&_M365.md",
+      "url": "https://www.freelancermap.ch/projekt/senior-it-projektleiter-system-datacenter-und-m365?ref=rss",
+      "company": "Pragmatica AG",
       "application_date": null
     },
     {
@@ -1660,6 +1783,32 @@ const projectData = {
       "file_path": "projects_applied/20250827_104304_Embedded_Software_Entwickler_(m_w_d).md",
       "url": "https://www.freelancermap.de/projekt/embedded-software-entwickler-m-w-d-2912751?ref=rss",
       "company": "SThree",
+      "application_date": null
+    },
+    {
+      "id": "20250829_105201_SAPI-250_Senior_ICT-Architekt_in_für_AI@IT_(IT_Governance)",
+      "title": "SAPI-250 Senior ICT-Architekt:in für AI@IT (IT Governance)",
+      "retrieval_date": "2025-08-29T10:52:01",
+      "eingestellt_date": "2025-08-28",
+      "pre_eval_score": 32,
+      "llm_score": 86,
+      "status": "applied",
+      "file_path": "projects_applied/20250829_105201_SAPI-250_Senior_ICT-Architekt_in_für_AI@IT_(IT_Governance).md",
+      "url": "https://www.freelancermap.ch/projekt/sapi-250-senior-ict-architekt-in-fuer-ai-it-it-governance?ref=rss",
+      "company": "Yes and Why GmbH",
+      "application_date": null
+    },
+    {
+      "id": "20250829_105201_SAPI-249_Senior_Programmleiter_in_Projektleiter_in_für_AI@IT_(IT_Governance)",
+      "title": "SAPI-249 Senior Programmleiter:in/Projektleiter:in für AI@IT (IT Governance)",
+      "retrieval_date": "2025-08-29T10:52:01",
+      "eingestellt_date": "2025-08-28",
+      "pre_eval_score": 10,
+      "llm_score": 82,
+      "status": "applied",
+      "file_path": "projects_applied/20250829_105201_SAPI-249_Senior_Programmleiter_in_Projektleiter_in_für_AI@IT_(IT_Governance).md",
+      "url": "https://www.freelancermap.ch/projekt/sapi-249-senior-programmleiter-in-projektleiter-in-fuer-ai-it-it-governance?ref=rss",
+      "company": "Yes and Why GmbH",
       "application_date": null
     }
   ]
@@ -1882,13 +2031,228 @@ const projectData = {
         // Global ApplicationQueue instance
         let appQueue;
 
+        // Dashboard API Client Class
+        class DashboardAPI {
+            constructor() {
+                this.baseURL = 'http://localhost:8000';
+            }
+
+            async moveProject(projectId, fromStatus, toStatus) {
+                try {
+                    const response = await fetch(`${this.baseURL}/api/move-project`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            projectId: projectId,
+                            fromStatus: fromStatus,
+                            toStatus: toStatus
+                        })
+                    });
+
+                    const result = await response.json();
+                    return result;
+                } catch (error) {
+                    console.error('API Error:', error);
+                    return { success: false, error: error.message };
+                }
+            }
+
+            async executeScript(scriptName, params = {}) {
+                try {
+                    const response = await fetch(`${this.baseURL}/api/execute-script`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            script: scriptName,
+                            params: params
+                        })
+                    });
+
+                    const result = await response.json();
+                    return result;
+                } catch (error) {
+                    console.error('API Error:', error);
+                    return { success: false, error: error.message };
+                }
+            }
+
+            async refreshDashboard() {
+                try {
+                    const response = await fetch(`${this.baseURL}/api/dashboard-data`, {
+                        method: 'GET'
+                    });
+
+                    const result = await response.json();
+                    return result;
+                } catch (error) {
+                    console.error('API Error:', error);
+                    return { success: false, error: error.message };
+                }
+            }
+        }
+
+        // Global API instance
+        let dashboardAPI;
+
         // Global function for button onclick handlers
-        function generateApplication(projectId, projectFile) {
-            if (!appQueue) {
-                console.error('ApplicationQueue not initialized');
+        async function generateApplication(projectId, projectFile) {
+            if (!dashboardAPI) {
+                console.error('DashboardAPI not initialized');
                 return;
             }
-            appQueue.generateApplication(projectId, projectFile);
+
+            // Show loading state
+            const button = document.getElementById(`btn-${projectId}`);
+            if (button) {
+                button.disabled = true;
+                button.innerHTML = '<span class="btn-text">Generating...</span><span class="btn-spinner">⟳</span>';
+            }
+
+            try {
+                // Extract project file name from path for the API call
+                const projectFileName = projectFile.split('/').pop();
+
+                const result = await dashboardAPI.executeScript('generate', {
+                    project_file: projectFileName
+                });
+
+                if (result.success) {
+                    showNotification(`✅ Application generated for project ${projectId}`, 'success');
+                    // Refresh dashboard data after a short delay
+                    setTimeout(() => {
+                        location.reload();
+                    }, 2000);
+                } else {
+                    showNotification(`❌ Failed to generate application: ${result.error || result.output}`, 'error');
+                    if (button) {
+                        button.disabled = false;
+                        button.innerHTML = '<span class="btn-text">Generate App</span><span class="btn-spinner">⟳</span>';
+                    }
+                }
+            } catch (error) {
+                showNotification(`❌ Error: ${error.message}`, 'error');
+                if (button) {
+                    button.disabled = false;
+                    button.innerHTML = '<span class="btn-text">Generate App</span><span class="btn-spinner">⟳</span>';
+                }
+            }
+        }
+
+        // New global functions for dynamic operations
+        async function moveProject(projectId, fromStatus, toStatus) {
+            if (!dashboardAPI) {
+                console.error('DashboardAPI not initialized');
+                return;
+            }
+
+            // Show loading state
+            const button = document.querySelector(`[data-project-id="${projectId}"] .btn-move`);
+            if (button) {
+                button.disabled = true;
+                button.innerHTML = 'Moving...';
+            }
+
+            try {
+                const result = await dashboardAPI.moveProject(projectId, fromStatus, toStatus);
+
+                if (result.success) {
+                    showNotification(`✅ Project moved from ${fromStatus} to ${toStatus}`, 'success');
+                    // Refresh dashboard data after a short delay
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1000);
+                } else {
+                    showNotification(`❌ Failed to move project: ${result.error || result.message}`, 'error');
+                    if (button) {
+                        button.disabled = false;
+                        button.innerHTML = `Move to ${toStatus}`;
+                    }
+                }
+            } catch (error) {
+                showNotification(`❌ Error: ${error.message}`, 'error');
+                if (button) {
+                    button.disabled = false;
+                    button.innerHTML = `Move to ${toStatus}`;
+                }
+            }
+        }
+
+        async function executeScript(scriptName, params = {}) {
+            if (!dashboardAPI) {
+                console.error('DashboardAPI not initialized');
+                return;
+            }
+
+            // Show loading state
+            const button = document.querySelector(`[data-script="${scriptName}"]`);
+            if (button) {
+                button.disabled = true;
+                button.innerHTML = 'Running...';
+            }
+
+            try {
+                const result = await dashboardAPI.executeScript(scriptName, params);
+
+                if (result.success) {
+                    showNotification(`✅ Script ${scriptName} executed successfully`, 'success');
+                    // Refresh dashboard data after execution
+                    setTimeout(() => {
+                        location.reload();
+                    }, 2000);
+                } else {
+                    showNotification(`❌ Script execution failed: ${result.error || result.output}`, 'error');
+                    if (button) {
+                        button.disabled = false;
+                        button.innerHTML = `Run ${scriptName}`;
+                    }
+                }
+            } catch (error) {
+                showNotification(`❌ Error: ${error.message}`, 'error');
+                if (button) {
+                    button.disabled = false;
+                    button.innerHTML = `Run ${scriptName}`;
+                }
+            }
+        }
+
+        function showNotification(message, type = 'info') {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 1rem;
+                border-radius: 4px;
+                color: white;
+                font-weight: bold;
+                z-index: 10000;
+                max-width: 400px;
+                word-wrap: break-word;
+            `;
+
+            if (type === 'success') {
+                notification.style.backgroundColor = '#28a745';
+            } else if (type === 'error') {
+                notification.style.backgroundColor = '#dc3545';
+            } else {
+                notification.style.backgroundColor = '#007bff';
+            }
+
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 5000);
         }
 
         document.addEventListener("DOMContentLoaded", () => {
@@ -1898,6 +2262,9 @@ const projectData = {
 
             // Initialize ApplicationQueue
             appQueue = new ApplicationQueue();
+
+            // Initialize DashboardAPI
+            dashboardAPI = new DashboardAPI();
             const viewPresets = {
                 "default": {
                     "filters": {
@@ -2025,6 +2392,35 @@ const projectData = {
                         </button>
                     ` : '';
 
+                    // Move buttons based on project status
+                    let moveButtons = '';
+                    if (project.status === 'accepted') {
+                        moveButtons = `
+                            <button class="btn btn-secondary btn-move"
+                                    onclick="moveProject('${project.id}', 'accepted', 'applied')"
+                                    data-project-id="${project.id}">
+                                Move to Applied
+                            </button>
+                        `;
+                    } else if (project.status === 'rejected') {
+                        moveButtons = `
+                            <button class="btn btn-secondary btn-move"
+                                    onclick="moveProject('${project.id}', 'rejected', 'accepted')"
+                                    data-project-id="${project.id}">
+                                Move to Accepted
+                            </button>
+                        `;
+                    }
+
+                    // Script execution buttons (available for all projects)
+                    const scriptButtons = `
+                        <button class="btn btn-outline btn-script"
+                                onclick="executeScript('evaluate', {'project_file': '${project.file_path}'})"
+                                data-script="evaluate">
+                            Re-evaluate
+                        </button>
+                    `;
+
                     return `
                         <tr>
                             <td>${project.retrieval_date ? new Date(project.retrieval_date).toLocaleString() : 'N/A'}</td>
@@ -2036,8 +2432,10 @@ const projectData = {
                             <td><span class="status-badge status-${project.status}">${project.status}</span></td>
                             <td class="actions-cell">
                                 <div class="action-buttons" data-project-id="${project.id}">
-                                    <a href="../${project.file_path}" target="_blank" class="btn btn-view">View File</a>
+                                    <a href="/${project.file_path}" target="_blank" class="btn btn-view">View File</a>
                                     ${generateButton}
+                                    ${moveButtons}
+                                    ${scriptButtons}
                                 </div>
                             </td>
                         </tr>

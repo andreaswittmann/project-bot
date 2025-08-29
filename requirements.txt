@@ -6,6 +6,9 @@ pandas
 requests
 beautifulsoup4
 lxml
+flask
+flask-cors
+flask-cors
 
 # LangChain dependencies for application generation
 langchain>=0.1.17
