@@ -38,7 +38,7 @@ This bot helps freelancers automate the complete process of:
 - **Manual Override**: Command-line options for manual application generation
 
 ### 🔄 Advanced State Management
-- **8-State Lifecycle**: Complete project tracking from `scraped` → `evaluating` → `accepted`/`rejected` → `applied` → `sent` → `open` → `archived`
+- **7-State Lifecycle**: Complete project tracking from `scraped` → `accepted`/`rejected` → `applied` → `sent` → `open` → `archived`
 - **YAML Frontmatter**: Self-contained project files with metadata and state history
 - **Manual Overrides**: Ability to manually promote rejected projects to accepted
 - **Audit Trails**: Complete state transition history with timestamps and notes
@@ -142,10 +142,8 @@ state: "accepted"
 state_history:
   - state: "scraped"
     timestamp: "2024-01-15T10:30:00Z"
-  - state: "evaluating"
-    timestamp: "2024-01-15T10:35:00Z"
   - state: "accepted"
-    timestamp: "2024-01-15T10:40:00Z"
+    timestamp: "2024-01-15T10:35:00Z"
     note: "Fit score: 87% - Above threshold"
 ---
 
@@ -170,7 +168,6 @@ purging:
    sent: 180                   # Sent projects: 180 days
    open: 365                   # Open projects: 1 year
    scraped: 7                  # Unprocessed projects: 7 days
-   evaluating: 7               # Evaluating projects: 7 days
    projects: 90                # General projects: 90 days
    applications: 180           # Application data: 180 days
    temp_files: 7               # Temporary files: 7 days
@@ -376,6 +373,7 @@ bewerbungs-bot/
     - Pre-evaluation scores projects using keyword matching
     - Projects passing threshold get full LLM evaluation
     - State automatically updated to `accepted` or `rejected` with evaluation results
+    - Direct transition from `scraped` to final evaluation state
     - All projects remain in single `projects/` directory with state metadata
 
 3. **Application Generation Phase:** *(Automatic for High-Fit Projects)*
@@ -396,7 +394,7 @@ bewerbungs-bot/
 
 6. **Dashboard Management:**
      - Open `dashboard/dashboard.html` to review all processed projects
-     - Filter by any combination of 8 states: scraped, evaluating, accepted, rejected, applied, sent, open, archived
+     - Filter by any combination of 7 states: scraped, accepted, rejected, applied, sent, open, archived
      - Sort projects by state, scores, dates, or company
      - View complete state history and evaluation results
      - Track application costs and token usage across all states
@@ -474,7 +472,7 @@ The dashboard is a self-contained HTML file that can be:
 Complete project lifecycle tracking with flexible state transitions:
 
 **Key Features:**
-- **8-State Lifecycle**: Complete tracking from `scraped` → `evaluating` → `accepted`/`rejected` → `applied` → `sent` → `open` → `archived`
+- **7-State Lifecycle**: Complete tracking from `scraped` → `accepted`/`rejected` → `applied` → `sent` → `open` → `archived`
 - **YAML Frontmatter**: Self-contained project files with complete metadata and state history
 - **Manual Overrides**: Promote rejected projects to accepted, archive early if needed
 - **Audit Trails**: Complete state transition history with timestamps and notes

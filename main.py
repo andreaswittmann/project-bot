@@ -353,7 +353,6 @@ def handle_state_report(args) -> None:
         print()
         print("State Definitions:")
         print("  • scraped    : Newly scraped projects")
-        print("  • evaluating : Being processed by AI")
         print("  • rejected   : Failed evaluation criteria")
         print("  • accepted   : Passed evaluation, ready for application")
         print("  • applied    : Application generated")
@@ -419,7 +418,7 @@ Examples:
     # State management arguments
     parser.add_argument("--state-list", action="store_true",
                         help="List projects by state")
-    parser.add_argument("--state", help="Filter by specific state (scraped, evaluating, rejected, accepted, applied, sent, open, archived)")
+    parser.add_argument("--state", help="Filter by specific state (scraped, rejected, accepted, applied, sent, open, archived)")
     parser.add_argument("--state-transition", action="store_true",
                         help="Manually transition project state")
     parser.add_argument("--project-file", help="Project file for state transition")

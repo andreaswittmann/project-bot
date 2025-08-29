@@ -18,17 +18,16 @@ class ProjectStateManager:
     """
     Manages project states through YAML frontmatter in markdown files.
 
-    States: scraped -> evaluating -> rejected/accepted -> applied -> sent -> open -> archived
+    States: scraped -> rejected/accepted -> applied -> sent -> open -> archived
     """
 
     VALID_STATES = {
-        'scraped', 'evaluating', 'rejected', 'accepted',
+        'scraped', 'rejected', 'accepted',
         'applied', 'sent', 'open', 'archived'
     }
 
     VALID_TRANSITIONS = {
-        'scraped': ['evaluating'],
-        'evaluating': ['rejected', 'accepted'],
+        'scraped': ['rejected', 'accepted'],  # Direct evaluation result
         'rejected': ['accepted', 'archived'],  # Manual override allowed
         'accepted': ['applied'],
         'applied': ['sent', 'archived'],  # Can archive if not sent

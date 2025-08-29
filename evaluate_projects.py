@@ -457,10 +457,6 @@ def process_project_file(project_path: str, config: Dict[str, Any], cv_content: 
     projects_dir = os.path.dirname(project_path)
     state_manager = ProjectStateManager(projects_dir)
 
-    # Update state to evaluating
-    state_manager.update_state(project_path, 'evaluating', 'Starting AI evaluation')
-    log("State updated to: evaluating")
-
     # Load and validate project content
     project_content = load_and_validate_project(project_path, log)
     if not project_content:
