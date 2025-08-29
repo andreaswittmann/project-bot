@@ -11,8 +11,6 @@
             --table-row-hover-bg: #f5f5f5;
             --status-scraped-bg: #f3e5f5;
             --status-scraped-color: #7b1fa2;
-            --status-evaluating-bg: #fff3e0;
-            --status-evaluating-color: #f57c00;
             --status-accepted-bg: #e8f5e9;
             --status-accepted-color: #388e3c;
             --status-rejected-bg: #ffebee;
@@ -43,7 +41,6 @@
         #project-table tbody tr:hover { background-color: var(--table-row-hover-bg); }
         .status-badge { padding: 0.25rem 0.5rem; border-radius: 12px; font-size: 0.8rem; font-weight: bold; text-transform: capitalize; }
         .status-scraped { background-color: var(--status-scraped-bg); color: var(--status-scraped-color); }
-        .status-evaluating { background-color: var(--status-evaluating-bg); color: var(--status-evaluating-color); }
         .status-accepted { background-color: var(--status-accepted-bg); color: var(--status-accepted-color); }
         .status-rejected { background-color: var(--status-rejected-bg); color: var(--status-rejected-color); }
         .status-applied { background-color: var(--status-applied-bg); color: var(--status-applied-color); }
@@ -197,7 +194,6 @@
             <div>
                 <label>Status:</label>
                 <input type="checkbox" id="filter-scraped" value="scraped"> <label for="filter-scraped">Scraped</label>
-                <input type="checkbox" id="filter-evaluating" value="evaluating"> <label for="filter-evaluating">Evaluating</label>
                 <input type="checkbox" id="filter-accepted" value="accepted" checked> <label for="filter-accepted">Accepted</label>
                 <input type="checkbox" id="filter-rejected" value="rejected" checked> <label for="filter-rejected">Rejected</label>
                 <input type="checkbox" id="filter-applied" value="applied" checked> <label for="filter-applied">Applied</label>
@@ -911,7 +907,6 @@ const projectData = {
                 "default": {
                     "filters": {
                         "scraped": false,
-                        "evaluating": false,
                         "accepted": true,
                         "rejected": false,
                         "applied": true,
@@ -925,7 +920,6 @@ const projectData = {
                 "all": {
                     "filters": {
                         "scraped": true,
-                        "evaluating": true,
                         "accepted": true,
                         "rejected": true,
                         "applied": true,
@@ -939,7 +933,6 @@ const projectData = {
                 "review": {
                     "filters": {
                         "scraped": false,
-                        "evaluating": true,
                         "accepted": true,
                         "rejected": false,
                         "applied": false,
@@ -953,7 +946,6 @@ const projectData = {
                 "active": {
                     "filters": {
                         "scraped": false,
-                        "evaluating": false,
                         "accepted": true,
                         "rejected": false,
                         "applied": true,
@@ -999,7 +991,6 @@ const projectData = {
                 // Filtering logic
                 const searchTherm = document.getElementById('search-input').value.toLowerCase();
                 const scraped = document.getElementById('filter-scraped').checked;
-                const evaluating = document.getElementById('filter-evaluating').checked;
                 const accepted = document.getElementById('filter-accepted').checked;
                 const rejected = document.getElementById('filter-rejected').checked;
                 const applied = document.getElementById('filter-applied').checked;
@@ -1011,7 +1002,6 @@ const projectData = {
 
                 let filteredProjects = allProjects.filter(p => {
                     const statusMatch = (scraped && p.status === 'scraped') ||
-                                       (evaluating && p.status === 'evaluating') ||
                                        (accepted && p.status === 'accepted') ||
                                        (rejected && p.status === 'rejected') ||
                                        (applied && p.status === 'applied') ||
@@ -1044,7 +1034,6 @@ const projectData = {
                 // Stats calculation
                 const stats = {
                     scraped: 0,
-                    evaluating: 0,
                     accepted: 0,
                     rejected: 0,
                     applied: 0,
@@ -1063,7 +1052,6 @@ const projectData = {
                 statsContainer.innerHTML = `
                     <div class="stat-card"><strong>Total:</strong> ${stats.total}</div>
                     <div class="stat-card status-scraped"><strong>Scraped:</strong> ${stats.scraped}</div>
-                    <div class="stat-card status-evaluating"><strong>Evaluating:</strong> ${stats.evaluating}</div>
                     <div class="stat-card status-accepted"><strong>Accepted:</strong> ${stats.accepted}</div>
                     <div class="stat-card status-rejected"><strong>Rejected:</strong> ${stats.rejected}</div>
                     <div class="stat-card status-applied"><strong>Applied:</strong> ${stats.applied}</div>
@@ -1142,7 +1130,6 @@ const projectData = {
             // Event Listeners for controls
             document.getElementById('search-input').addEventListener('input', renderTable);
             document.getElementById('filter-scraped').addEventListener('change', renderTable);
-            document.getElementById('filter-evaluating').addEventListener('change', renderTable);
             document.getElementById('filter-accepted').addEventListener('change', renderTable);
             document.getElementById('filter-rejected').addEventListener('change', renderTable);
             document.getElementById('filter-applied').addEventListener('change', renderTable);
