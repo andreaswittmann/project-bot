@@ -9,12 +9,22 @@
             --table-border-color: #ddd;
             --table-header-bg: #f2f2f2;
             --table-row-hover-bg: #f5f5f5;
+            --status-scraped-bg: #f3e5f5;
+            --status-scraped-color: #7b1fa2;
+            --status-evaluating-bg: #fff3e0;
+            --status-evaluating-color: #f57c00;
             --status-accepted-bg: #e8f5e9;
             --status-accepted-color: #388e3c;
             --status-rejected-bg: #ffebee;
             --status-rejected-color: #c62828;
             --status-applied-bg: #e3f2fd;
             --status-applied-color: #1565c0;
+            --status-sent-bg: #f3e5f5;
+            --status-sent-color: #8e24aa;
+            --status-open-bg: #e8eaf6;
+            --status-open-color: #3949ab;
+            --status-archived-bg: #f5f5f5;
+            --status-archived-color: #616161;
         }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 2rem; background-color: #fafafa; }
         h1 { text-align: center; color: #333; }
@@ -32,9 +42,14 @@
         #project-table th:hover { background-color: #e0e0e0; }
         #project-table tbody tr:hover { background-color: var(--table-row-hover-bg); }
         .status-badge { padding: 0.25rem 0.5rem; border-radius: 12px; font-size: 0.8rem; font-weight: bold; text-transform: capitalize; }
+        .status-scraped { background-color: var(--status-scraped-bg); color: var(--status-scraped-color); }
+        .status-evaluating { background-color: var(--status-evaluating-bg); color: var(--status-evaluating-color); }
         .status-accepted { background-color: var(--status-accepted-bg); color: var(--status-accepted-color); }
         .status-rejected { background-color: var(--status-rejected-bg); color: var(--status-rejected-color); }
         .status-applied { background-color: var(--status-applied-bg); color: var(--status-applied-color); }
+        .status-sent { background-color: var(--status-sent-bg); color: var(--status-sent-color); }
+        .status-open { background-color: var(--status-open-bg); color: var(--status-open-color); }
+        .status-archived { background-color: var(--status-archived-bg); color: var(--status-archived-color); }
         a { color: #1e88e5; text-decoration: none; }
         a:hover { text-decoration: underline; }
 
@@ -181,9 +196,14 @@
             <input type="text" id="search-input" placeholder="Search by title...">
             <div>
                 <label>Status:</label>
+                <input type="checkbox" id="filter-scraped" value="scraped"> <label for="filter-scraped">Scraped</label>
+                <input type="checkbox" id="filter-evaluating" value="evaluating"> <label for="filter-evaluating">Evaluating</label>
                 <input type="checkbox" id="filter-accepted" value="accepted" checked> <label for="filter-accepted">Accepted</label>
                 <input type="checkbox" id="filter-rejected" value="rejected" checked> <label for="filter-rejected">Rejected</label>
                 <input type="checkbox" id="filter-applied" value="applied" checked> <label for="filter-applied">Applied</label>
+                <input type="checkbox" id="filter-sent" value="sent"> <label for="filter-sent">Sent</label>
+                <input type="checkbox" id="filter-open" value="open"> <label for="filter-open">Open</label>
+                <input type="checkbox" id="filter-archived" value="archived"> <label for="filter-archived">Archived</label>
             </div>
         </fieldset>
 
@@ -261,1554 +281,176 @@
     <script id="project-data-script">
 // --- DATA START ---
 const projectData = {
-  "generated_at": "2025-08-29T12:59:39.487151",
-  "total_projects": 119,
+  "generated_at": "2025-08-29T14:15:34.858610",
+  "total_projects": 13,
   "projects": [
     {
-      "id": "20250828_162706_Anforderungsmanager__Testmanager_(m_w_d)",
-      "title": "Anforderungsmanager/ Testmanager (m/w/d)",
-      "retrieval_date": "2025-08-28T16:27:06",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_162706_Anforderungsmanager__Testmanager_(m_w_d).md",
-      "url": "https://www.freelancermap.de/projekt/anforderungsmanager-testmanager-m-w-d-2913511?ref=rss",
-      "company": "Page Contracting GmbH",
-      "application_date": null
-    },
-    {
-      "id": "20250828_121819_Senior_IT-Projektleiter_System,_Datacenter_und_M365_(A)",
-      "title": "Senior IT-Projektleiter System, Datacenter und M365 (A)",
-      "retrieval_date": "2025-08-28T12:18:19",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_121819_Senior_IT-Projektleiter_System,_Datacenter_und_M365_(A).md",
-      "url": "https://www.freelancermap.ch/projekt/senior-it-projektleiter-system-datacenter-und-m365-a?ref=rss",
-      "company": "Bosshard & Partner Unternehmensberatung AG",
-      "application_date": null
-    },
-    {
-      "id": "20250828_162706_SiGeKo_-_Sicherheits-_und_Gesundheitsschutzkoordination_(m_w_d)",
-      "title": "SiGeKo - Sicherheits- und Gesundheitsschutzkoordination (m/w/d)",
-      "retrieval_date": "2025-08-28T16:27:06",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_162706_SiGeKo_-_Sicherheits-_und_Gesundheitsschutzkoordination_(m_w_d).md",
-      "url": "https://www.freelancermap.de/projekt/sigeko-sicherheits-und-gesundheitsschutzkoordination-m-w-d?ref=rss",
-      "company": "SOLCOM GmbH",
-      "application_date": null
-    },
-    {
-      "id": "20250827_164955_SAP_i-IM_IS-U_Berater_(m_w_d)_–_Marktkommunikation_Energie",
-      "title": "SAP i-IM/IS-U Berater (m/w/d) – Marktkommunikation Energie",
-      "retrieval_date": "2025-08-27T16:49:55",
-      "eingestellt_date": "2025-08-27",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250827_164955_SAP_i-IM_IS-U_Berater_(m_w_d)_–_Marktkommunikation_Energie.md",
-      "url": "https://www.freelancermap.de/projekt/sap-i-im-is-u-berater-m-w-d-marktkommunikation-energie?ref=rss",
-      "company": "Yer Staffing GmbH",
-      "application_date": null
-    },
-    {
-      "id": "20250828_121207_IT_Senior_System_Engineer_Azure_Infrastruktur_(Netzwerk,_Kubernetes,_DevOps)_(56334)_NEU",
-      "title": "IT Senior System Engineer Azure Infrastruktur (Netzwerk, Kubernetes, DevOps) (56334) NEU",
-      "retrieval_date": "2025-08-28T12:12:07",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_121207_IT_Senior_System_Engineer_Azure_Infrastruktur_(Netzwerk,_Kubernetes,_DevOps)_(56334)_NEU.md",
-      "url": "https://www.freelancermap.ch/projekt/it-senior-system-engineer-azure-infrastruktur-netzwerk-kubernetes-devops-56334-neu?ref=rss",
-      "company": "IQ PLUS AG",
-      "application_date": null
-    },
-    {
-      "id": "20250829_105158_Grafikdesigner_für_4-seitige_Produktbroschüre_eines_Hangmähers_gesucht",
-      "title": "Grafikdesigner für 4-seitige Produktbroschüre eines Hangmähers gesucht",
-      "retrieval_date": "2025-08-29T10:51:58",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": 3,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250829_105158_Grafikdesigner_für_4-seitige_Produktbroschüre_eines_Hangmähers_gesucht.md",
-      "url": "https://www.freelancermap.at/projekt/grafikdesigner-fuer-4-seitige-produktbroschuere-eines-hangmaehers-gesucht?ref=rss",
-      "company": "Xplore Commerce GmbH",
-      "application_date": null
-    },
-    {
-      "id": "20250828_165534_iOS-Entwickler_für_Getränke-Inventar_App_im_Gastro-Bereich",
-      "title": "iOS-Entwickler für Getränke-Inventar App im Gastro-Bereich",
-      "retrieval_date": "2025-08-28T16:55:34",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_165534_iOS-Entwickler_für_Getränke-Inventar_App_im_Gastro-Bereich.md",
-      "url": "https://www.freelancermap.de/projekt/ios-entwickler-fuer-getraenke-inventar-app-im-gastro-bereich?ref=rss",
-      "company": "Hot Chilli",
-      "application_date": null
-    },
-    {
-      "id": "20250827_170807_Remote__IT_Dozent_(m_w_d)_für_das_Thema_Projektmanagement",
-      "title": "Remote: IT Dozent (m/w/d) für das Thema Projektmanagement",
-      "retrieval_date": "2025-08-27T17:08:07",
-      "eingestellt_date": "2025-08-27",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250827_170807_Remote__IT_Dozent_(m_w_d)_für_das_Thema_Projektmanagement.md",
-      "url": "https://www.freelancermap.de/projekt/remote-it-dozent-m-w-d-fuer-das-thema-projektmanagement?ref=rss",
-      "company": "Randstad Professional GmbH (vorm. GULP)",
-      "application_date": null
-    },
-    {
-      "id": "20250828_164355_SAP_BTP_Entwickler_(m_w_d)_–_Schwerpunkt_Dairy_Planning_Solution",
-      "title": "SAP BTP Entwickler (m/w/d) – Schwerpunkt Dairy Planning Solution",
-      "retrieval_date": "2025-08-28T16:43:55",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_164355_SAP_BTP_Entwickler_(m_w_d)_–_Schwerpunkt_Dairy_Planning_Solution.md",
-      "url": "https://www.freelancermap.de/projekt/sap-btp-entwickler-m-w-d-schwerpunkt-dairy-planning-solution?ref=rss",
-      "company": "adegna GmbH",
-      "application_date": null
-    },
-    {
-      "id": "20250828_121817_Cisco_Network_Security_Expert_(m_w_d)_(10155-20250828)",
-      "title": "Cisco Network Security Expert (m/w/d) (10155-20250828)",
-      "retrieval_date": "2025-08-28T12:18:17",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_121817_Cisco_Network_Security_Expert_(m_w_d)_(10155-20250828).md",
-      "url": "https://www.freelancermap.at/projekt/cisco-network-security-expert-m-w-d-10155-20250828?ref=rss",
-      "company": "softwareXperts GmbH",
-      "application_date": null
-    },
-    {
-      "id": "20250828_122517_Frontend_Developer",
-      "title": "Frontend Developer",
-      "retrieval_date": "2025-08-28T12:25:17",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_122517_Frontend_Developer.md",
-      "url": "https://www.freelancermap.de/projekt/frontend-developer-2913355?ref=rss",
-      "company": "Source Group International",
-      "application_date": null
-    },
-    {
-      "id": "20250829_124952_Senior_System-_und_Cloudarchitekt_(m_w_d)_-_Open_Source_Virtualisierungsplattform_(6284)",
-      "title": "Senior System- und Cloudarchitekt (m/w/d) - Open Source Virtualisierungsplattform (6284)",
-      "retrieval_date": "2025-08-29T12:49:52",
+      "id": "20250829_134847_Senior_Agile_Project_Coordinator_(m_w_d)___Public_Sector___Remote___ASAP_Start",
+      "title": "20250829_134847_Senior_Agile_Project_Coordinator_(m_w_d)___Public_Sector___Remote___ASAP_Start",
+      "retrieval_date": "2025-08-29T13:48:47",
       "eingestellt_date": "2025-08-29",
-      "pre_eval_score": 24,
-      "llm_score": 72,
+      "pre_eval_score": 21,
+      "llm_score": 60,
       "status": "rejected",
-      "file_path": "projects_rejected/20250829_124952_Senior_System-_und_Cloudarchitekt_(m_w_d)_-_Open_Source_Virtualisierungsplattform_(6284).md",
-      "url": "https://www.freelancermap.de/projekt/senior-system-und-cloudarchitekt-m-w-d-open-source-virtualisierungsplattform-6284?ref=rss",
-      "company": "mindheads GmbH",
+      "file_path": "../projects/20250829_134847_Senior_Agile_Project_Coordinator_(m_w_d)___Public_Sector___Remote___ASAP_Start.md",
+      "url": "https://www.freelancermap.de/projekt/senior-agile-project-coordinator-m-w-d-public-sector-remote-asap-start?ref=rss",
+      "company": "SThree GmbH",
       "application_date": null
     },
     {
-      "id": "20250828_145741_SharePoint_Entwickler_(m_w_d)_–_Compliance_Lösung___Migration_–_Remote_&_Start_ASAP",
-      "title": "SharePoint Entwickler (m/w/d) – Compliance Lösung / Migration – Remote & Start ASAP",
-      "retrieval_date": "2025-08-28T14:57:41",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_145741_SharePoint_Entwickler_(m_w_d)_–_Compliance_Lösung___Migration_–_Remote_&_Start_ASAP.md",
-      "url": "https://www.freelancermap.de/projekt/sharepoint-entwickler-m-w-d-compliance-loesung-migration-remote-und-start-asap?ref=rss",
-      "company": "ilume Informatik AG",
-      "application_date": null
-    },
-    {
-      "id": "20250828_145745_Auftrag_A8844_-_Senior_IT_Architekt_AI_@_IT_Potenzial_(contract)",
-      "title": "Auftrag A8844 - Senior IT Architekt AI @ IT Potenzial (contract)",
-      "retrieval_date": "2025-08-28T14:57:45",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_145745_Auftrag_A8844_-_Senior_IT_Architekt_AI_@_IT_Potenzial_(contract).md",
-      "url": "https://www.freelancermap.ch/projekt/auftrag-a8844-senior-it-architekt-ai-it-potenzial-contract?ref=rss",
-      "company": "Global Human Resources",
-      "application_date": null
-    },
-    {
-      "id": "20250828_121204_SAP_PowerDesigner_Berater_(m_w_d)_»Teilzeit«",
-      "title": "SAP PowerDesigner Berater (m/w/d) »Teilzeit«",
-      "retrieval_date": "2025-08-28T12:12:04",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_121204_SAP_PowerDesigner_Berater_(m_w_d)_»Teilzeit«.md",
-      "url": "https://www.freelancermap.de/projekt/sap-powerdesigner-berater-m-w-d-teilzeit?ref=rss",
-      "company": "percision services GmbH",
-      "application_date": null
-    },
-    {
-      "id": "20250828_164357_Maschinenführer___Anlagenführer",
-      "title": "Maschinenführer / Anlagenführer",
-      "retrieval_date": "2025-08-28T16:43:57",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_164357_Maschinenführer___Anlagenführer.md",
-      "url": "https://www.freelancermap.ch/projekt/maschinenfuehrer-anlagenfuehrer-2913515?ref=rss",
-      "company": "ITech Consult AG",
-      "application_date": null
-    },
-    {
-      "id": "20250828_164356_Roll-Out-Manager_(m_w_d)_nur_für_sozialversicherungspflichtige_Mitarbeiter",
-      "title": "Roll-Out-Manager (m/w/d) nur für sozialversicherungspflichtige Mitarbeiter",
-      "retrieval_date": "2025-08-28T16:43:56",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_164356_Roll-Out-Manager_(m_w_d)_nur_für_sozialversicherungspflichtige_Mitarbeiter.md",
-      "url": "https://www.freelancermap.de/projekt/roll-out-manager-m-w-d-nur-fuer-sozialversicherungspflichtige-mitarbeiter?ref=rss",
-      "company": "ITinera projects & experts GmbH & Co. KG",
-      "application_date": null
-    },
-    {
-      "id": "20250828_145743_Freelance_Senior_Engineering_Project_Lead_(m_f_x)_-Container",
-      "title": "Freelance Senior Engineering Project Lead (m/f/x) -Container",
-      "retrieval_date": "2025-08-28T14:57:43",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_145743_Freelance_Senior_Engineering_Project_Lead_(m_f_x)_-Container.md",
-      "url": "https://www.freelancermap.at/projekt/freelance-senior-engineering-project-lead-m-f-x-container?ref=rss",
-      "company": "SThree_Germany",
-      "application_date": null
-    },
-    {
-      "id": "20250828_145746_25158_-_Senior_IT-Projektleiter_(System,_Datacenter_und_M365)",
-      "title": "25158 - Senior IT-Projektleiter (System, Datacenter und M365)",
-      "retrieval_date": "2025-08-28T14:57:46",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_145746_25158_-_Senior_IT-Projektleiter_(System,_Datacenter_und_M365).md",
-      "url": "https://www.freelancermap.ch/projekt/25158-senior-it-projektleiter-system-datacenter-und-m365?ref=rss",
-      "company": "PROSTAFF Schweiz GmbH",
-      "application_date": null
-    },
-    {
-      "id": "20250828_121819_Qualification_Expert_(m_f_d)",
-      "title": "Qualification Expert (m/f/d)",
-      "retrieval_date": "2025-08-28T12:18:19",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_121819_Qualification_Expert_(m_f_d).md",
-      "url": "https://www.freelancermap.ch/projekt/qualification-expert-m-f-d-2913322?ref=rss",
-      "company": "ITech Consult AG",
-      "application_date": null
-    },
-    {
-      "id": "20250828_121208_SAP_Anaplan_Consultant_(German_speaker)",
-      "title": "SAP Anaplan Consultant (German speaker)",
-      "retrieval_date": "2025-08-28T12:12:08",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_121208_SAP_Anaplan_Consultant_(German_speaker).md",
-      "url": "https://www.freelancermap.ch/projekt/sap-anaplan-consultant-german-speaker?ref=rss",
-      "company": "SThree_Germany",
-      "application_date": null
-    },
-    {
-      "id": "20250828_113257_Kreditanalyst_(m_w_d)",
-      "title": "Kreditanalyst (m/w/d)",
-      "retrieval_date": "2025-08-28T11:32:57",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_113257_Kreditanalyst_(m_w_d).md",
-      "url": "https://www.freelancermap.de/projekt/kreditanalyst-m-w-d-2913331?ref=rss",
-      "company": "Randstad Professional GmbH (vorm. GULP)",
-      "application_date": null
-    },
-    {
-      "id": "20250828_145741_Lead-Entwickler_Java_Backend_m_w_d",
-      "title": "Lead-Entwickler Java Backend m/w/d",
-      "retrieval_date": "2025-08-28T14:57:41",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_145741_Lead-Entwickler_Java_Backend_m_w_d.md",
-      "url": "https://www.freelancermap.de/projekt/lead-entwickler-java-backend-m-w-d-2913458?ref=rss",
-      "company": "Kontial GmbH",
-      "application_date": null
-    },
-    {
-      "id": "20250829_105155_Betrieb_von_SAP_GRC_-_Remote",
-      "title": "Betrieb von SAP GRC  - Remote",
-      "retrieval_date": "2025-08-29T10:51:55",
+      "id": "20250829_140840_SAP_FI,_CO_S_4HANA_Finance_Berater_(m_w_d)",
+      "title": "20250829_140840_SAP_FI,_CO_S_4HANA_Finance_Berater_(m_w_d)",
+      "retrieval_date": "2025-08-29T14:08:40",
       "eingestellt_date": "2025-08-29",
       "pre_eval_score": 5,
-      "llm_score": null,
+      "llm_score": 0,
       "status": "rejected",
-      "file_path": "projects_rejected/20250829_105155_Betrieb_von_SAP_GRC_-_Remote.md",
-      "url": "https://www.freelancermap.de/projekt/betrieb-von-sap-grc-remote?ref=rss",
-      "company": "Akkodis Germany Tech Freelance GmbH",
+      "file_path": "../projects/20250829_140840_SAP_FI,_CO_S_4HANA_Finance_Berater_(m_w_d).md",
+      "url": "https://www.freelancermap.de/projekt/sap-fi-co-s-4hana-finance-berater-m-w-d?ref=rss",
+      "company": "Büllesbach & Plöntzke GmbH",
       "application_date": null
     },
     {
-      "id": "20250828_121818_Spezialist_für_Performance_Tuning_(m_w_d)",
-      "title": "Spezialist für Performance Tuning (m/w/d)",
-      "retrieval_date": "2025-08-28T12:18:18",
-      "eingestellt_date": "2025-08-27",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_121818_Spezialist_für_Performance_Tuning_(m_w_d).md",
-      "url": "https://www.freelancermap.at/projekt/spezialist-fuer-performance-tuning-m-w-d?ref=rss",
-      "company": "Hays AG",
-      "application_date": null
-    },
-    {
-      "id": "20250828_112023_Business_Analyst___IT_Integrator_mit_Kordoba_K-GS_Kenntnissen",
-      "title": "Business Analyst / IT Integrator mit Kordoba K-GS Kenntnissen",
-      "retrieval_date": "2025-08-28T11:20:23",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_112023_Business_Analyst___IT_Integrator_mit_Kordoba_K-GS_Kenntnissen.md",
-      "url": "https://www.freelancermap.de/projekt/business-analyst-it-integrator-mit-kordoba-k-gs-kenntnissen?ref=rss",
-      "company": "Computer Futures, ein Geschäftszweig der SThree GmbH",
-      "application_date": null
-    },
-    {
-      "id": "20250828_162708_ICT_Architekt_mit_PSP_(Personensicherheitsprüfung)",
-      "title": "ICT Architekt mit PSP (Personensicherheitsprüfung)",
-      "retrieval_date": "2025-08-28T16:27:08",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_162708_ICT_Architekt_mit_PSP_(Personensicherheitsprüfung).md",
-      "url": "https://www.freelancermap.ch/projekt/ict-architekt-mit-psp-personensicherheitspruefung?ref=rss",
-      "company": "ONiKO AG",
-      "application_date": null
-    },
-    {
-      "id": "20250828_145747_Purchasing_Desk_Manager",
-      "title": "Purchasing Desk Manager",
-      "retrieval_date": "2025-08-28T14:57:47",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_145747_Purchasing_Desk_Manager.md",
-      "url": "https://www.freelancermap.ch/projekt/purchasing-desk-manager?ref=rss",
-      "company": "Source Group International",
-      "application_date": null
-    },
-    {
-      "id": "20250827_164955_Freelance_Senior_Principal_Statistical_programmer_(m_f_d)",
-      "title": "Freelance Senior Principal Statistical programmer (m/f/d)",
-      "retrieval_date": "2025-08-27T16:49:55",
-      "eingestellt_date": "2025-08-27",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250827_164955_Freelance_Senior_Principal_Statistical_programmer_(m_f_d).md",
-      "url": "https://www.freelancermap.de/projekt/freelance-senior-principal-statistical-programmer-m-f-d?ref=rss",
-      "company": "Progressive",
-      "application_date": null
-    },
-    {
-      "id": "20250828_164356_Home_Office_Dozent_(m_w_d)_für_die_Umschulung_Steuerfachangestellte",
-      "title": "Home Office Dozent (m/w/d) für die Umschulung Steuerfachangestellte",
-      "retrieval_date": "2025-08-28T16:43:56",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_164356_Home_Office_Dozent_(m_w_d)_für_die_Umschulung_Steuerfachangestellte.md",
-      "url": "https://www.freelancermap.de/projekt/home-office-dozent-m-w-d-fuer-die-umschulung-steuerfachangestellte-2913518?ref=rss",
-      "company": "IBB Institut für Berufliche Bildung AG",
-      "application_date": null
-    },
-    {
-      "id": "20250828_162707_DWH_Developer_(m_w_d)_(10159-20250828)",
-      "title": "DWH Developer (m/w/d)  (10159-20250828)",
-      "retrieval_date": "2025-08-28T16:27:07",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_162707_DWH_Developer_(m_w_d)_(10159-20250828).md",
-      "url": "https://www.freelancermap.at/projekt/dwh-developer-m-w-d-10159-20250828?ref=rss",
-      "company": "softwareXperts GmbH",
-      "application_date": null
-    },
-    {
-      "id": "20250827_170808_External_Auditor-_MDR_2017_45_46_Notified_Body",
-      "title": "External Auditor- MDR 2017/45 46 Notified Body",
-      "retrieval_date": "2025-08-27T17:08:08",
-      "eingestellt_date": "2025-08-27",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250827_170808_External_Auditor-_MDR_2017_45_46_Notified_Body.md",
-      "url": "https://www.freelancermap.de/projekt/external-auditor-mdr-2017-45-46-notified-body?ref=rss",
-      "company": null,
-      "application_date": null
-    },
-    {
-      "id": "20250828_145742_Freiberuflicher_Buchhaltungsexperte_mit_tiefgehenden_SAP_S4_Hana_Kenntnissen_(m_w_d)",
-      "title": "Freiberuflicher Buchhaltungsexperte mit tiefgehenden SAP S4 Hana Kenntnissen (m/w/d)",
-      "retrieval_date": "2025-08-28T14:57:42",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_145742_Freiberuflicher_Buchhaltungsexperte_mit_tiefgehenden_SAP_S4_Hana_Kenntnissen_(m_w_d).md",
-      "url": "https://www.freelancermap.de/projekt/freiberuflicher-buchhaltungsexperte-mit-tiefgehenden-sap-s4-hana-kenntnissen-m-w-d?ref=rss",
-      "company": "Peak One GmbH",
-      "application_date": null
-    },
-    {
-      "id": "20250829_124951_Projekteiter_(m_w_d)_Migration_CAS_Merlin_CPQ",
-      "title": "Projekteiter (m/w/d) Migration CAS Merlin CPQ",
-      "retrieval_date": "2025-08-29T12:49:51",
+      "id": "20250829_134844_Bauleiter_TGA___Bauüberwacher_Versorgungstechnik_(HKLS)_in_Bielefeld",
+      "title": "20250829_134844_Bauleiter_TGA___Bauüberwacher_Versorgungstechnik_(HKLS)_in_Bielefeld",
+      "retrieval_date": "2025-08-29T13:48:44",
       "eingestellt_date": "2025-08-29",
-      "pre_eval_score": 4,
-      "llm_score": null,
+      "pre_eval_score": 8,
+      "llm_score": 0,
       "status": "rejected",
-      "file_path": "projects_rejected/20250829_124951_Projekteiter_(m_w_d)_Migration_CAS_Merlin_CPQ.md",
-      "url": "https://www.freelancermap.de/projekt/projekteiter-m-w-d-migration-cas-merlin-cpq?ref=rss",
-      "company": "TCI Transformation Consulting International GmbH",
+      "file_path": "../projects/20250829_134844_Bauleiter_TGA___Bauüberwacher_Versorgungstechnik_(HKLS)_in_Bielefeld.md",
+      "url": "https://www.freelancermap.de/projekt/bauleiter-tga-bauueberwacher-versorgungstechnik-hkls-in-bielefeld?ref=rss",
+      "company": "Kolhof GmbH",
       "application_date": null
     },
     {
-      "id": "20250828_145742_Senior_Hardware_Typetest_Engineer_R&D_(m_w_d)",
-      "title": "Senior Hardware Typetest Engineer R&D (m/w/d)",
-      "retrieval_date": "2025-08-28T14:57:42",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
+      "id": "20250829_135150_Scrum_Master,_ab_Oktober,_remote_und_wöchentlich_in_Münster_(m_w_d)",
+      "title": "20250829_135150_Scrum_Master,_ab_Oktober,_remote_und_wöchentlich_in_Münster_(m_w_d)",
+      "retrieval_date": "2025-08-29T13:51:50",
+      "eingestellt_date": "2025-08-29",
+      "pre_eval_score": 8,
+      "llm_score": 0,
       "status": "rejected",
-      "file_path": "projects_rejected/20250828_145742_Senior_Hardware_Typetest_Engineer_R&D_(m_w_d).md",
-      "url": "https://www.freelancermap.de/projekt/senior-hardware-typetest-engineer-r-und-d-m-w-d?ref=rss",
+      "file_path": "../projects/20250829_135150_Scrum_Master,_ab_Oktober,_remote_und_wöchentlich_in_Münster_(m_w_d).md",
+      "url": "https://www.freelancermap.de/projekt/scrum-master-ab-oktober-remote-und-woechentlich-in-muenster-m-w-d?ref=rss",
       "company": "emagine GmbH",
       "application_date": null
     },
     {
-      "id": "20250827_164956_IT-Support_Specialist_(m_w_d)",
-      "title": "IT-Support Specialist (m/w/d)",
-      "retrieval_date": "2025-08-27T16:49:56",
-      "eingestellt_date": "2025-08-27",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250827_164956_IT-Support_Specialist_(m_w_d).md",
-      "url": "https://www.freelancermap.de/projekt/it-support-specialist-2913051?ref=rss",
-      "company": "Computer Futures, ein Geschäftszweig der SThree GmbH",
-      "application_date": null
-    },
-    {
-      "id": "20250828_145745_Webshop_wordpress_update_php_version",
-      "title": "Webshop wordpress update php version",
-      "retrieval_date": "2025-08-28T14:57:45",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_145745_Webshop_wordpress_update_php_version.md",
-      "url": "https://www.freelancermap.at/projekt/webshop-wordpress-update-php-version?ref=rss",
-      "company": "Eder Markus ITDesign und Service",
-      "application_date": null
-    },
-    {
-      "id": "test_project_full",
-      "title": "Senior Python Developer - AI/ML Focus",
-      "retrieval_date": null,
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/test_project_full.md",
-      "url": "https://example.com/senior-python-ai",
-      "company": "TechCorp GmbH",
-      "application_date": null
-    },
-    {
-      "id": "20250828_121819_Auftrag_A8842_-_Senior_Security_Engineer_Penetration_Tester_OSCP_oder_CISSP_(contract)",
-      "title": "Auftrag A8842 - Senior Security Engineer Penetration Tester OSCP oder CISSP (contract)",
-      "retrieval_date": "2025-08-28T12:18:19",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_121819_Auftrag_A8842_-_Senior_Security_Engineer_Penetration_Tester_OSCP_oder_CISSP_(contract).md",
-      "url": "https://www.freelancermap.ch/projekt/auftrag-a8842-senior-security-engineer-penetration-tester-oscp-oder-cissp-contract?ref=rss",
-      "company": "Global Human Resources",
-      "application_date": null
-    },
-    {
-      "id": "20250828_145744_Entwickler_für_KI_Projekt_Schwerpunkt_Terminvergabe",
-      "title": "Entwickler für KI Projekt Schwerpunkt Terminvergabe",
-      "retrieval_date": "2025-08-28T14:57:44",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_145744_Entwickler_für_KI_Projekt_Schwerpunkt_Terminvergabe.md",
-      "url": "https://www.freelancermap.at/projekt/entwickler-fuer-ki-projekt-schwerpunkt-terminvergabe?ref=rss",
-      "company": "Eder Markus ITDesign und Service",
-      "application_date": null
-    },
-    {
-      "id": "20250829_105157_YouTrack_zu_Jira_Migration",
-      "title": "YouTrack zu Jira Migration",
-      "retrieval_date": "2025-08-29T10:51:57",
+      "id": "20250829_134846_Front-End_Data_Mart_Entwickler_(m_w_d)",
+      "title": "20250829_134846_Front-End_Data_Mart_Entwickler_(m_w_d)",
+      "retrieval_date": "2025-08-29T13:48:46",
       "eingestellt_date": "2025-08-29",
-      "pre_eval_score": 5,
-      "llm_score": null,
+      "pre_eval_score": 20,
+      "llm_score": 30,
       "status": "rejected",
-      "file_path": "projects_rejected/20250829_105157_YouTrack_zu_Jira_Migration.md",
-      "url": "https://www.freelancermap.at/projekt/youtrack-zu-jira-migration?ref=rss",
-      "company": "Annny GmbH",
+      "file_path": "../projects/20250829_134846_Front-End_Data_Mart_Entwickler_(m_w_d).md",
+      "url": "https://www.freelancermap.de/projekt/front-end-data-mart-entwickler-m-w-d?ref=rss",
+      "company": "Hyand Solutions GmbH",
       "application_date": null
     },
     {
-      "id": "20250828_162709_Senior_Project_Manager_Data_Center_(m_w_d)",
-      "title": "Senior Project Manager Data Center (m/w/d)",
-      "retrieval_date": "2025-08-28T16:27:09",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_162709_Senior_Project_Manager_Data_Center_(m_w_d).md",
-      "url": "https://www.freelancermap.ch/projekt/senior-project-manager-data-center-m-w-d?ref=rss",
-      "company": "Boxtop AG",
+      "id": "20250829_134846_IT_Demand_Manager_(m_w_d)",
+      "title": "20250829_134846_IT_Demand_Manager_(m_w_d)",
+      "retrieval_date": "2025-08-29T13:48:46",
+      "eingestellt_date": "2025-08-29",
+      "pre_eval_score": 6,
+      "llm_score": 0,
+      "status": "accepted",
+      "file_path": "../projects/20250829_134846_IT_Demand_Manager_(m_w_d).md",
+      "url": "https://www.freelancermap.de/projekt/it-demand-manager-m-w-d-2913800?ref=rss",
+      "company": "HiSimply GmbH",
       "application_date": null
     },
     {
-      "id": "20250828_122518_IT-Servicetechniker_(m_w_d)_Onsite_---_Penzberg",
-      "title": "IT-Servicetechniker (m/w/d) Onsite --- Penzberg",
-      "retrieval_date": "2025-08-28T12:25:18",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
+      "id": "20250829_134846_Software_Engineer_&_Test_Specialist_(m_w_d)_R-Code___Azure_(Ref._6285)",
+      "title": "20250829_134846_Software_Engineer_&_Test_Specialist_(m_w_d)_R-Code___Azure_(Ref._6285)",
+      "retrieval_date": "2025-08-29T13:48:46",
+      "eingestellt_date": "2025-08-29",
+      "pre_eval_score": 31,
+      "llm_score": 25,
       "status": "rejected",
-      "file_path": "projects_rejected/20250828_122518_IT-Servicetechniker_(m_w_d)_Onsite_---_Penzberg.md",
-      "url": "https://www.freelancermap.de/projekt/it-servicetechniker-m-w-d-onsite-penzberg-2913352?ref=rss",
-      "company": "SECUSTAFF GmbH",
+      "file_path": "../projects/20250829_134846_Software_Engineer_&_Test_Specialist_(m_w_d)_R-Code___Azure_(Ref._6285).md",
+      "url": "https://www.freelancermap.de/projekt/software-engineer-und-test-specialist-m-w-d-r-code-azure-ref-6285?ref=rss",
+      "company": "mindheads GmbH",
       "application_date": null
     },
     {
-      "id": "20250828_113258_Supplier_Performance_Manager_-_Hamburg_Germany",
-      "title": "Supplier Performance Manager -  Hamburg Germany",
-      "retrieval_date": "2025-08-28T11:32:58",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
+      "id": "20250829_140840_Power_BI_Infrastruktur_Manager_–_Remote_–_Karlsruhe_–_ab_sofort_–_6_Monate_–_Vollzeit",
+      "title": "20250829_140840_Power_BI_Infrastruktur_Manager_–_Remote_–_Karlsruhe_–_ab_sofort_–_6_Monate_–_Vollzeit",
+      "retrieval_date": "2025-08-29T14:08:40",
+      "eingestellt_date": "2025-08-29",
+      "pre_eval_score": 13,
+      "llm_score": 40,
       "status": "rejected",
-      "file_path": "projects_rejected/20250828_113258_Supplier_Performance_Manager_-_Hamburg_Germany.md",
-      "url": "https://www.freelancermap.de/projekt/supplier-performance-manager-hamburg-germany?ref=rss",
-      "company": "AMM ENTERPRISE GmbH",
+      "file_path": "../projects/20250829_140840_Power_BI_Infrastruktur_Manager_–_Remote_–_Karlsruhe_–_ab_sofort_–_6_Monate_–_Vollzeit.md",
+      "url": "https://www.freelancermap.de/projekt/power-bi-infrastruktur-manager-remote-karlsruhe-ab-sofort-6-monate-vollzeit?ref=rss",
+      "company": "Amoria Bond GmbH",
       "application_date": null
     },
     {
-      "id": "20250828_112022_Technischer_Zeichner_(Revit_BIM)_(m_w_d)",
-      "title": "Technischer Zeichner (Revit/BIM) (m/w/d)",
-      "retrieval_date": "2025-08-28T11:20:22",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_112022_Technischer_Zeichner_(Revit_BIM)_(m_w_d).md",
-      "url": "https://www.freelancermap.de/projekt/technischer-zeichner-revit-bim-m-w-d?ref=rss",
-      "company": "SOLCOM GmbH",
-      "application_date": null
-    },
-    {
-      "id": "20250828_162705_Projektleiter_IT-Sicherheitsumfeld_(DORA)_(m_w_d)_-_37486",
-      "title": "Projektleiter IT-Sicherheitsumfeld (DORA) (m/w/d) - 37486",
-      "retrieval_date": "2025-08-28T16:27:05",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_162705_Projektleiter_IT-Sicherheitsumfeld_(DORA)_(m_w_d)_-_37486.md",
-      "url": "https://www.freelancermap.de/projekt/projektleiter-it-sicherheitsumfeld-dora-m-w-d-37486?ref=rss",
-      "company": "KRONGAARD GmbH",
-      "application_date": null
-    },
-    {
-      "id": "20250827_170807_(Senior)_Cloud_Administrator_Azure_Spezialist_(w_m_d)",
-      "title": "(Senior) Cloud Administrator/Azure Spezialist (w/m/d)",
-      "retrieval_date": "2025-08-27T17:08:07",
-      "eingestellt_date": "2025-08-27",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250827_170807_(Senior)_Cloud_Administrator_Azure_Spezialist_(w_m_d).md",
-      "url": "https://www.freelancermap.de/projekt/senior-cloud-administrator-azure-spezialist-w-m-d?ref=rss",
-      "company": "IPSWAYS - IPS Projects GmbH",
-      "application_date": null
-    },
-    {
-      "id": "20250829_105158_Spare_Parts_Online_Shop_B2B_&_B2C",
-      "title": "Spare Parts Online Shop B2B & B2C",
-      "retrieval_date": "2025-08-29T10:51:58",
-      "eingestellt_date": "2025-08-28",
+      "id": "20250829_140841_FPGA-Entwicklung",
+      "title": "20250829_140841_FPGA-Entwicklung",
+      "retrieval_date": "2025-08-29T14:08:41",
+      "eingestellt_date": "2025-08-29",
       "pre_eval_score": 8,
-      "llm_score": null,
+      "llm_score": 0,
       "status": "rejected",
-      "file_path": "projects_rejected/20250829_105158_Spare_Parts_Online_Shop_B2B_&_B2C.md",
-      "url": "https://www.freelancermap.at/projekt/spare-parts-online-shop-b2b-und-b2c?ref=rss",
-      "company": "Xplore Commerce GmbH",
-      "application_date": null
-    },
-    {
-      "id": "20250828_162708_ICT_Project_Engineer_(Senior)_–_ServiceNow___ITSM",
-      "title": "ICT Project Engineer (Senior) – ServiceNow / ITSM",
-      "retrieval_date": "2025-08-28T16:27:08",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_162708_ICT_Project_Engineer_(Senior)_–_ServiceNow___ITSM.md",
-      "url": "https://www.freelancermap.ch/projekt/ict-project-engineer-senior-servicenow-itsm?ref=rss",
-      "company": "ONiKO AG",
-      "application_date": null
-    },
-    {
-      "id": "20250828_121816_Inbetriebnehmer___Servicetechniker_–_Mechanische_Montage_im_Außendienst_(m_w_d)",
-      "title": "Inbetriebnehmer / Servicetechniker – Mechanische Montage im Außendienst (m/w/d)",
-      "retrieval_date": "2025-08-28T12:18:16",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_121816_Inbetriebnehmer___Servicetechniker_–_Mechanische_Montage_im_Außendienst_(m_w_d).md",
-      "url": "https://www.freelancermap.at/projekt/inbetriebnehmer-servicetechniker-mechanische-montage-im-aussendienst-m-w-d?ref=rss",
-      "company": "Computer Futures, ein Geschäftszweig der SThree GmbH",
-      "application_date": null
-    },
-    {
-      "id": "20250827_164954_Business_Analyst_(m,w,d)_remote",
-      "title": "Business Analyst (m,w,d) remote",
-      "retrieval_date": "2025-08-27T16:49:54",
-      "eingestellt_date": "2025-08-27",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250827_164954_Business_Analyst_(m,w,d)_remote.md",
-      "url": "https://www.freelancermap.de/projekt/business-analyst-m-w-d-remote-2913055?ref=rss",
-      "company": "Computer Futures, ein Geschäftszweig der SThree GmbH",
-      "application_date": null
-    },
-    {
-      "id": "20250829_124953_IT-Infrastruktur_Architekt_für_internationales_Logistik-Startup",
-      "title": "IT-Infrastruktur Architekt für internationales Logistik-Startup",
-      "retrieval_date": "2025-08-29T12:49:53",
-      "eingestellt_date": "2025-08-29",
-      "pre_eval_score": 7,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250829_124953_IT-Infrastruktur_Architekt_für_internationales_Logistik-Startup.md",
-      "url": "https://www.freelancermap.at/projekt/it-infrastruktur-architekt-fuer-internationales-logistik-startup?ref=rss",
-      "company": "Eurotransline Gmbh.",
-      "application_date": null
-    },
-    {
-      "id": "20250828_145746_Auftrag_A8843_-_Program_Manager_AI_@_IT_Potenzial_(contract)",
-      "title": "Auftrag A8843 - Program Manager AI @ IT Potenzial (contract)",
-      "retrieval_date": "2025-08-28T14:57:46",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_145746_Auftrag_A8843_-_Program_Manager_AI_@_IT_Potenzial_(contract).md",
-      "url": "https://www.freelancermap.ch/projekt/auftrag-a8843-program-manager-ai-it-potenzial-contract?ref=rss",
-      "company": "Global Human Resources",
-      "application_date": null
-    },
-    {
-      "id": "20250828_121817_Content_Creator_für_Hormongesundheit_&_Frauenwohlbefinden",
-      "title": "Content Creator für Hormongesundheit & Frauenwohlbefinden",
-      "retrieval_date": "2025-08-28T12:18:17",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_121817_Content_Creator_für_Hormongesundheit_&_Frauenwohlbefinden.md",
-      "url": "https://www.freelancermap.at/projekt/content-creator-fuer-hormongesundheit-und-frauenwohlbefinden?ref=rss",
-      "company": null,
-      "application_date": null
-    },
-    {
-      "id": "20250828_121206_Spezialist_für_Performance_Tuning_(m_w_d)",
-      "title": "Spezialist für Performance Tuning (m/w/d)",
-      "retrieval_date": "2025-08-28T12:12:06",
-      "eingestellt_date": "2025-08-27",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_121206_Spezialist_für_Performance_Tuning_(m_w_d).md",
-      "url": "https://www.freelancermap.at/projekt/spezialist-fuer-performance-tuning-m-w-d?ref=rss",
-      "company": "Hays AG",
-      "application_date": null
-    },
-    {
-      "id": "20250827_170807_Interim_Projektmanager_Prüfstandentwicklung_Elektrotechnik_EPLAN_SPS",
-      "title": "Interim Projektmanager Prüfstandentwicklung Elektrotechnik EPLAN SPS",
-      "retrieval_date": "2025-08-27T17:08:07",
-      "eingestellt_date": "2025-08-27",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250827_170807_Interim_Projektmanager_Prüfstandentwicklung_Elektrotechnik_EPLAN_SPS.md",
-      "url": "https://www.freelancermap.de/projekt/interim-projektmanager-pruefstandentwicklung-elektrotechnik-eplan-sps?ref=rss",
+      "file_path": "../projects/20250829_140841_FPGA-Entwicklung.md",
+      "url": "https://www.freelancermap.de/projekt/fpga-entwicklung-2913806?ref=rss",
       "company": "FERCHAU GmbH",
       "application_date": null
     },
     {
-      "id": "20250828_170031_Commercial_Coordinator",
-      "title": "Commercial Coordinator",
-      "retrieval_date": "2025-08-28T17:00:31",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_170031_Commercial_Coordinator.md",
-      "url": "https://www.freelancermap.de/projekt/commercial-coordinator?ref=rss",
-      "company": null,
-      "application_date": null
-    },
-    {
-      "id": "20250828_165534_Business_Requirements___Data_Analyst_Energie_Vertriebsdaten_&_Pricing_(m_f_d)_ID_26633-0",
-      "title": "Business Requirements / Data Analyst Energie Vertriebsdaten & Pricing (m/f/d) ID 26633-0",
-      "retrieval_date": "2025-08-28T16:55:34",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_165534_Business_Requirements___Data_Analyst_Energie_Vertriebsdaten_&_Pricing_(m_f_d)_ID_26633-0.md",
-      "url": "https://www.freelancermap.de/projekt/business-requirements-data-analyst-energie-vertriebsdaten-und-pricing-m-f-d-id-26633-0?ref=rss",
-      "company": "C4 Energy GmbH & Co. KG",
-      "application_date": null
-    },
-    {
-      "id": "20250828_122518_MS_Dynamics_AX_Entwicklung_–_primär_vor_Ort_–_Region_Linz,_Österreich",
-      "title": "MS Dynamics AX Entwicklung – primär vor Ort – Region Linz, Österreich",
-      "retrieval_date": "2025-08-28T12:25:18",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_122518_MS_Dynamics_AX_Entwicklung_–_primär_vor_Ort_–_Region_Linz,_Österreich.md",
-      "url": "https://www.freelancermap.at/projekt/ms-dynamics-ax-entwicklung-primaer-vor-ort-region-linz-oesterreich-2913356?ref=rss",
-      "company": "BLUECHILLED GROUP GmbH & Co. KG",
-      "application_date": null
-    },
-    {
-      "id": "20250828_164458_IT_Business_Analyst_-_Finance_Systems_-_Netsuite",
-      "title": "IT Business Analyst - Finance Systems - Netsuite",
-      "retrieval_date": "2025-08-28T16:44:58",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_164458_IT_Business_Analyst_-_Finance_Systems_-_Netsuite.md",
-      "url": "https://www.freelancermap.de/projekt/it-business-analyst-finance-systems-netsuite?ref=rss",
-      "company": "Amass Technology",
-      "application_date": null
-    },
-    {
-      "id": "20250829_105158_Senior_Netzwerk_Spezialist_(m_w_d)_(10161-20250829)",
-      "title": "Senior Netzwerk Spezialist (m/w/d) (10161-20250829)",
-      "retrieval_date": "2025-08-29T10:51:58",
+      "id": "20250829_134848_Regulatory_Operations_Specialist_-_Product_Chemistry",
+      "title": "20250829_134848_Regulatory_Operations_Specialist_-_Product_Chemistry",
+      "retrieval_date": "2025-08-29T13:48:48",
       "eingestellt_date": "2025-08-29",
-      "pre_eval_score": 6,
-      "llm_score": null,
+      "pre_eval_score": 22,
+      "llm_score": 5,
       "status": "rejected",
-      "file_path": "projects_rejected/20250829_105158_Senior_Netzwerk_Spezialist_(m_w_d)_(10161-20250829).md",
-      "url": "https://www.freelancermap.at/projekt/senior-netzwerk-spezialist-m-w-d-10161-20250829?ref=rss",
-      "company": "softwareXperts GmbH",
-      "application_date": null
-    },
-    {
-      "id": "20250829_105159_DWH_Developer_(m_w_d)_(10159-20250828)",
-      "title": "DWH Developer (m/w/d)  (10159-20250828)",
-      "retrieval_date": "2025-08-29T10:51:59",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": 8,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250829_105159_DWH_Developer_(m_w_d)_(10159-20250828).md",
-      "url": "https://www.freelancermap.at/projekt/dwh-developer-m-w-d-10159-20250828?ref=rss",
-      "company": "softwareXperts GmbH",
-      "application_date": null
-    },
-    {
-      "id": "20250829_105155_Embedded_Software_Development_(m_w_d)_–_IoT_&_Kommunikationstechnologien",
-      "title": "Embedded Software Development (m/w/d) – IoT & Kommunikationstechnologien",
-      "retrieval_date": "2025-08-29T10:51:55",
-      "eingestellt_date": "2025-08-29",
-      "pre_eval_score": 8,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250829_105155_Embedded_Software_Development_(m_w_d)_–_IoT_&_Kommunikationstechnologien.md",
-      "url": "https://www.freelancermap.de/projekt/embedded-software-development-m-w-d-iot-und-kommunikationstechnologien?ref=rss",
-      "company": "Computer Futures, ein Geschäftszweig der SThree GmbH",
-      "application_date": null
-    },
-    {
-      "id": "20250828_164358_Senior_IT-Projektleiter_(m_w_d)_–_System,_Datacenter_und_M365_(80-100%)",
-      "title": "Senior IT-Projektleiter (m/w/d) – System, Datacenter und M365 (80-100%)",
-      "retrieval_date": "2025-08-28T16:43:58",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_164358_Senior_IT-Projektleiter_(m_w_d)_–_System,_Datacenter_und_M365_(80-100%).md",
-      "url": "https://www.freelancermap.ch/projekt/senior-it-projektleiter-m-w-d-system-datacenter-und-m365-80-100-prozent?ref=rss",
-      "company": "Wavestone Germany",
-      "application_date": null
-    },
-    {
-      "id": "20250829_124951_Solution_Architect_–_Optimierung_von_IPAM_DNS_und_DevOps-Infrastrukturen_(m_w_d)",
-      "title": "Solution Architect – Optimierung von IPAM/DNS und DevOps-Infrastrukturen (m/w/d)",
-      "retrieval_date": "2025-08-29T12:49:51",
-      "eingestellt_date": "2025-08-29",
-      "pre_eval_score": 31,
-      "llm_score": 48,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250829_124951_Solution_Architect_–_Optimierung_von_IPAM_DNS_und_DevOps-Infrastrukturen_(m_w_d).md",
-      "url": "https://www.freelancermap.de/projekt/solution-architect-optimierung-von-ipam-dns-und-devops-infrastrukturen-m-w-d?ref=rss",
-      "company": "freelance.de GmbH",
-      "application_date": null
-    },
-    {
-      "id": "20250828_162709_Senior_ICT_Project_Engineer_mit_PSP_(Personensicherheitsprüfung)",
-      "title": "Senior ICT Project Engineer mit PSP (Personensicherheitsprüfung)",
-      "retrieval_date": "2025-08-28T16:27:09",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_162709_Senior_ICT_Project_Engineer_mit_PSP_(Personensicherheitsprüfung).md",
-      "url": "https://www.freelancermap.ch/projekt/senior-ict-project-engineer-mit-psp-personensicherheitspruefung?ref=rss",
-      "company": "ONiKO AG",
-      "application_date": null
-    },
-    {
-      "id": "20250828_121203_Projektleiter_Risikomanagement___Scrum_(m_w_d)_426-12473",
-      "title": "Projektleiter Risikomanagement / Scrum (m/w/d) 426-12473",
-      "retrieval_date": "2025-08-28T12:12:03",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_121203_Projektleiter_Risikomanagement___Scrum_(m_w_d)_426-12473.md",
-      "url": "https://www.freelancermap.de/projekt/projektleiter-risikomanagement-scrum-m-w-d-426-12473?ref=rss",
-      "company": "top itservices AG",
-      "application_date": null
-    },
-    {
-      "id": "20250828_165535_90%_remote__Junior_Terraform_Engineer_(w_m_d)",
-      "title": "90% remote: Junior Terraform Engineer (w/m/d)",
-      "retrieval_date": "2025-08-28T16:55:35",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_165535_90%_remote__Junior_Terraform_Engineer_(w_m_d).md",
-      "url": "https://www.freelancermap.de/projekt/90-prozent-remote-junior-terraform-engineer-w-m-d?ref=rss",
-      "company": "Nemensis AG",
-      "application_date": null
-    },
-    {
-      "id": "20250827_164955_SAP_Ariba_Expert_(f_m_d)",
-      "title": "SAP Ariba Expert (f/m/d)",
-      "retrieval_date": "2025-08-27T16:49:55",
-      "eingestellt_date": "2025-08-27",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250827_164955_SAP_Ariba_Expert_(f_m_d).md",
-      "url": "https://www.freelancermap.de/projekt/sap-ariba-expert-f-m-d-2913052?ref=rss",
-      "company": "Etengo AG",
-      "application_date": null
-    },
-    {
-      "id": "20250828_165534_Senior_Projektleiter_SAP_–_HR_SuccessFactors_(Remote,_18+_Monate_Laufzeit,_ASAP)",
-      "title": "Senior Projektleiter SAP – HR SuccessFactors (Remote, 18+ Monate Laufzeit, ASAP)",
-      "retrieval_date": "2025-08-28T16:55:34",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_165534_Senior_Projektleiter_SAP_–_HR_SuccessFactors_(Remote,_18+_Monate_Laufzeit,_ASAP).md",
-      "url": "https://www.freelancermap.de/projekt/senior-projektleiter-sap-hr-successfactors-remote-18-monate-laufzeit-asap?ref=rss",
-      "company": "Tenth Revolution Group",
-      "application_date": null
-    },
-    {
-      "id": "20250828_112021_AS_RP_IT_SAP_FI_S_4_Consultant",
-      "title": "AS_RP_IT_SAP FI S/4 Consultant",
-      "retrieval_date": "2025-08-28T11:20:21",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_112021_AS_RP_IT_SAP_FI_S_4_Consultant.md",
-      "url": "https://www.freelancermap.de/projekt/as-rp-it-sap-fi-s-4-consultant?ref=rss",
-      "company": "Randstad Professional GmbH (vorm. GULP)",
-      "application_date": null
-    },
-    {
-      "id": "20250828_121820_SAP_Anaplan_Consultant_(German_speaker)",
-      "title": "SAP Anaplan Consultant (German speaker)",
-      "retrieval_date": "2025-08-28T12:18:20",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_121820_SAP_Anaplan_Consultant_(German_speaker).md",
-      "url": "https://www.freelancermap.ch/projekt/sap-anaplan-consultant-german-speaker?ref=rss",
-      "company": "SThree_Germany",
-      "application_date": null
-    },
-    {
-      "id": "20250828_122519_Test_Engineer_-_User_Acceptance_Testing",
-      "title": "Test Engineer - User Acceptance Testing",
-      "retrieval_date": "2025-08-28T12:25:19",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_122519_Test_Engineer_-_User_Acceptance_Testing.md",
-      "url": "https://www.freelancermap.ch/projekt/test-engineer-user-acceptance-testing?ref=rss",
+      "file_path": "../projects/20250829_134848_Regulatory_Operations_Specialist_-_Product_Chemistry.md",
+      "url": "https://www.freelancermap.ch/projekt/regulatory-operations-specialist-product-chemistry?ref=rss",
       "company": "RM Group",
       "application_date": null
     },
     {
-      "id": "20250828_121207_Senior_IT-Projektleiter_System,_Datacenter_und_M365_(A)",
-      "title": "Senior IT-Projektleiter System, Datacenter und M365 (A)",
-      "retrieval_date": "2025-08-28T12:12:07",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_121207_Senior_IT-Projektleiter_System,_Datacenter_und_M365_(A).md",
-      "url": "https://www.freelancermap.ch/projekt/senior-it-projektleiter-system-datacenter-und-m365-a?ref=rss",
-      "company": "Bosshard & Partner Unternehmensberatung AG",
-      "application_date": null
-    },
-    {
-      "id": "20250828_121815_Bauleiter_im_Bereich_Stahl___Brückenbau___Ingenieurbau_(m_w_d)",
-      "title": "Bauleiter im Bereich Stahl / Brückenbau / Ingenieurbau (m/w/d)",
-      "retrieval_date": "2025-08-28T12:18:15",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_121815_Bauleiter_im_Bereich_Stahl___Brückenbau___Ingenieurbau_(m_w_d).md",
-      "url": "https://www.freelancermap.de/projekt/bauleiter-im-bereich-stahl-brueckenbau-ingenieurbau-m-w-d?ref=rss",
-      "company": "SOLCOM GmbH",
-      "application_date": null
-    },
-    {
-      "id": "20250828_121205_Content_Creator_für_Hormongesundheit_&_Frauenwohlbefinden",
-      "title": "Content Creator für Hormongesundheit & Frauenwohlbefinden",
-      "retrieval_date": "2025-08-28T12:12:05",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_121205_Content_Creator_für_Hormongesundheit_&_Frauenwohlbefinden.md",
-      "url": "https://www.freelancermap.at/projekt/content-creator-fuer-hormongesundheit-und-frauenwohlbefinden?ref=rss",
-      "company": null,
-      "application_date": null
-    },
-    {
-      "id": "20250829_105156_Telematik_System_und_Software_Tester_InCar_(m_w_d)",
-      "title": "Telematik System und Software Tester InCar (m/w/d)",
-      "retrieval_date": "2025-08-29T10:51:56",
-      "eingestellt_date": "2025-08-29",
-      "pre_eval_score": 8,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250829_105156_Telematik_System_und_Software_Tester_InCar_(m_w_d).md",
-      "url": "https://www.freelancermap.de/projekt/telematik-system-und-software-tester-incar-m-w-d?ref=rss",
-      "company": "SOLCOM GmbH",
-      "application_date": null
-    },
-    {
-      "id": "20250828_112022_Consultant_Anwendungsarchitektur_-_100_remote",
-      "title": "Consultant Anwendungsarchitektur - 100 remote",
-      "retrieval_date": "2025-08-28T11:20:22",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_112022_Consultant_Anwendungsarchitektur_-_100_remote.md",
-      "url": "https://www.freelancermap.de/projekt/consultant-anwendungsarchitektur-100-remote?ref=rss",
-      "company": "Softcom Consulting GmbH",
-      "application_date": null
-    },
-    {
-      "id": "20250828_121204_Freiberufliche_Mechaniker___Schlosser_(m_w_d)_Ab_Sofort_gesucht___Krisensicherer_Kunde",
-      "title": "Freiberufliche Mechaniker / Schlosser (m/w/d) Ab Sofort gesucht / Krisensicherer Kunde",
-      "retrieval_date": "2025-08-28T12:12:04",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_121204_Freiberufliche_Mechaniker___Schlosser_(m_w_d)_Ab_Sofort_gesucht___Krisensicherer_Kunde.md",
-      "url": "https://www.freelancermap.de/projekt/freiberufliche-mechaniker-schlosser-m-w-d-ab-sofort-gesucht-krisensicherer-kunde?ref=rss",
-      "company": "WeMatch Consulting GmbH",
-      "application_date": null
-    },
-    {
-      "id": "20250828_121818_IT_Senior_System_Engineer_Azure_Infrastruktur_(Netzwerk,_Kubernetes,_DevOps)_(56334)_NEU",
-      "title": "IT Senior System Engineer Azure Infrastruktur (Netzwerk, Kubernetes, DevOps) (56334) NEU",
-      "retrieval_date": "2025-08-28T12:18:18",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_121818_IT_Senior_System_Engineer_Azure_Infrastruktur_(Netzwerk,_Kubernetes,_DevOps)_(56334)_NEU.md",
-      "url": "https://www.freelancermap.ch/projekt/it-senior-system-engineer-azure-infrastruktur-netzwerk-kubernetes-devops-56334-neu?ref=rss",
-      "company": "IQ PLUS AG",
-      "application_date": null
-    },
-    {
-      "id": "20250829_105157_Bauleiter___Koordinator_für_Tiefbau_&_Freileitungsbau_(110_kV)_(m_w_d)",
-      "title": "Bauleiter / Koordinator für Tiefbau & Freileitungsbau (110 kV) (m/w/d)",
-      "retrieval_date": "2025-08-29T10:51:57",
-      "eingestellt_date": "2025-08-29",
-      "pre_eval_score": 3,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250829_105157_Bauleiter___Koordinator_für_Tiefbau_&_Freileitungsbau_(110_kV)_(m_w_d).md",
-      "url": "https://www.freelancermap.de/projekt/bauleiter-koordinator-fuer-tiefbau-und-freileitungsbau-110-kv-m-w-d-2913715?ref=rss",
-      "company": "SOLCOM GmbH",
-      "application_date": null
-    },
-    {
-      "id": "20250828_165533_Zertifizierter_Java_Architekt_(m_w_d)_-_Arbeitnehmerüberlassung",
-      "title": "Zertifizierter Java Architekt (m/w/d) - Arbeitnehmerüberlassung",
-      "retrieval_date": "2025-08-28T16:55:33",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_165533_Zertifizierter_Java_Architekt_(m_w_d)_-_Arbeitnehmerüberlassung.md",
-      "url": "https://www.freelancermap.de/projekt/zertifizierter-java-architekt-m-w-d-arbeitnehmerueberlassung?ref=rss",
-      "company": "1st solution consulting gmbh",
-      "application_date": null
-    },
-    {
-      "id": "20250828_121203_Freiberufliche_Elektriker_(m_w_d)_Ab_Sofort_gesucht___Langzeit_Projekt___Krisensicher__Infrastruktur",
-      "title": "Freiberufliche Elektriker (m/w/d) Ab Sofort gesucht / Langzeit Projekt / Krisensicher/ Infrastruktur",
-      "retrieval_date": "2025-08-28T12:12:03",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_121203_Freiberufliche_Elektriker_(m_w_d)_Ab_Sofort_gesucht___Langzeit_Projekt___Krisensicher__Infrastruktur.md",
-      "url": "https://www.freelancermap.de/projekt/freiberufliche-elektriker-m-w-d-ab-sofort-gesucht-langzeit-projekt-krisensicher-infrastruktur?ref=rss",
-      "company": "WeMatch Consulting GmbH",
-      "application_date": null
-    },
-    {
-      "id": "20250828_113257_OSPlus_Kredit_Experte_(m_w_d)",
-      "title": "OSPlus Kredit Experte (m/w/d)",
-      "retrieval_date": "2025-08-28T11:32:57",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_113257_OSPlus_Kredit_Experte_(m_w_d).md",
-      "url": "https://www.freelancermap.de/projekt/osplus-kredit-experte-m-w-d?ref=rss",
-      "company": "Akkodis Germany Tech Freelance GmbH",
-      "application_date": null
-    },
-    {
-      "id": "20250828_162706_Bauingenieur_Holzbau_(m_w_d)",
-      "title": "Bauingenieur Holzbau (m/w/d)",
-      "retrieval_date": "2025-08-28T16:27:06",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_162706_Bauingenieur_Holzbau_(m_w_d).md",
-      "url": "https://www.freelancermap.de/projekt/bauingenieur-holzbau-m-w-d?ref=rss",
-      "company": "SOLCOM GmbH",
-      "application_date": null
-    },
-    {
-      "id": "20250828_121207_Auftrag_A8842_-_Senior_Security_Engineer_Penetration_Tester_OSCP_oder_CISSP_(contract)",
-      "title": "Auftrag A8842 - Senior Security Engineer Penetration Tester OSCP oder CISSP (contract)",
-      "retrieval_date": "2025-08-28T12:12:07",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_121207_Auftrag_A8842_-_Senior_Security_Engineer_Penetration_Tester_OSCP_oder_CISSP_(contract).md",
-      "url": "https://www.freelancermap.ch/projekt/auftrag-a8842-senior-security-engineer-penetration-tester-oscp-oder-cissp-contract?ref=rss",
-      "company": "Global Human Resources",
-      "application_date": null
-    },
-    {
-      "id": "20250828_170032_Commercial_Coordinator_(Senior)_(m_w_d)",
-      "title": "Commercial Coordinator (Senior) (m/w/d)",
-      "retrieval_date": "2025-08-28T17:00:32",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_170032_Commercial_Coordinator_(Senior)_(m_w_d).md",
-      "url": "https://www.freelancermap.de/projekt/commercial-coordinator-senior-m-w-d?ref=rss",
-      "company": "Elevation Partners GmbH",
-      "application_date": null
-    },
-    {
-      "id": "20250828_121203_Fullstack-Entwickler_(w_m_d)_Bluecat_API",
-      "title": "Fullstack-Entwickler (w/m/d) Bluecat API",
-      "retrieval_date": "2025-08-28T12:12:03",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_121203_Fullstack-Entwickler_(w_m_d)_Bluecat_API.md",
-      "url": "https://www.freelancermap.de/projekt/fullstack-entwickler-w-m-d-bluecat-api?ref=rss",
-      "company": "Etengo AG",
-      "application_date": null
-    },
-    {
-      "id": "20250828_164458_Data_Engineer_(m_w_d)",
-      "title": "Data Engineer (m/w/d)",
-      "retrieval_date": "2025-08-28T16:44:58",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_164458_Data_Engineer_(m_w_d).md",
-      "url": "https://www.freelancermap.de/projekt/data-engineer-m-w-d-2913521?ref=rss",
-      "company": "AWESOME! Software GmbH",
-      "application_date": null
-    },
-    {
-      "id": "20250829_124954_Freelancer-Unterstützung_im_Bereich_Wasser_&_Umwelttechnik",
-      "title": "Freelancer-Unterstützung im Bereich Wasser & Umwelttechnik",
-      "retrieval_date": "2025-08-29T12:49:54",
-      "eingestellt_date": "2025-08-29",
-      "pre_eval_score": 3,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250829_124954_Freelancer-Unterstützung_im_Bereich_Wasser_&_Umwelttechnik.md",
-      "url": "https://www.freelancermap.ch/projekt/freelancer-unterstuetzung-im-bereich-wasser-und-umwelttechnik?ref=rss",
-      "company": "TopTeam Engineering GmbH",
-      "application_date": null
-    },
-    {
-      "id": "20250828_162709_ICT_Product_Owner_mit_PSP_(Personensicherheitsprüfung)",
-      "title": "ICT Product Owner mit PSP (Personensicherheitsprüfung)",
-      "retrieval_date": "2025-08-28T16:27:09",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_162709_ICT_Product_Owner_mit_PSP_(Personensicherheitsprüfung).md",
-      "url": "https://www.freelancermap.ch/projekt/ict-product-owner-mit-psp-personensicherheitspruefung?ref=rss",
-      "company": "ONiKO AG",
-      "application_date": null
-    },
-    {
-      "id": "20250828_164356_Agile_Coach_(m_w_d)_mit_Knowhow_in_SAFe__hauptsächlich_remote_&_langes_Projekt_",
-      "title": "Agile Coach (m/w/d) mit Knowhow in SAFe *hauptsächlich remote & langes Projekt*",
-      "retrieval_date": "2025-08-28T16:43:56",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_164356_Agile_Coach_(m_w_d)_mit_Knowhow_in_SAFe__hauptsächlich_remote_&_langes_Projekt_.md",
-      "url": "https://www.freelancermap.de/projekt/agile-coach-m-w-d-mit-knowhow-in-safe-hauptsaechlich-remote-und-langes-projekt?ref=rss",
-      "company": "DEED Consulting GmbH",
-      "application_date": null
-    },
-    {
-      "id": "20250828_121208_Qualification_Expert_(m_f_d)",
-      "title": "Qualification Expert (m/f/d)",
-      "retrieval_date": "2025-08-28T12:12:08",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_121208_Qualification_Expert_(m_f_d).md",
-      "url": "https://www.freelancermap.ch/projekt/qualification-expert-m-f-d-2913322?ref=rss",
-      "company": "ITech Consult AG",
-      "application_date": null
-    },
-    {
-      "id": "20250827_170807_proALPHA_Experte",
-      "title": "proALPHA Experte",
-      "retrieval_date": "2025-08-27T17:08:07",
-      "eingestellt_date": "2025-08-27",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250827_170807_proALPHA_Experte.md",
-      "url": "https://www.freelancermap.de/projekt/proalpha-experte?ref=rss",
-      "company": "Dietrich Spohr Personalagentur GmbH",
-      "application_date": null
-    },
-    {
-      "id": "20250829_105200_Dynamics_365_Swiss",
-      "title": "Dynamics 365 Swiss",
-      "retrieval_date": "2025-08-29T10:52:00",
-      "eingestellt_date": "2025-08-29",
-      "pre_eval_score": 5,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250829_105200_Dynamics_365_Swiss.md",
-      "url": "https://www.freelancermap.ch/projekt/dynamics-365-swiss?ref=rss",
-      "company": "Lawrence Harvey",
-      "application_date": null
-    },
-    {
-      "id": "20250828_121816_Business_Analyst_-_PLM_-_Schnittstellen_SAP_-_PTC_(m_w_d)",
-      "title": "Business Analyst  - PLM - Schnittstellen SAP - PTC (m/w/d)",
-      "retrieval_date": "2025-08-28T12:18:16",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_121816_Business_Analyst_-_PLM_-_Schnittstellen_SAP_-_PTC_(m_w_d).md",
-      "url": "https://www.freelancermap.de/projekt/business-analyst-plm-schnittstellen-sap-ptc-m-w-d-2913350?ref=rss",
-      "company": "SOLCOM GmbH",
-      "application_date": null
-    },
-    {
-      "id": "20250828_121205_Low_Code_-_Power_Apps_Engineer",
-      "title": "Low Code - Power Apps Engineer",
-      "retrieval_date": "2025-08-28T12:12:05",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_121205_Low_Code_-_Power_Apps_Engineer.md",
-      "url": "https://www.freelancermap.at/projekt/low-code-power-apps-engineer?ref=rss",
-      "company": "Amass Technology",
-      "application_date": null
-    },
-    {
-      "id": "20250828_145743_Technical_Expert_(m_f_x)_Container_Product_Development",
-      "title": "Technical Expert (m/f/x) Container Product Development",
-      "retrieval_date": "2025-08-28T14:57:43",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_145743_Technical_Expert_(m_f_x)_Container_Product_Development.md",
-      "url": "https://www.freelancermap.at/projekt/technical-expert-m-f-x-container-product-development?ref=rss",
-      "company": "SThree_Germany",
-      "application_date": null
-    },
-    {
-      "id": "20250828_121817_Low_Code_-_Power_Apps_Engineer",
-      "title": "Low Code - Power Apps Engineer",
-      "retrieval_date": "2025-08-28T12:18:17",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_121817_Low_Code_-_Power_Apps_Engineer.md",
-      "url": "https://www.freelancermap.at/projekt/low-code-power-apps-engineer?ref=rss",
-      "company": "Amass Technology",
-      "application_date": null
-    },
-    {
-      "id": "20250829_105200_Mechanical_Engineer_Product_Care_(m_w_d)",
-      "title": "Mechanical Engineer Product Care  (m/w/d)",
-      "retrieval_date": "2025-08-29T10:52:00",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": 5,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250829_105200_Mechanical_Engineer_Product_Care_(m_w_d).md",
-      "url": "https://www.freelancermap.ch/projekt/mechanical-engineer-product-care-m-w-d-2913633?ref=rss",
-      "company": "Hays AG",
-      "application_date": null
-    },
-    {
-      "id": "20250829_124952_Technical_Pre-Sales_Manager___Low-Code_Plattformen_-_remote_-_6_Monate_-_Start__15.09.",
-      "title": "Technical Pre-Sales Manager / Low-Code Plattformen - remote - 6 Monate - Start: 15.09.",
-      "retrieval_date": "2025-08-29T12:49:52",
-      "eingestellt_date": "2025-08-29",
-      "pre_eval_score": 8,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250829_124952_Technical_Pre-Sales_Manager___Low-Code_Plattformen_-_remote_-_6_Monate_-_Start__15.09..md",
-      "url": "https://www.freelancermap.de/projekt/technical-pre-sales-manager-low-code-plattformen-remote-6-monate-start-15-09?ref=rss",
-      "company": "Optimus Search GmbH",
-      "application_date": null
-    },
-    {
-      "id": "20250829_105156_Baufeldfreiheitsmanager_(m_w_d)",
-      "title": "Baufeldfreiheitsmanager (m/w/d)",
-      "retrieval_date": "2025-08-29T10:51:56",
-      "eingestellt_date": "2025-08-29",
-      "pre_eval_score": 3,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250829_105156_Baufeldfreiheitsmanager_(m_w_d).md",
-      "url": "https://www.freelancermap.de/projekt/baufeldfreiheitsmanager-m-w-d?ref=rss",
-      "company": "SOLCOM GmbH",
-      "application_date": null
-    },
-    {
-      "id": "20250828_112022_SW_Architekt_für_Balisentreiberentwicklung_(w_m_d)_gesucht!_Ref.Nr._3987!",
-      "title": "SW Architekt für Balisentreiberentwicklung (w/m/d) gesucht! Ref.Nr. 3987!",
-      "retrieval_date": "2025-08-28T11:20:22",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_112022_SW_Architekt_für_Balisentreiberentwicklung_(w_m_d)_gesucht!_Ref.Nr._3987!.md",
-      "url": "https://www.freelancermap.de/projekt/sw-architekt-fuer-balisentreiberentwicklung-w-m-d-gesucht-ref-nr-3987?ref=rss",
-      "company": "agex IT GmbH",
-      "application_date": null
-    },
-    {
-      "id": "20250828_145740_Westhouse_Job__Assistenz_der_Geschäftsführung_(m_w_d)",
-      "title": "Westhouse Job: Assistenz der Geschäftsführung (m/w/d)",
-      "retrieval_date": "2025-08-28T14:57:40",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_145740_Westhouse_Job__Assistenz_der_Geschäftsführung_(m_w_d).md",
-      "url": "https://www.freelancermap.de/projekt/westhouse-job-assistenz-der-geschaeftsfuehrung-m-w-d-2913460?ref=rss",
-      "company": "Westhouse Consulting GmbH",
-      "application_date": null
-    },
-    {
-      "id": "20250829_124954_WIEN__Netzwerk_Experte_(all_genders),_Start_asap",
-      "title": "WIEN: Netzwerk Experte (all genders), Start asap",
-      "retrieval_date": "2025-08-29T12:49:54",
+      "id": "20250829_135150_Adobe_Commerce_Experts_-_100%_remote,_ASAP,_12+_months",
+      "title": "20250829_135150_Adobe_Commerce_Experts_-_100%_remote,_ASAP,_12+_months",
+      "retrieval_date": "2025-08-29T13:51:50",
       "eingestellt_date": "2025-08-29",
       "pre_eval_score": 10,
-      "llm_score": 65,
+      "llm_score": 18,
       "status": "rejected",
-      "file_path": "projects_rejected/20250829_124954_WIEN__Netzwerk_Experte_(all_genders),_Start_asap.md",
-      "url": "https://www.freelancermap.at/projekt/wien-netzwerk-experte-all-genders-start-asap?ref=rss",
-      "company": "Flux Consulting GmbH",
+      "file_path": "../projects/20250829_135150_Adobe_Commerce_Experts_-_100%_remote,_ASAP,_12+_months.md",
+      "url": "https://www.freelancermap.de/projekt/adobe-commerce-experts-100-prozent-remote-asap-12-months?ref=rss",
+      "company": "wynwood tech solutions GmbH",
       "application_date": null
     },
     {
-      "id": "20250829_124952_Infrastructure_Engineer_(m_w_d)",
-      "title": "Infrastructure Engineer (m/w/d)",
-      "retrieval_date": "2025-08-29T12:49:52",
+      "id": "20250829_140841_FPGA-Entwicklung_(AMD_Vivado__Vitis)",
+      "title": "20250829_140841_FPGA-Entwicklung_(AMD_Vivado__Vitis)",
+      "retrieval_date": "2025-08-29T14:08:41",
+      "eingestellt_date": "2025-08-29",
+      "pre_eval_score": 11,
+      "llm_score": 25,
+      "status": "rejected",
+      "file_path": "../projects/20250829_140841_FPGA-Entwicklung_(AMD_Vivado__Vitis).md",
+      "url": "https://www.freelancermap.de/projekt/fpga-entwicklung-amd-vivado-vitis?ref=rss",
+      "company": "FERCHAU GmbH",
+      "application_date": null
+    },
+    {
+      "id": "20250829_140840_IT-Infrastruktur_Consultant_(m_w_d)_–_Schwerpunkt_SCCM_–_Projektstart_asap",
+      "title": "20250829_140840_IT-Infrastruktur_Consultant_(m_w_d)_–_Schwerpunkt_SCCM_–_Projektstart_asap",
+      "retrieval_date": "2025-08-29T14:08:40",
       "eingestellt_date": "2025-08-29",
       "pre_eval_score": 8,
-      "llm_score": null,
+      "llm_score": 0,
       "status": "rejected",
-      "file_path": "projects_rejected/20250829_124952_Infrastructure_Engineer_(m_w_d).md",
-      "url": "https://www.freelancermap.de/projekt/infrastructure-engineer-m-w-d-2913778?ref=rss",
-      "company": "Pont Connects e.K.",
-      "application_date": null
-    },
-    {
-      "id": "20250828_162707_SAP-Berater_EDM_und_MeMi_(m_w_d)",
-      "title": "SAP-Berater EDM und MeMi (m/w/d)",
-      "retrieval_date": "2025-08-28T16:27:07",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_162707_SAP-Berater_EDM_und_MeMi_(m_w_d).md",
-      "url": "https://www.freelancermap.de/projekt/sap-berater-edm-und-memi-m-w-d?ref=rss",
-      "company": "SOLCOM GmbH",
-      "application_date": null
-    },
-    {
-      "id": "20250828_121205_Cisco_Network_Security_Expert_(m_w_d)_(10155-20250828)",
-      "title": "Cisco Network Security Expert (m/w/d) (10155-20250828)",
-      "retrieval_date": "2025-08-28T12:12:05",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_121205_Cisco_Network_Security_Expert_(m_w_d)_(10155-20250828).md",
-      "url": "https://www.freelancermap.at/projekt/cisco-network-security-expert-m-w-d-10155-20250828?ref=rss",
-      "company": "softwareXperts GmbH",
-      "application_date": null
-    },
-    {
-      "id": "20250828_121204_Inbetriebnehmer___Servicetechniker_–_Mechanische_Montage_im_Außendienst_(m_w_d)",
-      "title": "Inbetriebnehmer / Servicetechniker – Mechanische Montage im Außendienst (m/w/d)",
-      "retrieval_date": "2025-08-28T12:12:04",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "rejected",
-      "file_path": "projects_rejected/20250828_121204_Inbetriebnehmer___Servicetechniker_–_Mechanische_Montage_im_Außendienst_(m_w_d).md",
-      "url": "https://www.freelancermap.at/projekt/inbetriebnehmer-servicetechniker-mechanische-montage-im-aussendienst-m-w-d?ref=rss",
-      "company": "Computer Futures, ein Geschäftszweig der SThree GmbH",
-      "application_date": null
-    },
-    {
-      "id": "20250827_164939_Junior_oder_Senior_AILLM_Engineer",
-      "title": "Junior oder Senior AI/LLM Engineer",
-      "retrieval_date": "2025-08-27T16:49:39",
-      "eingestellt_date": "2025-08-27",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "applied",
-      "file_path": "projects_applied/20250827_164939_Junior_oder_Senior_AILLM_Engineer.md",
-      "url": "https://www.freelancermap.at/projekt/junior-oder-senior-ai-llm-engineer",
-      "company": "10X Group",
-      "application_date": null
-    },
-    {
-      "id": "20250827_105452_12_Monate++___Data_Strategy___40%_Remote-WIEN",
-      "title": "12 Monate++ | Data Strategy | 40% Remote-WIEN",
-      "retrieval_date": "2025-08-27T10:54:52",
-      "eingestellt_date": "2025-08-25",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "applied",
-      "file_path": "projects_applied/20250827_105452_12_Monate++___Data_Strategy___40%_Remote-WIEN.md",
-      "url": "https://www.freelancermap.at/projekt/data-strategy-12-monate-40-prozent-remote-wien?ref=rss",
-      "company": "de-bit Computer-Service GmbH",
-      "application_date": null
-    },
-    {
-      "id": "20250828_113258_90%_Remote__Python_Entwickler___Architekt_(m_w_d)_Automatisierung_&_IT-Security_-_Kostenl._Einarbeit",
-      "title": "90% Remote: Python Entwickler / Architekt (m/w/d) Automatisierung & IT-Security - Kostenl. Einarbeit",
-      "retrieval_date": "2025-08-28T11:32:58",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "applied",
-      "file_path": "projects_applied/20250828_113258_90%_Remote__Python_Entwickler___Architekt_(m_w_d)_Automatisierung_&_IT-Security_-_Kostenl._Einarbeit.md",
-      "url": "https://www.freelancermap.de/projekt/90-prozent-remote-python-entwickler-architekt-m-w-d-automatisierung-und-it-security-kostenl-einarbeit?ref=rss",
-      "company": "Nemensis AG",
-      "application_date": null
-    },
-    {
-      "id": "test_project",
-      "title": "Test AI/ML Project",
-      "retrieval_date": null,
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": 18,
-      "llm_score": null,
-      "status": "applied",
-      "file_path": "projects_applied/test_project.md",
-      "url": "https://example.com/test-project",
-      "company": "Test Company",
-      "application_date": null
-    },
-    {
-      "id": "20250827_105449_SAPI-248_Expert_Business-Analyst_in___BizDevOps_Engineer_(Business_Job)",
-      "title": "SAPI-248 Expert Business-Analyst:in / BizDevOps Engineer (Business Job)",
-      "retrieval_date": "2025-08-27T10:54:49",
-      "eingestellt_date": "2025-08-26",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "applied",
-      "file_path": "projects_applied/20250827_105449_SAPI-248_Expert_Business-Analyst_in___BizDevOps_Engineer_(Business_Job).md",
-      "url": "https://www.freelancermap.ch/projekt/sapi-248-expert-business-analyst-in-bizdevops-engineer-business-job?ref=rss",
-      "company": "Yes and Why GmbH",
-      "application_date": null
-    },
-    {
-      "id": "20250829_105200_Senior_IT-Projektleiter_-_System,_Datacenter_&_M365",
-      "title": "Senior IT-Projektleiter - System, Datacenter & M365",
-      "retrieval_date": "2025-08-29T10:52:00",
-      "eingestellt_date": "2025-08-29",
-      "pre_eval_score": 12,
-      "llm_score": 75,
-      "status": "applied",
-      "file_path": "projects_applied/20250829_105200_Senior_IT-Projektleiter_-_System,_Datacenter_&_M365.md",
-      "url": "https://www.freelancermap.ch/projekt/senior-it-projektleiter-system-datacenter-und-m365?ref=rss",
-      "company": "Pragmatica AG",
-      "application_date": null
-    },
-    {
-      "id": "20250828_113258_Cloud_Engineer,_Software_Developer",
-      "title": "Cloud Engineer, Software Developer",
-      "retrieval_date": "2025-08-28T11:32:58",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "applied",
-      "file_path": "projects_applied/20250828_113258_Cloud_Engineer,_Software_Developer.md",
-      "url": "https://www.freelancermap.de/projekt/cloud-engineer-software-developer?ref=rss",
-      "company": "Robert Bosch GmbH",
-      "application_date": null
-    },
-    {
-      "id": "20250827_104304_Embedded_Software_Entwickler_(m_w_d)",
-      "title": "Embedded Software Entwickler (m/w/d)",
-      "retrieval_date": "2025-08-27T10:43:04",
-      "eingestellt_date": "2025-08-27",
-      "pre_eval_score": null,
-      "llm_score": null,
-      "status": "applied",
-      "file_path": "projects_applied/20250827_104304_Embedded_Software_Entwickler_(m_w_d).md",
-      "url": "https://www.freelancermap.de/projekt/embedded-software-entwickler-m-w-d-2912751?ref=rss",
-      "company": "SThree",
-      "application_date": null
-    },
-    {
-      "id": "20250829_105201_SAPI-250_Senior_ICT-Architekt_in_für_AI@IT_(IT_Governance)",
-      "title": "SAPI-250 Senior ICT-Architekt:in für AI@IT (IT Governance)",
-      "retrieval_date": "2025-08-29T10:52:01",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": 32,
-      "llm_score": 86,
-      "status": "applied",
-      "file_path": "projects_applied/20250829_105201_SAPI-250_Senior_ICT-Architekt_in_für_AI@IT_(IT_Governance).md",
-      "url": "https://www.freelancermap.ch/projekt/sapi-250-senior-ict-architekt-in-fuer-ai-it-it-governance?ref=rss",
-      "company": "Yes and Why GmbH",
-      "application_date": null
-    },
-    {
-      "id": "20250829_105201_SAPI-249_Senior_Programmleiter_in_Projektleiter_in_für_AI@IT_(IT_Governance)",
-      "title": "SAPI-249 Senior Programmleiter:in/Projektleiter:in für AI@IT (IT Governance)",
-      "retrieval_date": "2025-08-29T10:52:01",
-      "eingestellt_date": "2025-08-28",
-      "pre_eval_score": 10,
-      "llm_score": 82,
-      "status": "applied",
-      "file_path": "projects_applied/20250829_105201_SAPI-249_Senior_Programmleiter_in_Projektleiter_in_für_AI@IT_(IT_Governance).md",
-      "url": "https://www.freelancermap.ch/projekt/sapi-249-senior-programmleiter-in-projektleiter-in-fuer-ai-it-it-governance?ref=rss",
-      "company": "Yes and Why GmbH",
+      "file_path": "../projects/20250829_140840_IT-Infrastruktur_Consultant_(m_w_d)_–_Schwerpunkt_SCCM_–_Projektstart_asap.md",
+      "url": "https://www.freelancermap.de/projekt/it-infrastruktur-consultant-m-w-d-schwerpunkt-sccm-projektstart-asap?ref=rss",
+      "company": "Amoria Bond GmbH",
       "application_date": null
     }
   ]
@@ -2268,30 +910,59 @@ const projectData = {
             const viewPresets = {
                 "default": {
                     "filters": {
+                        "scraped": false,
+                        "evaluating": false,
                         "accepted": true,
                         "rejected": false,
-                        "applied": true
+                        "applied": true,
+                        "sent": false,
+                        "open": false,
+                        "archived": false
                     },
                     "name": "Default View",
                     "date_range": "last_month"
-                },                
+                },
                 "all": {
                     "filters": {
+                        "scraped": true,
+                        "evaluating": true,
                         "accepted": true,
                         "rejected": true,
-                        "applied": true
+                        "applied": true,
+                        "sent": true,
+                        "open": true,
+                        "archived": true
                     },
                     "name": "All Projects",
                     "date_range": "all_time"
                 },
                 "review": {
                     "filters": {
+                        "scraped": false,
+                        "evaluating": true,
                         "accepted": true,
                         "rejected": false,
-                        "applied": true
+                        "applied": false,
+                        "sent": false,
+                        "open": false,
+                        "archived": false
                     },
                     "name": "Review Queue",
                     "date_range": "last_3_days"
+                },
+                "active": {
+                    "filters": {
+                        "scraped": false,
+                        "evaluating": false,
+                        "accepted": true,
+                        "rejected": false,
+                        "applied": true,
+                        "sent": true,
+                        "open": true,
+                        "archived": false
+                    },
+                    "name": "Active Projects",
+                    "date_range": "last_week"
                 }
             };
 
@@ -2327,22 +998,32 @@ const projectData = {
                 const statsContainer = document.getElementById("stats-container");
                 // Filtering logic
                 const searchTherm = document.getElementById('search-input').value.toLowerCase();
+                const scraped = document.getElementById('filter-scraped').checked;
+                const evaluating = document.getElementById('filter-evaluating').checked;
                 const accepted = document.getElementById('filter-accepted').checked;
                 const rejected = document.getElementById('filter-rejected').checked;
                 const applied = document.getElementById('filter-applied').checked;
+                const sent = document.getElementById('filter-sent').checked;
+                const open = document.getElementById('filter-open').checked;
+                const archived = document.getElementById('filter-archived').checked;
                 const startDate = document.getElementById('start-date').value;
                 const endDate = document.getElementById('end-date').value;
 
                 let filteredProjects = allProjects.filter(p => {
-                    const statusMatch = (accepted && p.status === 'accepted') ||
-                                      (rejected && p.status === 'rejected') ||
-                                      (applied && p.status === 'applied');
-                    
+                    const statusMatch = (scraped && p.status === 'scraped') ||
+                                       (evaluating && p.status === 'evaluating') ||
+                                       (accepted && p.status === 'accepted') ||
+                                       (rejected && p.status === 'rejected') ||
+                                       (applied && p.status === 'applied') ||
+                                       (sent && p.status === 'sent') ||
+                                       (open && p.status === 'open') ||
+                                       (archived && p.status === 'archived');
+
                     const searchMatch = p.title.toLowerCase().includes(searchTherm);
 
                     const retrievalDate = p.retrieval_date ? p.retrieval_date.split('T')[0] : '';
                     const dateMatch = (!startDate || retrievalDate >= startDate) &&
-                                    (!endDate || retrievalDate <= endDate);
+                                     (!endDate || retrievalDate <= endDate);
 
                     return statusMatch && searchMatch && dateMatch;
                 });
@@ -2362,9 +1043,14 @@ const projectData = {
                 
                 // Stats calculation
                 const stats = {
+                    scraped: 0,
+                    evaluating: 0,
                     accepted: 0,
                     rejected: 0,
                     applied: 0,
+                    sent: 0,
+                    open: 0,
+                    archived: 0,
                     total: filteredProjects.length
                 };
 
@@ -2376,44 +1062,56 @@ const projectData = {
 
                 statsContainer.innerHTML = `
                     <div class="stat-card"><strong>Total:</strong> ${stats.total}</div>
+                    <div class="stat-card status-scraped"><strong>Scraped:</strong> ${stats.scraped}</div>
+                    <div class="stat-card status-evaluating"><strong>Evaluating:</strong> ${stats.evaluating}</div>
                     <div class="stat-card status-accepted"><strong>Accepted:</strong> ${stats.accepted}</div>
                     <div class="stat-card status-rejected"><strong>Rejected:</strong> ${stats.rejected}</div>
                     <div class="stat-card status-applied"><strong>Applied:</strong> ${stats.applied}</div>
+                    <div class="stat-card status-sent"><strong>Sent:</strong> ${stats.sent}</div>
+                    <div class="stat-card status-open"><strong>Open:</strong> ${stats.open}</div>
+                    <div class="stat-card status-archived"><strong>Archived:</strong> ${stats.archived}</div>
                 `;
 
                 tableBody.innerHTML = filteredProjects.map(project => {
-                    const generateButton = project.status === 'accepted' ? `
-                        <button class="btn btn-generate"
-                                onclick="generateApplication('${project.id}', '${project.file_path}')"
-                                data-project-id="${project.id}"
-                                id="btn-${project.id}">
-                            <span class="btn-text">Generate App</span>
-                            <span class="btn-spinner" id="spinner-${project.id}">⟳</span>
-                        </button>
-                    ` : '';
+                    // Action buttons based on project status
+                    let actionButtons = '';
 
-                    // Move buttons based on project status
-                    let moveButtons = '';
                     if (project.status === 'accepted') {
-                        moveButtons = `
-                            <button class="btn btn-secondary btn-move"
-                                    onclick="moveProject('${project.id}', 'accepted', 'applied')"
-                                    data-project-id="${project.id}">
-                                Move to Applied
+                        actionButtons = `
+                            <button class="btn btn-generate"
+                                    onclick="generateApplication('${project.id}', '${project.file_path}')"
+                                    data-project-id="${project.id}"
+                                    id="btn-${project.id}">
+                                <span class="btn-text">Generate App</span>
+                                <span class="btn-spinner" id="spinner-${project.id}">⟳</span>
+                            </button>
+                        `;
+                    } else if (project.status === 'applied') {
+                        actionButtons = `
+                            <button class="btn btn-secondary"
+                                    onclick="executeScript('main', {'project_file': '${project.file_path}'})">
+                                Send Application
+                            </button>
+                        `;
+                    } else if (project.status === 'sent') {
+                        actionButtons = `
+                            <button class="btn btn-outline"
+                                    onclick="executeScript('main', {'project_file': '${project.file_path}'})">
+                                Follow Up
                             </button>
                         `;
                     } else if (project.status === 'rejected') {
-                        moveButtons = `
-                            <button class="btn btn-secondary btn-move"
-                                    onclick="moveProject('${project.id}', 'rejected', 'accepted')"
-                                    data-project-id="${project.id}">
-                                Move to Accepted
+                        actionButtons = `
+                            <button class="btn btn-outline"
+                                    onclick="moveProject('${project.id}', 'rejected', 'accepted')">
+                                Reconsider
                             </button>
                         `;
                     }
 
-                    // Script execution buttons (available for all projects)
-                    const scriptButtons = `
+                    // Common action buttons (available for all projects)
+                    const commonButtons = `
+                        <a href="/${project.file_path}" target="_blank" class="btn btn-view">View File</a>
                         <button class="btn btn-outline btn-script"
                                 onclick="executeScript('evaluate', {'project_file': '${project.file_path}'})"
                                 data-script="evaluate">
@@ -2432,10 +1130,8 @@ const projectData = {
                             <td><span class="status-badge status-${project.status}">${project.status}</span></td>
                             <td class="actions-cell">
                                 <div class="action-buttons" data-project-id="${project.id}">
-                                    <a href="/${project.file_path}" target="_blank" class="btn btn-view">View File</a>
-                                    ${generateButton}
-                                    ${moveButtons}
-                                    ${scriptButtons}
+                                    ${actionButtons}
+                                    ${commonButtons}
                                 </div>
                             </td>
                         </tr>
@@ -2445,9 +1141,14 @@ const projectData = {
             
             // Event Listeners for controls
             document.getElementById('search-input').addEventListener('input', renderTable);
+            document.getElementById('filter-scraped').addEventListener('change', renderTable);
+            document.getElementById('filter-evaluating').addEventListener('change', renderTable);
             document.getElementById('filter-accepted').addEventListener('change', renderTable);
             document.getElementById('filter-rejected').addEventListener('change', renderTable);
             document.getElementById('filter-applied').addEventListener('change', renderTable);
+            document.getElementById('filter-sent').addEventListener('change', renderTable);
+            document.getElementById('filter-open').addEventListener('change', renderTable);
+            document.getElementById('filter-archived').addEventListener('change', renderTable);
             document.getElementById('start-date').addEventListener('change', renderTable);
             document.getElementById('end-date').addEventListener('change', renderTable);
             

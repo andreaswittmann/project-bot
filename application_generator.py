@@ -19,6 +19,8 @@ from anthropic import Anthropic, APIStatusError as AnthropicAPIStatusError
 from openai import OpenAI, RateLimitError, AuthenticationError
 import google.generativeai as genai
 
+from state_manager import ProjectStateManager
+
 # Import LangChain components
 try:
     from langchain.prompts import PromptTemplate
@@ -515,29 +517,24 @@ Gehaltsvorstellung: 120,- € pro Stunde
         with open(project_file, 'w', encoding='utf-8') as f:
             f.write(new_content)
 
-    def move_to_applied_folder(self, project_file: str) -> bool:
+    def update_project_state(self, project_file: str, new_state: str, note: Optional[str] = None) -> bool:
         """
-        Move processed project file to projects_applied/ folder.
+        Update project state using the state manager.
 
         Args:
             project_file: Path to project file
+            new_state: New state to set
+            note: Optional note for the state change
 
         Returns:
-            True if move was successful, False otherwise
+            True if update was successful, False otherwise
         """
-        project_filename = os.path.basename(project_file)
-        applied_dir = "projects_applied"
-
-        # Create directory if it doesn't exist
-        Path(applied_dir).mkdir(exist_ok=True)
-
-        destination_path = os.path.join(applied_dir, project_filename)
-
         try:
-            shutil.move(project_file, destination_path)
-            return True
+            projects_dir = os.path.dirname(project_file)
+            state_manager = ProjectStateManager(projects_dir)
+            return state_manager.update_state(project_file, new_state, note)
         except Exception as e:
-            print(f"Error moving file to {applied_dir}: {e}")
+            print(f"Error updating project state: {e}")
             return False
 
     def process_project(self, project_file: str, cv_content: str, fit_score: int) -> Dict[str, Any]:
@@ -559,7 +556,7 @@ Gehaltsvorstellung: 120,- € pro Stunde
             'error': None,
             'tokens_used': 0,
             'cost': 0.0,
-            'moved_to_applied': False
+            'state_updated': False
         }
 
         try:
@@ -573,6 +570,14 @@ Gehaltsvorstellung: 120,- € pro Stunde
             if fit_score < threshold:
                 result['error'] = f"Fit score {fit_score} below threshold {threshold}"
                 return result
+
+            # Initialize state manager
+            projects_dir = os.path.dirname(project_file)
+            state_manager = ProjectStateManager(projects_dir)
+
+            # Update state to applied
+            state_manager.update_state(project_file, 'applied', 'Starting application generation')
+            result['state_updated'] = True
 
             # Load project content
             with open(project_file, 'r', encoding='utf-8') as f:
@@ -592,8 +597,8 @@ Gehaltsvorstellung: 120,- € pro Stunde
                 project_file, application_text, tokens_used, cost, metadata
             )
 
-            # Move to applied folder
-            moved = self.move_to_applied_folder(project_file)
+            # Update state to sent
+            state_manager.update_state(project_file, 'sent', f'Application generated successfully')
 
             # Update result
             result.update({
@@ -601,7 +606,6 @@ Gehaltsvorstellung: 120,- € pro Stunde
                 'application_generated': True,
                 'tokens_used': tokens_used,
                 'cost': cost,
-                'moved_to_applied': moved,
                 'metadata': metadata
             })
 
@@ -730,6 +734,8 @@ if __name__ == "__main__":
 
             if result['application_generated']:
                 print(f"✅ Application generated successfully")
+                if result.get('state_updated'):
+                    print(f"   State updated to: sent")
             else:
                 print(f"❌ Failed to generate application: {result.get('error', 'Unknown error')}")
 

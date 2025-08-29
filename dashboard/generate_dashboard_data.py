@@ -1,32 +1,43 @@
 import os
 import re
 import json
+import sys
 from pathlib import Path
 from datetime import datetime
 
+# Add parent directory to path to import state_manager
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from state_manager import ProjectStateManager
+
 # --- Configuration ---
-PROJECT_DIRS = {
-    "accepted": "projects_accepted",
-    "rejected": "projects_rejected",
-    "applied": "projects_applied"
-}
+PROJECTS_DIR = "../projects"
 LOG_DIR = "projects_log"
-OUTPUT_FILE = "dashboard/dashboard.html"
+OUTPUT_FILE = "dashboard.html"
 APPLICATION_STATUS_FILE = "applications_status.json"
 # Using robust markers instead of a placeholder
 DATA_START_MARKER = "// --- DATA START ---"
 DATA_END_MARKER = "// --- DATA END ---"
 
 def get_project_files():
-    """Gathers all project markdown files from the configured directories."""
+    """Gathers all project markdown files from the projects directory with their states."""
     all_files = []
-    for status, dir_path in PROJECT_DIRS.items():
-        path = Path(dir_path)
-        if not path.is_dir():
-            print(f"Warning: Directory not found, skipping: {dir_path}")
-            continue
-        for file_path in path.glob("*.md"):
-            all_files.append({"status": status, "path": file_path})
+    state_manager = ProjectStateManager(PROJECTS_DIR)
+
+    projects_path = Path(PROJECTS_DIR)
+    if not projects_path.is_dir():
+        print(f"Warning: Projects directory not found: {PROJECTS_DIR}")
+        return all_files
+
+    for file_path in projects_path.glob("*.md"):
+        # Get the state from frontmatter
+        state = state_manager.get_current_state(str(file_path))
+        if state:
+            all_files.append({"status": state, "path": file_path})
+        else:
+            # If no state found, assume it's a legacy file and mark as scraped
+            print(f"Warning: No state found in {file_path}, assuming 'scraped'")
+            all_files.append({"status": "scraped", "path": file_path})
+
     return all_files
 
 def parse_retrieval_date_from_filename(filename):
@@ -45,36 +56,66 @@ def parse_markdown_file(file_path):
         "title": file_path.stem, # Default to filename without extension
         "eingestellt_date": None,
         "company": None,
-        "url": None
+        "url": None,
+        "state": None,
+        "state_history": [],
+        "pre_eval_score": None,
+        "llm_score": None
     }
+
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
-            content = f.read()
+        # Use state manager to read frontmatter
+        state_manager = ProjectStateManager(PROJECTS_DIR)
+        frontmatter, content = state_manager.read_project(str(file_path))
 
-        # Extract Title from the first H1 tag
-        title_match = re.search(r"^#\s*(.*)", content, re.MULTILINE)
-        if title_match:
-            metadata["title"] = title_match.group(1).strip()
+        # Extract metadata from frontmatter
+        metadata.update({
+            "title": frontmatter.get("title", file_path.stem),
+            "company": frontmatter.get("company"),
+            "url": frontmatter.get("source_url"),
+            "state": frontmatter.get("state"),
+            "state_history": frontmatter.get("state_history", [])
+        })
 
-        # Extract "Eingestellt" date
+        # Extract Title from the first H1 tag (fallback)
+        if not metadata["title"]:
+            title_match = re.search(r"^#\s*(.*)", content, re.MULTILINE)
+            if title_match:
+                metadata["title"] = title_match.group(1).strip()
+
+        # Extract "Eingestellt" date from content
         eingestellt_match = re.search(r"- \*\*Eingestellt:\*\*\s*(.*)", content)
         if eingestellt_match:
             date_str = eingestellt_match.group(1).strip()
             # Handle potential variations in date format, simple case for now
             try:
-                 metadata["eingestellt_date"] = datetime.strptime(date_str, "%d.%m.%Y").strftime("%Y-%m-%d")
+                  metadata["eingestellt_date"] = datetime.strptime(date_str, "%d.%m.%Y").strftime("%Y-%m-%d")
             except ValueError:
                 pass # Date format might be different
 
-        # Extract URL
-        url_match = re.search(r"\*\*URL:\*\*\s*\[(.*?)\]\((.*?)\)", content)
-        if url_match:
-            metadata["url"] = url_match.group(2).strip()
+        # Extract URL from content (fallback)
+        if not metadata["url"]:
+            url_match = re.search(r"\*\*URL:\*\*\s*\[(.*?)\]\((.*?)\)", content)
+            if url_match:
+                metadata["url"] = url_match.group(2).strip()
 
-        # Extract Company
-        company_match = re.search(r"- \*\*Von:\*\*\s*(.*)", content)
-        if company_match:
-            metadata["company"] = company_match.group(1).strip()
+        # Extract Company from content (fallback)
+        if not metadata["company"]:
+            company_match = re.search(r"- \*\*Von:\*\*\s*(.*)", content)
+            if company_match:
+                metadata["company"] = company_match.group(1).strip()
+
+        # Extract Pre-evaluation score from the most recent evaluation results
+        pre_eval_matches = re.findall(r"- \*\*Score:\*\*\s*(\d+)/100", content)
+        if pre_eval_matches:
+            # Get the most recent (last) score
+            metadata["pre_eval_score"] = int(pre_eval_matches[-1])
+
+        # Extract LLM score from the most recent evaluation results
+        llm_matches = re.findall(r"- \*\*Fit Score:\*\*\s*(\d+)/100", content)
+        if llm_matches:
+            # Get the most recent (last) score
+            metadata["llm_score"] = int(llm_matches[-1])
 
     except Exception as e:
         print(f"Error parsing markdown file {file_path}: {e}")
@@ -175,24 +216,20 @@ def generate_dashboard_data():
         # 1. Parse markdown file for metadata
         metadata = parse_markdown_file(path)
         
-        # 2. Find and parse the corresponding log file for scores
-        log_file = find_log_file(filename)
-        scores = parse_log_file(log_file, filename)
-
-        # 3. Get retrieval date from filename
+        # 2. Get retrieval date from filename
         retrieval_date = parse_retrieval_date_from_filename(filename)
 
-        # 4. Get application date if it exists
+        # 3. Get application date if it exists
         app_status = application_statuses.get(project_id, {})
-        
-        # 5. Consolidate all data
+
+        # 4. Consolidate all data
         data_point = {
             "id": project_id,
             "title": metadata["title"],
             "retrieval_date": retrieval_date,
             "eingestellt_date": metadata["eingestellt_date"],
-            "pre_eval_score": scores["pre_eval_score"],
-            "llm_score": scores["llm_score"],
+            "pre_eval_score": metadata["pre_eval_score"],
+            "llm_score": metadata["llm_score"],
             "status": file_info["status"],
             "file_path": str(path),
             "url": metadata["url"],
@@ -241,11 +278,11 @@ def generate_dashboard_data():
         print(f"An error occurred while injecting data into the HTML file: {e}")
 
 if __name__ == "__main__":
-    # Create projects_applied directory if it doesn't exist
-    Path(PROJECT_DIRS["applied"]).mkdir(exist_ok=True)
+    # Create projects directory if it doesn't exist
+    Path(PROJECTS_DIR).mkdir(exist_ok=True)
     # Create an empty application status file if it doesn't exist
     if not Path(APPLICATION_STATUS_FILE).exists():
         with open(APPLICATION_STATUS_FILE, 'w', encoding='utf-8') as f:
             json.dump({"applications":{}}, f)
-            
+
     generate_dashboard_data()

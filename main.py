@@ -3,11 +3,13 @@ import argparse
 import subprocess
 import sys
 import os
+from datetime import datetime
 from pathlib import Path
 from rss_helper import generate_rss_urls, fetch_and_process_rss
 import evaluate_projects
 from application_generator import create_application_generator, load_application_config
 from file_purger import FilePurger
+from state_manager import ProjectStateManager
 
 
 def load_cv_content(cv_file: str) -> str:
@@ -253,6 +255,117 @@ def handle_manual_application_generation(args) -> None:
         sys.exit(1)
 
 
+def handle_state_list(args) -> None:
+    """
+    Handle state list command.
+
+    Args:
+        args: Parsed command-line arguments
+    """
+    try:
+        projects_dir = getattr(args, 'output_dir', 'projects')
+        state_manager = ProjectStateManager(projects_dir)
+
+        if args.state:
+            # List projects in specific state
+            projects = state_manager.get_projects_by_state(args.state)
+            if not projects:
+                print(f"ℹ️  No projects found in state '{args.state}'")
+                return
+
+            print(f"📋 Projects in state '{args.state}':")
+            print("=" * 60)
+            for project in projects:
+                title = project.get('title', 'N/A')
+                company = project.get('company', 'N/A')
+                filename = project.get('filename', 'N/A')
+                print(f"• {title} ({company}) - {filename}")
+        else:
+            # Show state summary
+            summary = state_manager.get_state_summary()
+            print("📊 Project State Summary:")
+            print("=" * 40)
+            for state, count in summary.items():
+                if count > 0:
+                    print(f"• {state}: {count} projects")
+
+    except Exception as e:
+        print(f"❌ Error listing project states: {e}")
+        sys.exit(1)
+
+
+def handle_state_transition(args) -> None:
+    """
+    Handle manual state transition command.
+
+    Args:
+        args: Parsed command-line arguments
+    """
+    try:
+        if not args.project_file or not args.new_state:
+            print("❌ Both project file and new state are required")
+            return
+
+        projects_dir = getattr(args, 'output_dir', 'projects')
+        state_manager = ProjectStateManager(projects_dir)
+
+        success = state_manager.update_state(args.project_file, args.new_state, args.note)
+        if success:
+            print(f"✅ State updated: {os.path.basename(args.project_file)} → {args.new_state}")
+        else:
+            print(f"❌ Failed to update state for {args.project_file}")
+
+    except Exception as e:
+        print(f"❌ Error updating project state: {e}")
+        sys.exit(1)
+
+
+def handle_state_report(args) -> None:
+    """
+    Handle state report command.
+
+    Args:
+        args: Parsed command-line arguments
+    """
+    try:
+        projects_dir = getattr(args, 'output_dir', 'projects')
+        state_manager = ProjectStateManager(projects_dir)
+
+        # Get state summary
+        summary = state_manager.get_state_summary()
+
+        print("📊 Project State Report")
+        print("=" * 50)
+        print(f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        print()
+
+        total_projects = sum(summary.values())
+        print(f"Total Projects: {total_projects}")
+        print()
+
+        # Show breakdown
+        print("State Breakdown:")
+        for state, count in summary.items():
+            if count > 0:
+                percentage = (count / total_projects * 100) if total_projects > 0 else 0
+                print(f"  • {state:<12}: {count:>3} projects ({percentage:>5.1f}%)")
+
+        print()
+        print("State Definitions:")
+        print("  • scraped    : Newly scraped projects")
+        print("  • evaluating : Being processed by AI")
+        print("  • rejected   : Failed evaluation criteria")
+        print("  • accepted   : Passed evaluation, ready for application")
+        print("  • applied    : Application generated")
+        print("  • sent       : Application submitted to client")
+        print("  • open       : In client communication")
+        print("  • archived   : Final state for cleanup")
+
+    except Exception as e:
+        print(f"❌ Error generating state report: {e}")
+        sys.exit(1)
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="FreelancerMap Project Scraper: Scrape project details from FreelancerMap either from a single URL or by searching via RSS feeds.",
@@ -302,8 +415,33 @@ Examples:
                         help="Show preview of files that would be purged")
     parser.add_argument("--no-purge", action="store_true",
                         help="Skip automatic file purging")
+
+    # State management arguments
+    parser.add_argument("--state-list", action="store_true",
+                        help="List projects by state")
+    parser.add_argument("--state", help="Filter by specific state (scraped, evaluating, rejected, accepted, applied, sent, open, archived)")
+    parser.add_argument("--state-transition", action="store_true",
+                        help="Manually transition project state")
+    parser.add_argument("--project-file", help="Project file for state transition")
+    parser.add_argument("--new-state", help="New state for transition")
+    parser.add_argument("--note", help="Optional note for state transition")
+    parser.add_argument("--state-report", action="store_true",
+                        help="Generate project state report")
     
     args = parser.parse_args()
+
+    # Handle state management commands first
+    if args.state_list:
+        handle_state_list(args)
+        sys.exit(0)
+
+    if args.state_transition:
+        handle_state_transition(args)
+        sys.exit(0)
+
+    if args.state_report:
+        handle_state_report(args)
+        sys.exit(0)
 
     # Handle file purging first
     if args.purge is not None or args.purge_preview:

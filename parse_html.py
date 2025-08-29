@@ -7,6 +7,8 @@ from typing import Dict, List, Optional
 import requests
 from bs4 import BeautifulSoup, Tag
 
+from state_manager import ProjectStateManager
+
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
                   "AppleWebKit/537.36 (KHTML, like Gecko) "
@@ -246,10 +248,30 @@ def main():
     os.makedirs(output_dir, exist_ok=True)
     output_path = os.path.join(output_dir, filename)
 
+    # Write initial markdown content
     with open(output_path, "w", encoding="utf-8") as f:
         f.write(markdown_content)
 
-    print(f"Project saved to {output_path}")
+    # Initialize project with state management
+    state_manager = ProjectStateManager(output_dir)
+
+    # Prepare metadata for frontmatter
+    metadata = {
+        'title': data.get('titel', 'N/A'),
+        'company': data.get('von', 'N/A'),
+        'reference_id': data.get('projekt_id', 'N/A'),
+        'scraped_date': dt.datetime.now().isoformat(),
+        'source_url': data.get('url', args.url),
+        'state': 'scraped'
+    }
+
+    # Initialize project with frontmatter
+    success = state_manager.initialize_project(output_path, metadata)
+
+    if success:
+        print(f"Project saved to {output_path} with state management initialized")
+    else:
+        print(f"Project saved to {output_path} but failed to initialize state management")
 
 if __name__ == "__main__":
     main()

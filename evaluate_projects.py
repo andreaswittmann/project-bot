@@ -12,6 +12,8 @@ import google.generativeai as genai
 from anthropic import Anthropic, APIStatusError as AnthropicAPIStatusError
 from openai import OpenAI, RateLimitError, AuthenticationError
 
+from state_manager import ProjectStateManager
+
 LOG_DIR = 'projects_log'
 Path(LOG_DIR).mkdir(exist_ok=True)
 
@@ -437,7 +439,7 @@ def handle_llm_evaluation(cv_content: str, project_content: str, config: Dict[st
 def process_project_file(project_path: str, config: Dict[str, Any], cv_content: str, log_func: Optional[Callable[[str], None]] = None) -> None:
     """
     Process a single project file through the complete evaluation pipeline.
-    
+
     Args:
         project_path: Path to the project file to process
         config: Configuration dictionary
@@ -445,22 +447,30 @@ def process_project_file(project_path: str, config: Dict[str, Any], cv_content: 
         log_func: Optional existing log function to use
     """
     project_filename = os.path.basename(project_path)
-    
+
     # Set up logging
     log = setup_project_logging(project_path, log_func)
     log("=" * 50)
     log(f"Starting evaluation for: {project_filename}")
-    
+
+    # Initialize state manager
+    projects_dir = os.path.dirname(project_path)
+    state_manager = ProjectStateManager(projects_dir)
+
+    # Update state to evaluating
+    state_manager.update_state(project_path, 'evaluating', 'Starting AI evaluation')
+    log("State updated to: evaluating")
+
     # Load and validate project content
     project_content = load_and_validate_project(project_path, log)
     if not project_content:
         return
-    
+
     # Run pre-evaluation
     pre_eval_score, pre_eval_rationale, passed_pre_eval = handle_pre_evaluation(project_content, config, log)
-    
-    # Determine destination folder
-    dest_folder = 'projects_accepted' if passed_pre_eval else 'projects_rejected'
+
+    # Determine final state
+    final_state = 'accepted' if passed_pre_eval else 'rejected'
     
     # Handle pre-eval-only mode
     if config.get('pre_eval_only', False):
@@ -474,11 +484,11 @@ def process_project_file(project_path: str, config: Dict[str, Any], cv_content: 
             0, "LLM evaluation skipped (pre-evaluation only mode)", final_decision, acceptance_threshold, config, log
         )
 
-        success = move_project_file(project_path, dest_folder, log)
-        if success:
-            print(f"-> Processed {project_filename} | Pre-eval Score: {pre_eval_score:<3}% | Moved to '{dest_folder}'")
-            if append_success:
-                print(f"   ✓ Pre-evaluation results appended to markdown")
+        # Update state instead of moving file
+        state_manager.update_state(project_path, final_state, f'Pre-evaluation only: {pre_eval_score}% score')
+        print(f"-> Processed {project_filename} | Pre-eval Score: {pre_eval_score:<3}% | State: '{final_state}'")
+        if append_success:
+            print(f"   ✓ Pre-evaluation results appended to markdown")
         log("Evaluation finished.")
         log("=" * 50 + "\n")
         return
@@ -494,11 +504,11 @@ def process_project_file(project_path: str, config: Dict[str, Any], cv_content: 
             0, "LLM evaluation skipped (failed pre-evaluation)", 'rejected', acceptance_threshold, config, log
         )
 
-        success = move_project_file(project_path, dest_folder, log)
-        if success:
-            print(f"-> Processed {project_filename} | Pre-eval Score: {pre_eval_score:<3}% | Moved to '{dest_folder}'")
-            if append_success:
-                print(f"   ✓ Pre-evaluation results appended to markdown")
+        # Update state instead of moving file
+        state_manager.update_state(project_path, 'rejected', f'Pre-evaluation failed: {pre_eval_score}% score')
+        print(f"-> Processed {project_filename} | Pre-eval Score: {pre_eval_score:<3}% | State: 'rejected'")
+        if append_success:
+            print(f"   ✓ Pre-evaluation results appended to markdown")
         log("Evaluation finished.")
         log("=" * 50 + "\n")
         return
@@ -507,22 +517,21 @@ def process_project_file(project_path: str, config: Dict[str, Any], cv_content: 
     log("Result: Passed pre-evaluation. Proceeding to LLM analysis.")
     fit_score, rationale_text = handle_llm_evaluation(cv_content, project_content, config, log)
 
-    # Final decision and file move
+    # Final decision and state update
     acceptance_threshold = config.get('settings', {}).get('acceptance_threshold', 85)
-    final_dest_folder = 'projects_accepted' if fit_score >= acceptance_threshold else 'projects_rejected'
-    final_decision = 'accepted' if fit_score >= acceptance_threshold else 'rejected'
+    final_state = 'accepted' if fit_score >= acceptance_threshold else 'rejected'
 
     # Append evaluation results to markdown file
     append_success = append_evaluation_results_to_markdown(
         project_path, pre_eval_score, pre_eval_rationale,
-        fit_score, rationale_text, final_decision, acceptance_threshold, config, log
+        fit_score, rationale_text, final_state, acceptance_threshold, config, log
     )
 
-    success = move_project_file(project_path, final_dest_folder, log)
-    if success:
-        print(f"-> Processed {project_filename} | Score: {fit_score:>3}% | Moved to '{final_dest_folder}'")
-        if append_success:
-            print(f"   ✓ Evaluation results appended to markdown")
+    # Update state instead of moving file
+    state_manager.update_state(project_path, final_state, f'LLM evaluation: {fit_score}% fit score')
+    print(f"-> Processed {project_filename} | Score: {fit_score:>3}% | State: '{final_state}'")
+    if append_success:
+        print(f"   ✓ Evaluation results appended to markdown")
 
     log("Evaluation finished.")
     log("=" * 50 + "\n")
