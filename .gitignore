@@ -3,7 +3,7 @@ config.yaml
 *.key
 
 # Personal Data Files
-cv.md
+data/cv.md
 CV_*.md
 
 # Generated/Runtime Data Files

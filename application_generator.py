@@ -699,7 +699,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate job applications using AI")
     parser.add_argument('project_files', nargs='+', help='Project files to process')
     parser.add_argument('--config', default='config.yaml', help='Configuration file path')
-    parser.add_argument('--cv', default='cv.md', help='CV file path')
+    parser.add_argument('--cv', default='data/cv.md', help='CV file path')
     parser.add_argument('--threshold', type=int, help='Override fit score threshold')
 
     args = parser.parse_args()

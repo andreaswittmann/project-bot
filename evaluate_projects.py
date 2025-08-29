@@ -546,7 +546,7 @@ Examples:
     )
     parser.add_argument('project_file', nargs='?', default=None, help='Optional: Path to a specific project file to process.')
     parser.add_argument('--config', default='config.yaml', help='Path to the configuration file (default: config.yaml)')
-    parser.add_argument('--cv', default='cv.md', help='Path to the CV file (default: cv.md)')
+    parser.add_argument('--cv', default='data/cv.md', help='Path to the CV file (default: data/cv.md)')
     parser.add_argument('--projects-dir', default='projects', help="Directory containing projects to process (default: 'projects')")
     parser.add_argument('--pre-eval-only', action='store_true', help='Run only the pre-evaluation scoring without calling the LLM.')
     args = parser.parse_args()

@@ -70,9 +70,10 @@ This bot helps freelancers automate the complete process of:
    ```
 
 4. **Add your CV:**
-   ```bash
-   # Create cv.md with your CV content in markdown format
-   ```
+    ```bash
+    # Create data/cv.md with your CV content in markdown format
+    # (A symlink cv.md is automatically created for backward compatibility)
+    ```
 
 ## Configuration
 
@@ -265,19 +266,22 @@ bewerbungs-bot/
 ├── file_purger.py            # Intelligent file purging system
 ├── parse_html.py             # HTML parsing utilities
 ├── config.yaml               # Configuration (not in git)
-├── cv.md                     # Your CV (not in git)
+├── cv.md                     # CV symlink (points to data/cv.md)
 ├── requirements.txt          # Python dependencies
-├── dashboard/
+├── data/                     # Personal and business data
+│   └── cv.md                 # Your CV (not in git)
+├── docs/                     # Documentation
+│   ├── archive/              # Historical documentation
+│   └── dashboard_guide.md    # Dashboard documentation
+├── dashboard/                # Dashboard system
 │   ├── dashboard.html        # Interactive dashboard
-│   ├── generate_dashboard_data.py  # Data extraction script
-│   └── update_dashboard.py   # Dashboard update utility
+│   └── generate_dashboard_data.py  # Data extraction script
 ├── projects/                 # Scraped projects (temporary)
 ├── projects_accepted/        # Accepted projects
 ├── projects_rejected/        # Rejected projects
 ├── projects_applied/         # Applied projects (with generated applications)
 ├── projects_log/             # Evaluation logs
-├── applications_status.json  # Application tracking
-└── dashboard_guide.md        # Dashboard documentation
+└── applications_status.json  # Application tracking
 ```
 
 ## Workflow

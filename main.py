@@ -286,8 +286,8 @@ Examples:
                         help="Skip automatic application generation")
     parser.add_argument("--application-threshold", type=int,
                         help="Override the fit score threshold for application generation")
-    parser.add_argument("--cv-file", default="cv.md",
-                        help="Path to CV file (default: cv.md)")
+    parser.add_argument("--cv-file", default="data/cv.md",
+                        help="Path to CV file (default: data/cv.md)")
     parser.add_argument("--config", default="config.yaml",
                         help="Path to configuration file (default: config.yaml)")
 
