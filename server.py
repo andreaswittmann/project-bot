@@ -15,6 +15,8 @@ import json
 import logging
 from datetime import datetime
 
+from state_manager import ProjectStateManager
+
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -24,12 +26,8 @@ app = Flask(__name__)
 # Enable CORS for all routes
 CORS(app)
 
-# Project directories mapping
-PROJECT_DIRS = {
-    "accepted": "projects_accepted",
-    "rejected": "projects_rejected",
-    "applied": "projects_applied"
-}
+# Initialize state manager for single projects directory
+state_manager = ProjectStateManager()
 
 # Allowed scripts for execution
 ALLOWED_SCRIPTS = {
@@ -39,51 +37,44 @@ ALLOWED_SCRIPTS = {
     "dashboard": "dashboard/generate_dashboard_data.py"
 }
 
-def validate_project_path(project_id, status):
-    """Validate and construct project file path"""
-    if status not in PROJECT_DIRS:
-        return None, f"Invalid status: {status}"
-
-    dir_path = PROJECT_DIRS[status]
-    if not os.path.exists(dir_path):
-        return None, f"Directory not found: {dir_path}"
+def find_project_file(project_id):
+    """Find project file by ID in the projects directory"""
+    projects_dir = Path("projects")
+    if not projects_dir.exists():
+        return None, "Projects directory not found"
 
     # Look for the project file
-    for file_path in Path(dir_path).glob("*.md"):
+    for file_path in projects_dir.glob("*.md"):
         if project_id in file_path.name:
             return str(file_path), None
 
     return None, f"Project file not found: {project_id}"
 
-def move_project_file(project_id, from_status, to_status):
-    """Move project file between directories"""
+def update_project_state(project_id, from_status, to_status):
+    """Update project state using state manager"""
     try:
-        # Validate source path
-        source_path, error = validate_project_path(project_id, from_status)
+        # Find the project file
+        project_path, error = find_project_file(project_id)
         if error:
             return False, error
 
-        # Validate destination directory
-        if to_status not in PROJECT_DIRS:
-            return False, f"Invalid destination status: {to_status}"
+        # Verify current state matches expected from_status
+        current_state = state_manager.get_current_state(project_path)
+        if current_state != from_status:
+            return False, f"Project state mismatch: expected {from_status}, found {current_state}"
 
-        dest_dir = PROJECT_DIRS[to_status]
-        if not os.path.exists(dest_dir):
-            os.makedirs(dest_dir, exist_ok=True)
+        # Update the state
+        success = state_manager.update_state(project_path, to_status, f"State changed from {from_status} via dashboard")
 
-        # Construct destination path
-        source_file = Path(source_path)
-        dest_path = Path(dest_dir) / source_file.name
-
-        # Move the file
-        shutil.move(str(source_path), str(dest_path))
-
-        logger.info(f"Moved project {project_id} from {from_status} to {to_status}")
-        return True, f"Project moved successfully from {from_status} to {to_status}"
+        if success:
+            logger.info(f"Updated project {project_id} state from {from_status} to {to_status}")
+            return True, f"Project state updated successfully from {from_status} to {to_status}"
+        else:
+            return False, "Failed to update project state"
 
     except Exception as e:
-        logger.error(f"Error moving project {project_id}: {e}")
-        return False, f"Error moving project: {str(e)}"
+        logger.error(f"Error updating project {project_id} state: {e}")
+        return False, f"Error updating project state: {str(e)}"
 
 def execute_script(script_name, params=None):
     """Execute allowed Python scripts"""
@@ -102,17 +93,15 @@ def execute_script(script_name, params=None):
         if params:
             # Handle special case for project_file - it's a positional argument
             if 'project_file' in params:
-                # If it's just a filename, try to find it in any project directory
+                # If it's just a filename, try to find it in the projects directory
                 project_file = params['project_file']
-                if not os.path.isabs(project_file) and not project_file.startswith('projects_'):
-                    # Look for the file in all project directories
-                    for dir_name in PROJECT_DIRS.values():
-                        if os.path.exists(dir_name):
-                            for file_path in Path(dir_name).glob("*.md"):
-                                if project_file in file_path.name:
-                                    project_file = str(file_path)
-                                    break
-                            if project_file.startswith('projects_'):
+                if not os.path.isabs(project_file) and not project_file.startswith('projects'):
+                    # Look for the file in the projects directory
+                    projects_dir = Path("projects")
+                    if projects_dir.exists():
+                        for file_path in projects_dir.glob("*.md"):
+                            if project_file in file_path.name:
+                                project_file = str(file_path)
                                 break
 
                 cmd.append(project_file)
@@ -271,7 +260,7 @@ def api_move_project():
                 "error": "Missing required parameters: projectId, fromStatus, toStatus"
             }), 400
 
-        success, message = move_project_file(project_id, from_status, to_status)
+        success, message = update_project_state(project_id, from_status, to_status)
 
         return jsonify({
             "success": success,
@@ -352,6 +341,8 @@ if __name__ == '__main__':
     print("🚀 Starting Dynamic Dashboard Server...")
     print("📊 Dashboard: http://localhost:8001")
     print("🔧 API Health: http://localhost:8001/api/health")
+    print("📁 Projects Directory: projects/")
+    print("🔄 State Management: Enabled")
 
     app.run(
         debug=True,
