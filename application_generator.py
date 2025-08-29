@@ -598,7 +598,7 @@ Gehaltsvorstellung: 120,- € pro Stunde
             )
 
             # Update state to sent
-            state_manager.update_state(project_file, 'sent', f'Application generated successfully')
+            state_manager.update_state(project_file, 'applied', f'Application generated successfully')
 
             # Update result
             result.update({
