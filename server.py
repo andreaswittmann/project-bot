@@ -26,6 +26,19 @@ app = Flask(__name__)
 # Enable CORS for all routes
 CORS(app)
 
+# Disable caching globally to ensure freshest data on every request (especially for dashboard and APIs)
+@app.after_request
+def add_no_cache_headers(response):
+    try:
+        response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
+        # Allow the client refresh JS to work across origins if needed
+        response.headers["Access-Control-Expose-Headers"] = "Cache-Control, Pragma, Expires"
+    except Exception as e:
+        logger.warning(f"Failed to set no-cache headers: {e}")
+    return response
+
 # Initialize state manager for single projects directory
 state_manager = ProjectStateManager()
 
@@ -80,10 +93,12 @@ def execute_script(script_name, params=None):
     """Execute allowed Python scripts"""
     try:
         if script_name not in ALLOWED_SCRIPTS:
+            logger.error(f"Attempted to execute non-allowed script: {script_name}")
             return False, f"Script not allowed: {script_name}"
 
         script_path = ALLOWED_SCRIPTS[script_name]
         if not os.path.exists(script_path):
+            logger.error(f"Script file not found: {script_path}")
             return False, f"Script file not found: {script_path}"
 
         # Prepare command
@@ -116,28 +131,6 @@ def execute_script(script_name, params=None):
                     cmd.extend([f"--{key}", str(value)])
 
         logger.info(f"Executing script: {' '.join(cmd)}")
-        logger.info(f"Command arguments: {cmd}")
-        logger.info(f"Working directory: {os.getcwd()}")
-        logger.info(f"Script path exists: {os.path.exists(script_path)}")
-        logger.info(f"Script path: {script_path}")
-
-        # Print to stdout as well for debugging
-        print(f"DEBUG: Executing script: {' '.join(cmd)}")
-        print(f"DEBUG: Command arguments: {cmd}")
-        print(f"DEBUG: Working directory: {os.getcwd()}")
-        print(f"DEBUG: Script path exists: {os.path.exists(script_path)}")
-        print(f"DEBUG: Script path: {script_path}")
-
-        # Test the command manually to see if it works
-        try:
-            test_cmd = ['python', 'application_generator.py', 'projects/20250829_105201_SAPI-249_Senior_Programmleiter_in_Projektleiter_in_für_AI@IT_(IT_Governance).md']
-            print(f"DEBUG: Testing command manually: {' '.join(test_cmd)}")
-            test_result = subprocess.run(test_cmd, capture_output=True, text=True, timeout=10)
-            print(f"DEBUG: Manual test return code: {test_result.returncode}")
-            print(f"DEBUG: Manual test stdout: {test_result.stdout[:200]}")
-            print(f"DEBUG: Manual test stderr: {test_result.stderr[:200]}")
-        except Exception as e:
-            print(f"DEBUG: Manual test failed: {e}")
 
         # Execute the script without shell to avoid filename interpretation issues
         result = subprocess.run(
@@ -153,12 +146,15 @@ def execute_script(script_name, params=None):
 
         if success:
             logger.info(f"Script {script_name} executed successfully")
+            print(f"--- Script output for {script_name} ---\n{output}\n--- End of script output ---")
             return True, output
         else:
             logger.error(f"Script {script_name} failed with return code {result.returncode}")
+            print(f"--- Script output for {script_name} ---\n{output}\n--- End of script output ---")
             return False, f"Script execution failed: {output}"
 
     except subprocess.TimeoutExpired:
+        logger.error(f"Script execution timed out: {script_name}")
         return False, "Script execution timed out"
     except Exception as e:
         logger.error(f"Error executing script {script_name}: {e}")
@@ -168,9 +164,18 @@ def execute_script(script_name, params=None):
 def dashboard():
     """Serve the main dashboard"""
     try:
-        return send_from_directory('dashboard', 'dashboard.html')
+        logger.info("Dashboard route called. Regenerating data...")
+        # Always regenerate the data before serving the dashboard
+        success, output = execute_script('dashboard')
+        if not success:
+            logger.error(f"Dashboard data generation failed:\n{output}")
+        logger.info("Data regeneration complete. Serving dashboard.")
+        return send_from_directory('dashboard', 'dashboard_new.html')
     except FileNotFoundError:
-        return "Dashboard not found. Please ensure dashboard/dashboard.html exists.", 404
+        return "Dashboard not found. Please ensure dashboard/dashboard_new.html exists.", 404
+
+
+
 
 @app.route('/dashboard/<path:filename>')
 def dashboard_files(filename):
@@ -290,27 +295,31 @@ def api_execute_script():
 def api_dashboard_data():
     """API endpoint to get current dashboard data"""
     try:
+        logger.info("Dashboard data API called. Regenerating data...")
         # Execute the dashboard data generation script
         success, output = execute_script('dashboard')
-
+        
         if success:
-            # Try to read the generated dashboard data
-            dashboard_file = Path('dashboard/dashboard.html')
-            if dashboard_file.exists():
-                with open(dashboard_file, 'r', encoding='utf-8') as f:
-                    content = f.read()
-
-                # Extract project data from the HTML (simplified approach)
+            # Try to read the generated dashboard data JSON file
+            dashboard_data_file = Path('dashboard/dashboard_data.json')
+            if dashboard_data_file.exists():
+                with open(dashboard_data_file, 'r', encoding='utf-8') as f:
+                    project_data = json.load(f)
+                
+                logger.info("Successfully read dashboard data file.")
                 return jsonify({
                     "success": True,
                     "message": "Dashboard data refreshed",
-                    "timestamp": datetime.now().isoformat()
+                    "timestamp": datetime.now().isoformat(),
+                    "data": project_data
                 })
             else:
-                return jsonify({"success": False, "error": "Dashboard file not found"}), 404
+                logger.error("Dashboard data file not found after generation.")
+                return jsonify({"success": False, "error": "Dashboard data file not found"}), 404
         else:
+            logger.error(f"Dashboard data generation failed:\n{output}")
             return jsonify({"success": False, "error": output}), 500
-
+            
     except Exception as e:
         logger.error(f"Error in dashboard-data API: {e}")
         return jsonify({"success": False, "error": str(e)}), 500

@@ -34,21 +34,14 @@ def load_cv_content(cv_file: str) -> str:
 
 def get_accepted_projects() -> list:
     """
-    Get list of accepted project files.
+    Get list of accepted project files using the state manager.
 
     Returns:
         List of paths to accepted project files
     """
-    accepted_dir = "projects_accepted"
-    if not os.path.exists(accepted_dir):
-        return []
-
-    project_files = []
-    for filename in os.listdir(accepted_dir):
-        if filename.endswith(('.md', '.txt')):
-            project_files.append(os.path.join(accepted_dir, filename))
-
-    return project_files
+    state_manager = ProjectStateManager("projects")
+    accepted_projects = state_manager.get_projects_by_state("accepted")
+    return [project["path"] for project in accepted_projects]
 
 
 def generate_applications_for_accepted_projects(config_path: str, cv_content: str,

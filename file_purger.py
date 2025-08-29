@@ -48,9 +48,6 @@ class FilePurger:
                 'dry_run': False,
                 'retention_periods': {
                     'logs': 30,  # days
-                    'projects_rejected': 1,    # days
-                    'projects_accepted': 14,  # days
-                    'projects_applied': 90,   # days
                     'projects': 90,  # days
                     'applications': 180,  # days
                     'temp_files': 7,  # days
@@ -58,9 +55,6 @@ class FilePurger:
                 },
                 'file_patterns': {
                     'logs': ['*.log'],
-                    'projects_rejected': ['projects_rejected/*'],
-                    'projects_accepted': ['projects_accepted/*'],
-                    'projects_applied': ['projects_applied/*'],
                     'projects': ['projects/*.md', 'projects/*.txt'],
                     'applications': ['applications_status.json', 'dashboard/dashboard_data.json'],
                     'temp_files': ['*.tmp', '*.temp', 'temp/**'],
@@ -100,7 +94,7 @@ class FilePurger:
                 },
                 'file_patterns': {
                     'logs': ['*.log'],
-                    'projects': ['projects/*.md', 'projects/*.txt', 'projects_*/**'],
+                    'projects': ['projects/*.md', 'projects/*.txt'],
                     'applications': ['applications_status.json', 'dashboard/dashboard_data.json'],
                     'temp_files': ['*.tmp', '*.temp', 'temp/**'],
                     'backups': ['backups/**', '*_backup.*']
@@ -287,13 +281,7 @@ class FilePurger:
 
         if file_path.suffix == '.log' or 'log' in file_path.parts:
             return 'logs'
-        elif 'projects_rejected' in file_path.parts:
-            return 'projects_rejected'
-        elif 'projects_accepted' in file_path.parts:
-            return 'projects_accepted'
-        elif 'projects_applied' in file_path.parts:
-            return 'projects_applied'
-        elif any(part.startswith('projects') for part in file_path.parts):
+        elif 'projects' in file_path.parts:
             return 'projects'
         elif 'applications' in file_str or 'dashboard' in file_path.parts:
             return 'applications'
@@ -423,8 +411,7 @@ class FilePurger:
             Number of directories removed
         """
         if base_dirs is None:
-            base_dirs = ['projects', 'projects_log', 'projects_accepted',
-                        'projects_rejected', 'projects_applied', 'logs', 'temp']
+            base_dirs = ['projects', 'projects_log', 'logs', 'temp']
 
         removed_count = 0
 
@@ -459,7 +446,7 @@ def main():
     parser.add_argument('--config', default='config.yaml',
                        help='Path to configuration file')
     parser.add_argument('--categories', nargs='+',
-                        choices=['logs', 'projects_rejected', 'projects_accepted', 'projects_applied', 'projects', 'applications', 'temp_files', 'backups'],
+                        choices=['logs', 'projects', 'applications', 'temp_files', 'backups'],
                         help='Categories to purge (default: all)')
     parser.add_argument('--dry-run', action='store_true',
                        help='Show what would be deleted without actually deleting')

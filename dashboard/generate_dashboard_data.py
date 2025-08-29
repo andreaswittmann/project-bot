@@ -4,19 +4,56 @@ import json
 import sys
 from pathlib import Path
 from datetime import datetime
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Add parent directory to path to import state_manager
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from state_manager import ProjectStateManager
 
 # --- Configuration ---
-PROJECTS_DIR = "../projects"
+# Use repo-root relative paths since server executes from project root
+PROJECTS_DIR = "projects"
 LOG_DIR = "projects_log"
-OUTPUT_FILE = "dashboard.html"
+OUTPUT_FILE = "dashboard/dashboard.html"
 APPLICATION_STATUS_FILE = "applications_status.json"
 # Using robust markers instead of a placeholder
 DATA_START_MARKER = "// --- DATA START ---"
 DATA_END_MARKER = "// --- DATA END ---"
+DASHBOARD_DATA_FILE = "dashboard/dashboard_data.json"
+DASHBOARD_HTML_FILE = "dashboard/dashboard_new.html"
+
+def embed_dashboard_data(dashboard_data):
+    """Embed dashboard data in the HTML file between markers."""
+    logger.info(f"Embedding data into {DASHBOARD_HTML_FILE}")
+    try:
+        # Read the dashboard HTML file
+        with open(DASHBOARD_HTML_FILE, 'r', encoding='utf-8') as f:
+            html_content = f.read()
+        
+        # Convert dashboard data to JSON string
+        data_json = json.dumps(dashboard_data, indent=2, ensure_ascii=False)
+        
+        # Create the embedded data script
+        embedded_script = f"let projectData = {data_json};"
+        
+        # Create the pattern to find the content between the markers
+        pattern = re.compile(f"(?<=({re.escape(DATA_START_MARKER)}\n))(.|\n)*?(?=\n\s*{re.escape(DATA_END_MARKER)})", re.DOTALL)
+
+        # Replace the content between the markers
+        new_html_content = pattern.sub(f"        {embedded_script}", html_content)
+
+        # Write the updated HTML file
+        with open(DASHBOARD_HTML_FILE, 'w', encoding='utf-8') as f:
+            f.write(new_html_content)
+        
+        logger.info(f"Dashboard data embedded in HTML file: {DASHBOARD_HTML_FILE}")
+
+    except Exception as e:
+        logger.error(f"Error embedding dashboard data in HTML file: {e}")
 
 def get_project_files():
     """Gathers all project markdown files from the projects directory with their states."""
@@ -25,17 +62,20 @@ def get_project_files():
 
     projects_path = Path(PROJECTS_DIR)
     if not projects_path.is_dir():
-        print(f"Warning: Projects directory not found: {PROJECTS_DIR}")
+        logger.warning(f"Projects directory not found: {PROJECTS_DIR}")
         return all_files
 
-    for file_path in projects_path.glob("*.md"):
+    project_files = list(projects_path.glob("*.md"))
+    logger.info(f"Found {len(project_files)} project files in {PROJECTS_DIR}")
+
+    for file_path in project_files:
         # Get the state from frontmatter
         state = state_manager.get_current_state(str(file_path))
         if state:
             all_files.append({"status": state, "path": file_path})
         else:
             # If no state found, assume it's a legacy file and mark as scraped
-            print(f"Warning: No state found in {file_path}, assuming 'scraped'")
+            logger.warning(f"No state found in {file_path}, assuming 'scraped'")
             all_files.append({"status": "scraped", "path": file_path})
 
     return all_files
@@ -202,7 +242,7 @@ def load_application_status():
 
 def generate_dashboard_data():
     """Main function to generate the consolidated dashboard data."""
-    print("Starting dashboard data generation...")
+    logger.info("Starting dashboard data generation...")
     project_files = get_project_files()
     application_statuses = load_application_status()
     all_project_data = []
@@ -245,37 +285,18 @@ def generate_dashboard_data():
         "projects": all_project_data
     }
     
-    # In-place update of dashboard.html
+    # Write data to separate JSON file
     try:
-        with open(OUTPUT_FILE, 'r+', encoding='utf-8') as f:
-            content = f.read()
-            
-            # Create the JSON string to be injected
-            json_string = json.dumps(output_data, indent=2, ensure_ascii=False)
-            
-            # Construct the new data block
-            data_block = f"{DATA_START_MARKER}\nconst projectData = {json_string};\n{DATA_END_MARKER}"
-
-            # Use regex to replace the content between the markers
-            pattern = re.compile(f"({re.escape(DATA_START_MARKER)})(.*?)({re.escape(DATA_END_MARKER)})", re.DOTALL)
-            
-            if pattern.search(content):
-                new_content = pattern.sub(f"\\1\nconst projectData = {json_string};\n\\3", content)
-                # Go back to the beginning of the file and write the new content
-                f.seek(0)
-                f.write(new_content)
-                f.truncate()
-                print(f"Data generation complete. {len(all_project_data)} projects processed.")
-                print(f"Dashboard data injected into: {OUTPUT_FILE}")
-            else:
-                print(f"Error: Could not find the data markers in {OUTPUT_FILE}.")
-                print("Please ensure the start and end markers are present in the HTML file.")
-
-    except FileNotFoundError:
-        print(f"Error: The dashboard file was not found at {OUTPUT_FILE}")
-        print("Please ensure dashboard.html exists before running this script.")
+        logger.info(f"Writing {len(all_project_data)} projects to {DASHBOARD_DATA_FILE}")
+        with open(DASHBOARD_DATA_FILE, 'w', encoding='utf-8') as f:
+            json.dump(output_data, f, indent=2, ensure_ascii=False)
+        logger.info(f"Data generation complete. {len(all_project_data)} projects processed.")
+        logger.info(f"Dashboard data saved to: {DASHBOARD_DATA_FILE}")
+        
+        # Embed data in dashboard HTML file
+        embed_dashboard_data(output_data)
     except Exception as e:
-        print(f"An error occurred while injecting data into the HTML file: {e}")
+        logger.error(f"An error occurred while saving dashboard data to JSON file: {e}")
 
 if __name__ == "__main__":
     # Create projects directory if it doesn't exist
