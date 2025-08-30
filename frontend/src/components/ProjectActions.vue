@@ -183,7 +183,7 @@ const canGenerateApplication = computed(() => {
 })
 
 const canTransition = computed(() => {
-  return props.project.status !== 'archived'
+  return true // Allow transitions for all states, including archived
 })
 
 const canArchive = computed(() => {
@@ -283,6 +283,14 @@ const confirmTransition = async () => {
   if (!selectedTransition.value) return
 
   isTransitioning.value = true
+  console.log('Confirming transition:', {
+    projectId: props.project.id,
+    fromState: props.project.status,
+    toState: selectedTransition.value.to,
+    note: transitionNote.value,
+    isOverride: selectedTransition.value.isOverride
+  })
+
   try {
     await projectsStore.updateProjectState(
       props.project.id,

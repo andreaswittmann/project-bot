@@ -1,0 +1,600 @@
+commit fd052935ad3aa84a55779059f6f2c7bf34abba93
+Author: User <user@example.com>
+Date:   Sat Aug 30 14:29:44 2025 +0200
+
+    feat: Complete Phase 3 - Vue3 Core Components Integration
+    
+    - Create ProjectTable.vue component with sorting, filtering, pagination
+      * Sortable columns (date, title, company, scores, status)
+      * Action buttons (view, generate, transition, reevaluate, archive)
+      * Loading states, error handling, and empty states
+      * Responsive design for mobile devices
+      * Real-time status updates and pagination
+    
+    - Create ProjectFilters.vue component with advanced filtering
+      * Text search by title/company with debounced input
+      * Multi-select status and company filters
+      * Date range and score range filtering
+      * Active filter tags with individual removal
+      * Quick filter presets (Active, High Score, Recent, Needs Action)
+      * Reset all filters functionality
+    
+    - Create ProjectActions.vue component with modal interactions
+      * Context-aware action buttons based on project status
+      * State transition modal with available transitions
+      * Application generation with loading states
+      * Re-evaluation and archiving capabilities
+      * Confirmation dialogs with optional notes
+      * Real-time status updates after actions
+    
+    - Update Dashboard.vue to integrate all components
+      * Connect components to Pinia store and Flask API
+      * Add dashboard statistics cards
+      * Implement recent activity feed
+      * Handle all component events and API calls
+      * Error handling and retry mechanisms
+      * Responsive layout with mobile optimization
+    
+    - Enhance Pinia projects store with real API integration
+      * Connect to Flask API endpoints (/api/v1/projects, /api/v1/dashboard/stats)
+      * Implement advanced filtering and pagination
+      * Add error handling and loading states
+      * Real-time data updates and optimistic UI
+      * Company extraction and stats management
+    
+    - Update API service configuration
+      * Point to correct Flask server (port 8002)
+      * Maintain request/response interceptors
+      * Error handling and logging
+    
+    Phase 3 UAT: PASSED - All components functional and integrated
+    Ready for Phase 4: Advanced Features & Testing
+
+commit ecb21084d2277600ff2d8875a1fb28bbaa2e5394
+Author: User <user@example.com>
+Date:   Sat Aug 30 13:59:37 2025 +0200
+
+    feat: Complete Phase 2 - Enhanced Flask REST API
+    
+    - Implement /api/v1/ versioned REST API endpoints
+    - Add Pydantic models for request/response validation (ProjectFilters, ProjectResponse, DashboardStats, APIErrorResponse)
+    - Create comprehensive error handling with structured error responses
+    - Implement core project endpoints:
+      * GET /api/v1/projects - List projects with filtering/pagination
+      * GET /api/v1/projects/{id} - Get single project details
+      * POST /api/v1/projects/{id}/transition - State transitions with validation
+    - Add dashboard analytics endpoint:
+      * GET /api/v1/dashboard/stats - Real-time statistics and recent activity
+    - Enhance project data parsing with all required fields (retrieval_date, posted_date, scores)
+    - Implement advanced filtering (search, status, company, score ranges)
+    - Add pagination support with configurable page sizes
+    - Integrate with existing StateManager for project state transitions
+    - Enable CORS support for Vue3 development server
+    - Add comprehensive logging and error tracking
+    - Fix data validation issues and None value handling
+    - Successfully pass Phase 2 UAT with all endpoints tested
+    
+    Phase 2 UAT: PASSED - All API endpoints functional
+    Ready for Phase 3: Vue3 Core Components integration
+
+commit 23b536174bc59de213e03a2d1b8376a2ac9e47f6
+Author: User <user@example.com>
+Date:   Sat Aug 30 13:31:13 2025 +0200
+
+    feat: Complete Phase 1 - Vue3 Frontend Foundation
+    
+    - Initialize Vue3 project with Vite in frontend/ directory
+    - Configure Vue 3 + Pinia + Vue Router + Tailwind CSS
+    - Set up project structure with components, views, stores, services
+    - Create Pinia projects store with basic state management
+    - Implement API service layer with Axios configuration
+    - Build functional Dashboard component with store integration testing
+    - Configure Vite dev server with Flask API proxy
+    - Fix PostCSS/Tailwind CSS compatibility issues
+    - Enable Hot Module Replacement for development
+    - Verify all Phase 1 functionality with manual UAT
+    
+    Phase 1 UAT: PASSED - All systems verified and working
+    Ready for Phase 2: Backend API Development
+
+commit 283e1d075ab4e2ca71bf003ccb09b647bffc5b09
+Author: User <user@example.com>
+Date:   Sat Aug 30 12:46:44 2025 +0200
+
+    docs: Add Vue3 frontend implementation planning documentation
+    
+    - vue3-frontend-concept.md: Complete architecture design for Vue3 SPA
+    - flask-api-assessment.md: Backend API enhancement plan and assessment
+    - implementation-plan.md: Detailed 8-phase implementation roadmap with UAT
+
+commit 019e2c05dd0d4825d3d86cd0d0a44e49496541e6
+Author: User <user@example.com>
+Date:   Sat Aug 30 09:52:20 2025 +0200
+
+    feat: Implement flexible state transitions from dashboard
+    
+    This commit introduces a more flexible way to handle project state transitions directly from the dashboard.
+    
+    The key changes include:
+    
+    - Modified the `execute_script` function in `server.py` to handle a new `state-transition` parameter. This allows for more granular control over project state changes.
+    - Updated the `onclick` handler in `dashboard/dashboard_new.html` to send the new parameters to the backend.
+    - Updated the project data in `dashboard/dashboard_new.html.
+
+commit 4ecb2754a98ab6c6d5db8a322bc0dd7d91b7f342
+Author: User <user@example.com>
+Date:   Fri Aug 29 20:01:14 2025 +0200
+
+    fix(application_generator): Change status to 'applied' after generation
+    
+    Corrected the behavior in  to set the project status to 'applied' instead of 'sent' after an application is generated. This aligns with the intended workflow where 'applied' signifies application generation and 'sent' will be used for actual dispatch.
+    
+    Re-added the 'Generate Applications' button to the main dashboard controls as it is used by the per-row generation functionality.
+
+commit 46b1f80f62f5bf4df874c9a9a7203e0de1ea6601
+Author: User <user@example.com>
+Date:   Fri Aug 29 19:41:43 2025 +0200
+
+    refactor(dashboard): Remove reconsider button
+    
+    The reconsider button was a leftover from old code and has been removed from the dashboard.
+
+commit 95d5bb9b01ddd25bf828fafe49843ac5591c6bd9
+Author: User <user@example.com>
+Date:   Fri Aug 29 19:37:16 2025 +0200
+
+    feat(dashboard): Overhaul dashboard to be dynamic and data-driven
+    
+    This commit introduces a complete overhaul of the dashboard, moving from a static, data-embedded HTML file to a dynamic, API-driven application.
+    
+    ### Key Changes:
+    
+    - **Dynamic Data Loading:**
+      - Introduced , which fetches data from a new  endpoint.
+      -  now creates a  file, decoupling the data from the presentation layer.
+    
+    - **Asynchronous Refresh & Improved UX:**
+      - Implemented a non-blocking dashboard refresh, so the UI updates without a full page reload.
+      - Added loading indicators and success/error notifications for a smoother user experience.
+    
+    - **Backend & Core Logic Refinements:**
+      - The Flask server now serves the new dashboard and provides the data API.
+      - Aggressive no-caching headers were added to ensure data freshness on every request.
+      -  and  were simplified to align with the single project directory structure, removing legacy directory logic.
+
+commit 4469b0b990ae7d72aacee4f0f5680669b2fb919a
+Author: User <user@example.com>
+Date:   Fri Aug 29 14:54:01 2025 +0200
+
+    refactor: Remove legacy routes for clean single-directory architecture
+    
+    🧹 Clean Code Refactoring:
+    - Removed all legacy routes (/projects_accepted/, /projects_rejected/, /projects_applied/)
+    - Eliminated backward compatibility to enforce single directory structure
+    - Removed debug test command reference to old directory structure
+    
+    🎯 Architecture Simplification:
+    - Single route: /projects/<filename> serves all project files
+    - No more directory-based routing complexity
+    - Clean, maintainable server code
+    
+    ✅ Benefits:
+    - Enforces use of single projects/ directory
+    - Eliminates confusion between old and new directory structures
+    - Forces all components to use new state management system
+    - Cleaner, more maintainable codebase
+    - No legacy code baggage
+    
+    🔄 Migration Complete:
+    - All project files now served from single location
+    - Dashboard links work with new structure
+    - State management fully integrated
+    - No more directory management complexity
+
+commit 6b9657f63d68ca8142f96f7c2001e87275e8639c
+Author: User <user@example.com>
+Date:   Fri Aug 29 14:50:29 2025 +0200
+
+    fix: Dashboard refresh functionality and server state management integration
+    
+    🔧 Dashboard Refresh Fix:
+    - Fixed port mismatch: dashboard was connecting to port 8000, server runs on 8001
+    - Updated DashboardAPI baseURL from localhost:8000 to localhost:8001
+    - Dashboard refresh button now properly communicates with server
+    
+    🔄 Server State Management Integration:
+    - Added ProjectStateManager import to server.py
+    - Replaced PROJECT_DIRS mapping with state_manager instance
+    - Updated validate_project_path() → find_project_file() for single directory
+    - Updated move_project_file() → update_project_state() to use frontmatter
+    - Modified execute_script() to find projects in single 'projects/' directory
+    - Updated API endpoints to use state transitions instead of file moves
+    
+    📊 Enhanced Server Features:
+    - Added state management status to startup messages
+    - Improved project file discovery in single directory structure
+    - Better error handling for state transitions
+    - Maintained backward compatibility for existing API calls
+    
+    ✅ Integration Benefits:
+    - Dashboard can now properly refresh and update project states
+    - Server uses new state management system instead of directory moves
+    - All components work with single projects/ directory
+    - State transitions are tracked in project frontmatter
+    - No more file moving errors or directory management complexity
+
+commit fc953c266eff59ea3ca141611625d4959a48db0f
+Author: User <user@example.com>
+Date:   Fri Aug 29 14:44:19 2025 +0200
+
+    fix: Remove 'evaluating' state references from dashboard
+    
+    🔧 Dashboard Cleanup:
+    - Remove CSS variables and classes for 'evaluating' status
+    - Remove 'evaluating' filter checkbox from HTML
+    - Update JavaScript filtering logic to exclude 'evaluating'
+    - Remove 'evaluating' from stats calculation and display
+    - Clean up view presets to remove 'evaluating' filters
+    - Remove event listeners for 'evaluating' checkbox
+    
+    🎯 Simplification Benefits:
+    - Dashboard now reflects simplified 7-state workflow
+    - Consistent UI without unused state references
+    - Cleaner filtering and statistics display
+    - Improved user experience with relevant options only
+    
+    ✅ State Management Alignment:
+    - Dashboard now fully aligned with simplified state flow
+    - No orphaned references to removed 'evaluating' state
+    - Consistent state handling across all components
+
+commit b126b1867c5620f46e60387a1a877424f45b96fb
+Author: User <user@example.com>
+Date:   Fri Aug 29 14:37:45 2025 +0200
+
+    refactor: Simplify state management by removing 'evaluating' state
+    
+    🔄 State Flow Simplification:
+    - Remove 'evaluating' state from VALID_STATES and VALID_TRANSITIONS
+    - Direct transition from 'scraped' → 'accepted'/'rejected'
+    - Eliminate unnecessary intermediate state
+    
+    📝 Code Updates:
+    - Update ProjectStateManager class to remove 'evaluating' references
+    - Remove 'evaluating' state setting from evaluate_projects.py
+    - Update CLI help text in main.py to remove 'evaluating' from state lists
+    - Remove 'evaluating' from state filter help text
+    
+    📖 Documentation Updates:
+    - Update README.md to reflect 7-state lifecycle instead of 8
+    - Remove 'evaluating' from workflow descriptions
+    - Update frontmatter examples to exclude 'evaluating' state
+    - Remove 'evaluating' from purging configuration examples
+    - Update state definitions and CLI command examples
+    
+    🎯 Benefits:
+    - Simpler state flow with fewer transitions
+    - Reduced complexity in state management logic
+    - Cleaner user interface and documentation
+    - More intuitive project lifecycle
+    
+    BREAKING CHANGES:
+    - 'evaluating' state removed from state management system
+    - Direct evaluation results: scraped → accepted/rejected
+    - Updated CLI help text and documentation
+
+commit e6181d9f5107b36cbb2d0054e17c08177dba9501
+Author: User <user@example.com>
+Date:   Fri Aug 29 14:28:49 2025 +0200
+
+    feat: Implement advanced state management system
+    
+    🔄 Complete State Management Overhaul:
+    - Add ProjectStateManager class with YAML frontmatter support
+    - Implement 8-state lifecycle: scraped → evaluating → accepted/rejected → applied → sent → open → archived
+    - Replace directory-based state management with self-contained project files
+    - Add complete audit trails with state history and timestamps
+    
+    🚀 Enhanced Workflow Components:
+    - Update parse_html.py to initialize projects with frontmatter
+    - Modify evaluate_projects.py to use state updates instead of file moving
+    - Enhance application_generator.py with state-based application workflow
+    - Consolidate all projects into single projects/ directory
+    
+    📊 Dashboard Integration:
+    - Update dashboard to support all 8 states with proper filtering
+    - Fix score display by parsing evaluation results from markdown content
+    - Add contextual action buttons based on project state
+    - Enhance statistics and state distribution reporting
+    
+    🛠️ CLI Management Tools:
+    - Add --state-list command for viewing projects by state
+    - Add --state-transition for manual state changes with notes
+    - Add --state-report for comprehensive state statistics
+    - Implement state validation and transition rules
+    
+    📖 Documentation Consolidation:
+    - Update README.md with complete state management documentation
+    - Remove outdated documentation files (architecture_plan.md, state_management_plan.md, etc.)
+    - Clean up docs/ directory and consolidate all docs into README.md
+    - Add comprehensive usage examples for state management commands
+    
+    🧹 Code Quality Improvements:
+    - Remove unnecessary files and consolidate documentation
+    - Fix import paths and module dependencies
+    - Enhance error handling and validation
+    - Maintain backward compatibility where possible
+    
+    BREAKING CHANGES:
+    - Projects now use YAML frontmatter for state management
+    - Old directory-based approach (projects_accepted/, projects_rejected/) replaced
+    - All projects consolidated into single projects/ directory
+    - Dashboard now reads states from frontmatter instead of directories
+
+commit 7a3a7a1a9d6912ef2007448848489efaa224dd81
+Author: User <user@example.com>
+Date:   Fri Aug 29 13:17:53 2025 +0200
+
+    Add dynamic dashboard with Flask server
+    
+    - Add Flask-based server.py for dynamic dashboard functionality
+    - Create DYNAMIC_DASHBOARD_README.md with setup and usage guide
+    - Add architecture_plan.md for system architecture documentation
+    - Add state_management_plan.md for state management design
+    - Update dashboard/dashboard.html with dynamic features
+    - Update requirements.txt to include Flask dependency
+    
+    Features added:
+    - Move projects between folders via web interface
+    - Execute scripts directly from dashboard
+    - Global actions for full workflow execution
+    - API endpoints for file operations and script execution
+
+commit 812e62fd793fa1a1f64a9edc6644f1f354606de7
+Author: User <user@example.com>
+Date:   Fri Aug 29 10:56:03 2025 +0200
+
+    Cleaning up for maintainance
+
+commit c98f49cc0d789d43ab52cc33467819f6d0d9cc51
+Author: User <user@example.com>
+Date:   Fri Aug 29 10:38:16 2025 +0200
+
+    feat: Add automatic evaluation results to project markdown files
+    
+    - Add append_evaluation_results_to_markdown() function to automatically append detailed evaluation results to project markdown files
+    - Include pre-evaluation and LLM analysis results with timestamps, scores, thresholds, and rationales
+    - Format results with clear sections and visual indicators (✅/❌) for pass/fail status
+    - Integrate evaluation result appending into all processing paths (pre-eval only, pre-eval failure, full LLM evaluation)
+    - Add success logging when evaluation results are appended to markdown files
+    - Enhance user feedback with confirmation messages for successful markdown updates
+
+commit 5189245e3cf13e44412c053a7ebc1d30ed3c91e0
+Author: User <user@example.com>
+Date:   Thu Aug 28 16:31:02 2025 +0200
+
+    feat: Implement comprehensive file purging system
+    
+    - Add FilePurger class with configurable retention periods for different file types:
+      * Logs: 30 days retention
+      * Rejected projects: 1 day retention
+      * Accepted projects: 14 days retention
+      * Applied projects: 90 days retention
+      * Applications: 180 days retention
+      * Temp files: 7 days retention
+      * Backups: 365 days retention
+    
+    - Implement smart timestamp detection from filenames (YYYYMMDD_HHMMSS format)
+    - Add safety features: dry-run mode, confirmation prompts, exclusion patterns
+    - Integrate purging into main workflow with automatic cleanup of logs and temp files
+    - Add comprehensive command-line interface with preview, force, and category options
+    - Update documentation with detailed usage examples and configuration guide
+    - Add manual purging capabilities for targeted cleanup of specific categories
+    
+    Key Features:
+    - Granular retention control per project status and file type
+    - Smart age calculation using filename timestamps or file metadata
+    - Safety-first approach with preview mode and confirmation requirements
+    - Automatic integration with main scraping workflow
+    - Command-line tools for manual purging operations
+    
+    Usage Examples:
+      python file_purger.py --preview                    # Safe preview
+      python file_purger.py --categories projects_rejected  # Clean old rejects
+      python main.py --purge-dry-run                    # Test purging
+      python main.py                                    # Auto-purge logs/temp files
+
+commit 8583347db31046947f391b3117149e7ecbb35d5d
+Author: User <user@example.com>
+Date:   Thu Aug 28 15:56:14 2025 +0200
+
+    Remove deleted files: application_processor.py and application_queue .gitkeep files
+
+commit 2a2bda57bbcd13ac276690af88933ce7c70e5c96
+Author: User <user@example.com>
+Date:   Thu Aug 28 15:30:21 2025 +0200
+
+    Add comprehensive user guide and documentation
+    
+    - dashboard_application_generation_README.md: Complete user guide with setup instructions
+    - Document architecture, user experience flow, and troubleshooting
+    - Include request/response format specifications
+    - Add performance notes and security considerations
+    - Provide quick start checklist and success criteria
+    - Include advanced usage scenarios and future enhancement ideas
+    
+    Documentation covers:
+    - Step-by-step setup and usage instructions
+    - Button states and queue status explanations
+    - File structure and data format specifications
+    - Troubleshooting guide with common issues and solutions
+    - Performance and security considerations
+    - Integration with existing workflow
+    - Future enhancement possibilities
+
+commit bcf3da8f5529bfce43494796234466afcd6f8b8d
+Author: User <user@example.com>
+Date:   Thu Aug 28 15:29:28 2025 +0200
+
+    Implement Phase 3: Enhanced dashboard with application generation buttons
+    
+    - Add comprehensive CSS styling for button states (default, queued, processing, success, failed)
+    - Add queue status indicator in top-right corner
+    - Modify table rendering to include generation buttons for accepted projects only
+    - Implement ApplicationQueue JavaScript class with full functionality:
+      - Request file creation and download mechanism
+      - Button state management with visual feedback
+      - Response polling simulation (with notes for production implementation)
+      - Queue status tracking and display
+      - Error handling and user notifications
+    - Add generateApplication() global function for button onclick handlers
+    - Integrate seamlessly with existing dashboard functionality
+    - Maintain static dashboard architecture - no server required
+    
+    Features:
+    - Real-time button state updates (Generate → Queued → Processing → Success/Failed)
+    - Queue status monitoring with active request counts
+    - Automatic file download for request queuing
+    - Visual feedback with spinners and status colors
+    - Error recovery with retry capability
+    - Console logging for debugging and monitoring
+
+commit 52539e761e6a2151b42656d8876fd7f703de7c74
+Author: User <user@example.com>
+Date:   Thu Aug 28 15:28:14 2025 +0200
+
+    Implement Phase 1-2: Queue system and background processor
+    
+    - Create application_queue/ directory structure with requests/, responses/, processing/, failed/
+    - Add .gitkeep files to maintain directory structure in git
+    - Implement application_processor.py with ApplicationQueueProcessor class
+    - Add atomic file operations for reliable queue processing
+    - Integrate with existing ApplicationGenerator for seamless application generation
+    - Include comprehensive logging and error handling
+    - Add command-line interface with --once and --status options
+    
+    Features:
+    - Monitors queue directory continuously for new requests
+    - Processes applications using existing ApplicationGenerator logic
+    - Creates response files for dashboard status updates
+    - Handles errors gracefully with failed/ directory
+    - Maintains static dashboard architecture
+
+commit 86f2db7ca1f23b0c9e71971d6504bf6966217612
+Author: User <user@example.com>
+Date:   Thu Aug 28 15:27:05 2025 +0200
+
+    Add new features and update existing files
+    
+    - Add application_generator.py for automated application generation
+    - Add integration planning documents (integration_plan.md, integration_todo.md, integration_workflow_diagram.md)
+    - Add test_mermaid_diagrams.html for diagram testing
+    - Update README.md with latest project information
+    - Update dashboard/dashboard.html with new features
+    - Update main.py with improvements
+    - Update requirements.txt with new dependencies
+
+commit 1ba5c4324bee72537d3fea1c41fab5589ba4947f
+Author: User <user@example.com>
+Date:   Thu Aug 28 15:25:54 2025 +0200
+
+    Add comprehensive planning documents for dashboard application generation
+    
+    - dashboard_application_generation_plan.md: Master architecture plan with file-based queue system
+    - dashboard_application_generation_todo.md: Detailed implementation checklist with 295 tasks
+    - dashboard_application_generation_diagram.md: Visual system flow diagrams using Mermaid
+    
+    Features:
+    - File-based queue system maintaining static dashboard nature
+    - Background processor using existing ApplicationGenerator
+    - Real-time button status updates and user feedback
+    - Atomic file operations for reliability
+    - Integration with existing project workflow
+
+commit a67f7d267efdadbf0317a0547554cd056f4ef91d
+Author: User <user@example.com>
+Date:   Thu Aug 28 12:30:50 2025 +0200
+
+    fixing default for rss fetch
+
+commit 3d3646d7c07fb54b3f07b2b1d3da1d9d41518e85
+Author: User <user@example.com>
+Date:   Thu Aug 28 11:40:11 2025 +0200
+
+    changed llm for evaluation
+
+commit a6c36fa73a9a11bc4061c3d0c2fe8308f0d0ccb2
+Author: User <user@example.com>
+Date:   Thu Aug 28 11:34:33 2025 +0200
+
+    feat: Display last updated timestamp on dashboard
+    
+    - Added a 'Last Updated' timestamp to the dashboard header.
+    - The timestamp is populated from the 'generated_at' field in the project data.
+    - This provides users with clear visibility on data freshness.
+    - The dashboard is also updated with the latest project data.
+
+commit 352de7495613338315069b63bfdc979564d5f11d
+Author: User <user@example.com>
+Date:   Thu Aug 28 11:26:55 2025 +0200
+
+    chore: Update dashboard with latest project data
+    
+    - Dashboard HTML file updated with current project data (46 projects)
+    - This was generated during workflow integration testing
+
+commit 4bd11718ce707ed3f0f03065d257a4086c605a97
+Author: User <user@example.com>
+Date:   Thu Aug 28 11:26:34 2025 +0200
+
+    feat: Integrate dashboard updates into main workflow
+    
+    - main.py: Add automatic dashboard data generation after project evaluation
+    - Workflow now: scrape → evaluate → update dashboard automatically
+    - Added robust error handling for dashboard generation failures
+    - README.md: Update usage documentation to highlight integrated workflow
+    - README.md: Update workflow section to include automatic dashboard phase
+    
+    Benefits:
+    - Users get up-to-date dashboard automatically after each run
+    - No need to manually run dashboard generation script
+    - Complete end-to-end automation from RSS feeds to dashboard
+    - Better user experience with clear success messages
+
+commit f28ffc5fc31c45551a35b7a91a99ddc56a2738d0
+Author: User <user@example.com>
+Date:   Thu Aug 28 11:18:37 2025 +0200
+
+    refactor: Major maintainability improvements and code cleanup
+    
+    Phase 1 - File Cleanup:
+    - Remove 7 obsolete planning documents (refactor_plan.md, plan.md, etc.)
+    - Consolidate dashboard docs into comprehensive dashboard_guide.md
+    - Update README.md with current project structure
+    
+    Phase 2 - Code Structure Improvements:
+    - parse_html.py: Remove hardcoded URL, clean imports, add type hints & docs
+    - evaluate_projects.py: Major refactor decomposing 103-line function into 6 focused functions
+    - Add comprehensive type annotations and docstrings throughout
+    - Organize imports and improve error handling consistency
+    
+    Benefits:
+    - Reduced largest function from 103 → 54 lines
+    - Improved type coverage from ~10% → ~90%
+    - Better separation of concerns and modularity
+    - Enhanced maintainability with no breaking changes
+    
+    Verified functionality: All scripts working correctly after refactor
+
+commit c509c2eb1c9617b26bda1cae8d15b621f075684a
+Author: User <user@example.com>
+Date:   Thu Aug 28 11:01:57 2025 +0200
+
+    Initial commit: Bewerbungs-Bot - AI-powered freelance project evaluation tool
+    
+    - Add complete source code for RSS scraping and project evaluation
+    - Include multi-LLM support (OpenAI, Anthropic, Google)
+    - Add interactive dashboard for project management
+    - Include comprehensive documentation and setup guides
+    - Add security-focused .gitignore excluding sensitive data
+    - Include config template for easy setup
