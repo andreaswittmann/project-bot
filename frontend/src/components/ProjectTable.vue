@@ -251,8 +251,8 @@ const goToPage = (page) => {
   emit('page-change', page)
 }
 
-const handleViewProject = (project) => {
-  emit('view-project', project)
+const handleViewProject = (projectId) => {
+  emit('view-project', projectId)
 }
 
 const handleGenerateApplication = (projectId) => {

@@ -108,9 +108,8 @@ const handleFiltersChanged = async (filters) => {
   }
 }
 
-const handleViewProject = (project) => {
-  console.log('View project:', project)
-  selectedProjectId.value = project.id
+const handleViewProject = (projectId) => {
+  selectedProjectId.value = projectId
   showProjectModal.value = true
 }
 
