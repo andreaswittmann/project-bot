@@ -325,7 +325,9 @@ def update_project_state(project_id: str):
     if not data:
         raise ValidationError("No JSON data provided")
 
+    logger.info(f"Transition request for {project_id}: {data}")
     update_request = ProjectStateUpdateRequest(**data)
+    logger.info(f"Parsed request: force={update_request.force}, from={update_request.from_state}, to={update_request.to_state}")
 
     projects_dir = Path("projects")
     project_file = projects_dir / f"{project_id}.md"
@@ -492,6 +494,151 @@ def get_dashboard_stats():
     except Exception as e:
         logger.error(f"Error in get_dashboard_stats: {e}")
         raise
+
+@app.route('/api/v1/workflows/<workflow_name>/run', methods=['POST'])
+@handle_api_errors
+def run_workflow(workflow_name: str):
+    """Execute a complete workflow"""
+    try:
+        logger.info(f"Starting workflow execution: {workflow_name}")
+
+        if workflow_name == 'main':
+            # Execute the main workflow (scrape → evaluate → generate applications)
+            import subprocess
+            import sys
+
+            # Run main.py with default parameters
+            result = subprocess.run([
+                sys.executable, "main.py", "-n", "10"  # Scrape 10 projects by default
+            ], capture_output=True, text=True, timeout=600)  # 10 minute timeout
+
+            if result.returncode == 0:
+                # Regenerate dashboard data after workflow completion
+                try:
+                    dashboard_result = subprocess.run([
+                        sys.executable, "dashboard/generate_dashboard_data.py"
+                    ], capture_output=True, text=True, timeout=60)
+
+                    if dashboard_result.returncode != 0:
+                        logger.warning(f"Dashboard regeneration failed: {dashboard_result.stderr}")
+                except Exception as e:
+                    logger.warning(f"Failed to regenerate dashboard: {e}")
+
+                return jsonify({
+                    "success": True,
+                    "message": f"Workflow '{workflow_name}' completed successfully",
+                    "output": result.stdout,
+                    "timestamp": datetime.now().isoformat()
+                })
+            else:
+                return jsonify(APIErrorResponse(
+                    error="WorkflowExecutionError",
+                    message=f"Workflow '{workflow_name}' failed",
+                    code=500,
+                    details={"stdout": result.stdout, "stderr": result.stderr},
+                    timestamp=datetime.now().isoformat()
+                ).dict()), 500
+
+        elif workflow_name == 'evaluate':
+            # Execute evaluation only
+            import subprocess
+            import sys
+
+            result = subprocess.run([
+                sys.executable, "evaluate_projects.py"
+            ], capture_output=True, text=True, timeout=300)
+
+            if result.returncode == 0:
+                # Regenerate dashboard data
+                try:
+                    subprocess.run([
+                        sys.executable, "dashboard/generate_dashboard_data.py"
+                    ], capture_output=True, text=True, timeout=60)
+                except Exception as e:
+                    logger.warning(f"Failed to regenerate dashboard: {e}")
+
+                return jsonify({
+                    "success": True,
+                    "message": f"Workflow '{workflow_name}' completed successfully",
+                    "output": result.stdout,
+                    "timestamp": datetime.now().isoformat()
+                })
+            else:
+                return jsonify(APIErrorResponse(
+                    error="WorkflowExecutionError",
+                    message=f"Workflow '{workflow_name}' failed",
+                    code=500,
+                    details={"stdout": result.stdout, "stderr": result.stderr},
+                    timestamp=datetime.now().isoformat()
+                ).dict()), 500
+
+        elif workflow_name == 'generate':
+            # Execute application generation only
+            import subprocess
+            import sys
+
+            result = subprocess.run([
+                sys.executable, "main.py", "--generate-applications", "--all-accepted"
+            ], capture_output=True, text=True, timeout=300)
+
+            if result.returncode == 0:
+                # Regenerate dashboard data
+                try:
+                    subprocess.run([
+                        sys.executable, "dashboard/generate_dashboard_data.py"
+                    ], capture_output=True, text=True, timeout=60)
+                except Exception as e:
+                    logger.warning(f"Failed to regenerate dashboard: {e}")
+
+                return jsonify({
+                    "success": True,
+                    "message": f"Workflow '{workflow_name}' completed successfully",
+                    "output": result.stdout,
+                    "timestamp": datetime.now().isoformat()
+                })
+            else:
+                return jsonify(APIErrorResponse(
+                    error="WorkflowExecutionError",
+                    message=f"Workflow '{workflow_name}' failed",
+                    code=500,
+                    details={"stdout": result.stdout, "stderr": result.stderr},
+                    timestamp=datetime.now().isoformat()
+                ).dict()), 500
+
+        else:
+            return jsonify(APIErrorResponse(
+                error="InvalidWorkflow",
+                message=f"Unknown workflow: {workflow_name}",
+                code=400,
+                timestamp=datetime.now().isoformat()
+            ).dict()), 400
+
+    except subprocess.TimeoutExpired:
+        return jsonify(APIErrorResponse(
+            error="TimeoutError",
+            message=f"Workflow '{workflow_name}' timed out",
+            code=408,
+            timestamp=datetime.now().isoformat()
+        ).dict()), 408
+    except Exception as e:
+        logger.error(f"Error executing workflow {workflow_name}: {e}")
+        return jsonify(APIErrorResponse(
+            error="InternalServerError",
+            message=f"Failed to execute workflow: {str(e)}",
+            code=500,
+            timestamp=datetime.now().isoformat()
+        ).dict()), 500
+
+@app.route('/api/v1/workflows/<workflow_name>/status', methods=['GET'])
+@handle_api_errors
+def get_workflow_status(workflow_name: str):
+    """Get status of a running workflow"""
+    # For now, return a simple status since we don't have background job tracking
+    return jsonify({
+        "workflow": workflow_name,
+        "status": "completed",  # Assume completed since we run synchronously
+        "timestamp": datetime.now().isoformat()
+    })
 
 @app.route('/api/v1/health', methods=['GET'])
 def health_check():

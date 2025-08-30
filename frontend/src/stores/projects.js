@@ -88,13 +88,16 @@ export const useProjectsStore = defineStore('projects', {
     },
 
     async updateProjectState(id, fromState, toState, note = null, force = false) {
+      const requestData = {
+        from_state: fromState,
+        to_state: toState,
+        note: note,
+        force: force
+      }
+      console.log('Sending transition request:', requestData)
+
       try {
-        const response = await api.post(`/api/v1/projects/${id}/transition`, {
-          from_state: fromState,
-          to_state: toState,
-          note: note,
-          force: force
-        })
+        const response = await api.post(`/api/v1/projects/${id}/transition`, requestData)
 
         // Update the project in the local state
         const projectIndex = this.projects.findIndex(p => p.id === id)
@@ -141,6 +144,27 @@ export const useProjectsStore = defineStore('projects', {
         return response.data
       } catch (error) {
         console.error('Error fetching stats:', error)
+        throw error
+      }
+    },
+
+    async runWorkflow(workflowName) {
+      try {
+        const response = await api.post(`/api/v1/workflows/${workflowName}/run`)
+        console.log(`Workflow ${workflowName} executed successfully`)
+        return response.data
+      } catch (error) {
+        console.error(`Error running workflow ${workflowName}:`, error)
+        throw error
+      }
+    },
+
+    async getWorkflowStatus(workflowName) {
+      try {
+        const response = await api.get(`/api/v1/workflows/${workflowName}/status`)
+        return response.data
+      } catch (error) {
+        console.error(`Error getting workflow status for ${workflowName}:`, error)
         throw error
       }
     },

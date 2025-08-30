@@ -6,6 +6,43 @@
     </header>
 
     <main class="main-content">
+      <!-- Workflow Controls -->
+      <div class="workflow-section">
+        <h3>Workflow Controls</h3>
+        <div class="workflow-controls">
+          <button
+            @click="runWorkflow('main')"
+            :disabled="isWorkflowRunning"
+            class="workflow-btn main-workflow"
+          >
+            <span v-if="isWorkflowRunning && currentWorkflow === 'main'" class="spinner">⏳</span>
+            {{ isWorkflowRunning && currentWorkflow === 'main' ? 'Running...' : 'Run Full Workflow' }}
+          </button>
+          
+          <button
+            @click="runWorkflow('evaluate')"
+            :disabled="isWorkflowRunning"
+            class="workflow-btn evaluate-workflow"
+          >
+            <span v-if="isWorkflowRunning && currentWorkflow === 'evaluate'" class="spinner">⏳</span>
+            {{ isWorkflowRunning && currentWorkflow === 'evaluate' ? 'Evaluating...' : 'Evaluate Projects' }}
+          </button>
+          
+          <button
+            @click="runWorkflow('generate')"
+            :disabled="isWorkflowRunning"
+            class="workflow-btn generate-workflow"
+          >
+            <span v-if="isWorkflowRunning && currentWorkflow === 'generate'" class="spinner">⏳</span>
+            {{ isWorkflowRunning && currentWorkflow === 'generate' ? 'Generating...' : 'Generate Applications' }}
+          </button>
+        </div>
+        
+        <div v-if="workflowMessage" class="workflow-message" :class="workflowMessageType">
+          {{ workflowMessage }}
+        </div>
+      </div>
+
       <!-- Dashboard Stats -->
       <div class="stats-section">
         <div class="stat-card">
@@ -90,6 +127,10 @@ const recentActivity = ref([])
 const selectedProjectId = ref(null)
 const showProjectModal = ref(false)
 const selectedProjectForTransition = ref(null)
+const isWorkflowRunning = ref(false)
+const currentWorkflow = ref(null)
+const workflowMessage = ref(null)
+const workflowMessageType = ref(null)
 
 // Computed
 const projects = computed(() => projectsStore.projects)
@@ -172,6 +213,41 @@ const handlePageChange = async (page) => {
     await projectsStore.fetchProjects()
   } catch (error) {
     console.error('Failed to fetch page:', error)
+  }
+}
+
+const runWorkflow = async (workflowName) => {
+  if (isWorkflowRunning.value) return
+  
+  isWorkflowRunning.value = true
+  currentWorkflow.value = workflowName
+  workflowMessage.value = null
+  workflowMessageType.value = null
+  
+  try {
+    const result = await projectsStore.runWorkflow(workflowName)
+    workflowMessage.value = result.message || `Workflow '${workflowName}' completed successfully`
+    workflowMessageType.value = 'success'
+    
+    // Refresh data after workflow completion
+    await projectsStore.fetchProjects()
+    await projectsStore.fetchStats()
+    
+    // Update recent activity
+    recentActivity.value = projectsStore.stats.recent_activity || []
+  } catch (error) {
+    console.error(`Failed to run workflow ${workflowName}:`, error)
+    workflowMessage.value = error.response?.data?.message || `Failed to run workflow '${workflowName}'`
+    workflowMessageType.value = 'error'
+  } finally {
+    isWorkflowRunning.value = false
+    currentWorkflow.value = null
+    
+    // Clear message after 5 seconds
+    setTimeout(() => {
+      workflowMessage.value = null
+      workflowMessageType.value = null
+    }, 5000)
   }
 }
 
