@@ -32,6 +32,7 @@
         :pagination="pagination"
         @view-project="handleViewProject"
         @generate-application="handleGenerateApplication"
+        @reevaluate-project="handleReevaluateProject"
         @transition-project="handleTransitionProject"
         @status-changed="handleStatusChanged"
         @retry="handleRetry"
@@ -127,6 +128,17 @@ const handleGenerateApplication = async (projectId) => {
     await projectsStore.fetchStats()
   } catch (error) {
     console.error('Failed to generate application:', error)
+  }
+}
+
+const handleReevaluateProject = async (projectId) => {
+  try {
+    await projectsStore.reevaluateProject(projectId)
+    // Refresh data after reevaluation
+    await projectsStore.fetchProjects()
+    await projectsStore.fetchStats()
+  } catch (error) {
+    console.error('Failed to reevaluate project:', error)
   }
 }
 

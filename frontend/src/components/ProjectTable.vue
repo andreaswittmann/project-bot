@@ -98,6 +98,7 @@
                 :project="project"
                 @view-project="handleViewProject"
                 @generate-application="handleGenerateApplication"
+                @reevaluate-project="handleReevaluateProject"
                 @transition-project="handleTransitionProject"
                 @status-changed="handleStatusChanged"
               />
@@ -172,7 +173,7 @@ const props = defineProps({
 })
 
 // Emits
-const emit = defineEmits(['view-project', 'generate-application', 'transition-project', 'status-changed', 'retry', 'page-change'])
+const emit = defineEmits(['view-project', 'generate-application', 'reevaluate-project', 'transition-project', 'status-changed', 'retry', 'page-change'])
 
 // Store
 const projectsStore = useProjectsStore()
@@ -257,6 +258,10 @@ const handleViewProject = (projectId) => {
 
 const handleGenerateApplication = (projectId) => {
   emit('generate-application', projectId)
+}
+
+const handleReevaluateProject = (projectId) => {
+  emit('reevaluate-project', projectId)
 }
 
 const handleTransitionProject = (project) => {

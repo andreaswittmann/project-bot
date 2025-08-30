@@ -120,6 +120,19 @@ export const useProjectsStore = defineStore('projects', {
       }
     },
 
+    async reevaluateProject(id) {
+      try {
+        const response = await api.post(`/api/v1/projects/${id}/evaluate`, {}, {
+          timeout: 60000 // 60 seconds timeout for evaluation
+        })
+        console.log(`Project ${id} reevaluated successfully`)
+        return response.data
+      } catch (error) {
+        console.error('Error reevaluating project:', error)
+        throw error
+      }
+    },
+
     async fetchStats() {
       try {
         const response = await api.get('/api/v1/dashboard/stats')

@@ -146,6 +146,7 @@ const emit = defineEmits([
   'view-project',
   'generate-application',
   'reevaluate-project',
+  'transition-project',
   'archive-project',
   'status-changed'
 ])
@@ -266,6 +267,7 @@ const archiveProject = async () => {
 
 const performTransition = (newStatus) => {
   selectedTransition.value = newStatus
+  emit('transition-project', props.project)
 }
 
 const confirmTransition = async () => {

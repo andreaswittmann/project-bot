@@ -363,6 +363,79 @@ def update_project_state(project_id: str):
         "timestamp": datetime.now().isoformat()
     })
 
+@app.route('/api/v1/projects/<project_id>/evaluate', methods=['POST'])
+@handle_api_errors
+def reevaluate_project(project_id: str):
+    """Re-evaluate a project"""
+    projects_dir = Path("projects")
+    project_file = projects_dir / f"{project_id}.md"
+
+    if not project_file.exists():
+        return jsonify(APIErrorResponse(
+            error="NotFound",
+            message=f"Project {project_id} not found",
+            code=404,
+            timestamp=datetime.now().isoformat()
+        ).dict()), 404
+
+    try:
+        # Execute the evaluation script for this specific project
+        import subprocess
+        import sys
+
+        # Run evaluate_projects.py with the specific project file
+        result = subprocess.run([
+            sys.executable, "evaluate_projects.py", str(project_file)
+        ], capture_output=True, text=True, timeout=300)
+
+        if result.returncode == 0:
+            # Parse the updated project data
+            project_data = parse_project_file(str(project_file))
+            response = ProjectResponse(**project_data)
+
+            # Regenerate dashboard data to reflect the reevaluation results
+            try:
+                dashboard_result = subprocess.run([
+                    sys.executable, "dashboard/generate_dashboard_data.py"
+                ], capture_output=True, text=True, timeout=60)
+
+                if dashboard_result.returncode != 0:
+                    logger.warning(f"Dashboard data regeneration failed: {dashboard_result.stderr}")
+            except Exception as e:
+                logger.warning(f"Failed to regenerate dashboard data: {e}")
+
+            return jsonify({
+                "success": True,
+                "message": f"Project {project_id} reevaluated successfully",
+                "project": response.dict(),
+                "output": result.stdout,
+                "timestamp": datetime.now().isoformat()
+            })
+        else:
+            return jsonify(APIErrorResponse(
+                error="EvaluationError",
+                message=f"Evaluation failed: {result.stderr}",
+                code=500,
+                details={"stdout": result.stdout, "stderr": result.stderr},
+                timestamp=datetime.now().isoformat()
+            ).dict()), 500
+
+    except subprocess.TimeoutExpired:
+        return jsonify(APIErrorResponse(
+            error="TimeoutError",
+            message="Evaluation timed out after 5 minutes",
+            code=408,
+            timestamp=datetime.now().isoformat()
+        ).dict()), 408
+    except Exception as e:
+        logger.error(f"Error reevaluating project {project_id}: {e}")
+        return jsonify(APIErrorResponse(
+            error="InternalServerError",
+            message=f"Failed to reevaluate project: {str(e)}",
+            code=500,
+            timestamp=datetime.now().isoformat()
+        ).dict()), 500
+
 @app.route('/api/v1/dashboard/stats', methods=['GET'])
 @handle_api_errors
 def get_dashboard_stats():
