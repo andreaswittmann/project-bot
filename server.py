@@ -106,8 +106,23 @@ def execute_script(script_name, params=None):
 
         # Add parameters if provided
         if params:
-            # Handle special case for project_file - it's a positional argument
-            if 'project_file' in params:
+            # Handle special case for project_file based on script and parameters
+            if script_name == 'main' and params.get('state_transition'):
+                if 'project_file' in params:
+                    project_file = params['project_file']
+                    # Resolve project file path if it's not absolute or already in 'projects/'
+                    if not os.path.isabs(project_file) and not project_file.startswith('projects'):
+                        projects_dir = Path("projects")
+                        if projects_dir.exists():
+                            for file_path in projects_dir.glob("*.md"):
+                                if project_file in file_path.name:
+                                    project_file = str(file_path)
+                                    break
+                    cmd.extend(["--project-file", project_file])
+                    del params['project_file']
+                # state_transition is a boolean flag, so it will be handled by the generic loop
+                # del params['state_transition'] # No need to delete, generic loop handles bools
+            elif 'project_file' in params: # Original logic for positional project_file
                 # If it's just a filename, try to find it in the projects directory
                 project_file = params['project_file']
                 if not os.path.isabs(project_file) and not project_file.startswith('projects'):
@@ -275,6 +290,7 @@ def api_execute_script():
 
         script_name = data.get('script')
         params = data.get('params', {})
+        logger.info(f"Received script execution request: script={script_name}, params={params}")
 
         if not script_name:
             return jsonify({"success": False, "error": "Missing script parameter"}), 400
