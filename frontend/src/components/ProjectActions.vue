@@ -83,10 +83,11 @@
               <button
                 v-for="transition in availableTransitions"
                 :key="transition.to"
-                @click="performTransition(transition.to)"
+                @click="performTransition(transition)"
                 class="transition-btn"
+                :class="{ 'override': transition.isOverride }"
                 :disabled="transition.disabled"
-                :title="transition.disabled ? transition.reason : `Change to ${transition.to}`"
+                :title="transition.disabled ? transition.reason : (transition.isOverride ? `Manual Override: ${transition.overrideWarning}` : `Change to ${transition.to}`)"
               >
                 <span class="transition-icon">{{ transition.icon }}</span>
                 <span class="transition-text">{{ transition.label }}</span>
@@ -100,23 +101,36 @@
             <p>
               Change project status from
               <strong>{{ project.status }}</strong> to
-              <strong>{{ selectedTransition }}</strong>?
+              <strong>{{ selectedTransition.to }}</strong>?
             </p>
 
+            <!-- Override Warning -->
+            <div v-if="selectedTransition.isOverride" class="override-warning">
+              <div class="warning-icon">⚠️</div>
+              <div class="warning-text">
+                <strong>Manual Override:</strong> This transition is not normally allowed.
+                <br>
+                <small>{{ selectedTransition.overrideWarning }}</small>
+              </div>
+            </div>
+
             <div class="note-section">
-              <label for="transition-note" class="note-label">Optional Note:</label>
+              <label for="transition-note" class="note-label">
+                {{ selectedTransition.isOverride ? 'Required Note:' : 'Optional Note:' }}
+              </label>
               <textarea
                 id="transition-note"
                 v-model="transitionNote"
-                placeholder="Add a note about this status change..."
+                :placeholder="selectedTransition.isOverride ? 'Please explain why you are making this manual override...' : 'Add a note about this status change...'"
                 class="note-input"
+                :class="{ 'required': selectedTransition.isOverride }"
                 rows="3"
               ></textarea>
             </div>
 
             <div class="confirm-buttons">
-              <button @click="confirmTransition" class="confirm-btn" :disabled="isTransitioning">
-                {{ isTransitioning ? 'Changing...' : 'Confirm Change' }}
+              <button @click="confirmTransition" class="confirm-btn" :disabled="isTransitioning || (selectedTransition.isOverride && !transitionNote.trim())">
+                {{ isTransitioning ? 'Changing...' : (selectedTransition.isOverride ? 'Force Change' : 'Confirm Change') }}
               </button>
               <button @click="cancelTransition" class="cancel-btn" :disabled="isTransitioning">
                 Cancel
@@ -178,51 +192,46 @@ const canArchive = computed(() => {
 
 const availableTransitions = computed(() => {
   const currentStatus = props.project.status
+  const allStates = ['scraped', 'accepted', 'rejected', 'applied', 'sent', 'open', 'archived']
+  const validTransitions = {
+    'scraped': ['accepted', 'rejected'],
+    'accepted': ['applied', 'rejected'],
+    'applied': ['sent', 'archived'],
+    'sent': ['open', 'archived'],
+    'open': ['archived'],
+    'rejected': ['accepted', 'archived'],
+    'archived': ['scraped']
+  }
+
   const transitions = []
 
-  // Define available transitions based on current status
-  switch (currentStatus) {
-    case 'scraped':
-      transitions.push(
-        { to: 'accepted', label: 'Accept', icon: '✅', disabled: false },
-        { to: 'rejected', label: 'Reject', icon: '❌', disabled: false }
-      )
-      break
-    case 'accepted':
-      transitions.push(
-        { to: 'applied', label: 'Mark as Applied', icon: '📄', disabled: false },
-        { to: 'rejected', label: 'Reject', icon: '❌', disabled: false }
-      )
-      break
-    case 'applied':
-      transitions.push(
-        { to: 'sent', label: 'Mark as Sent', icon: '📤', disabled: false },
-        { to: 'archived', label: 'Archive', icon: '📦', disabled: false }
-      )
-      break
-    case 'sent':
-      transitions.push(
-        { to: 'open', label: 'Mark as Open', icon: '📂', disabled: false },
-        { to: 'archived', label: 'Archive', icon: '📦', disabled: false }
-      )
-      break
-    case 'open':
-      transitions.push(
-        { to: 'archived', label: 'Archive', icon: '📦', disabled: false }
-      )
-      break
-    case 'rejected':
-      transitions.push(
-        { to: 'accepted', label: 'Accept', icon: '✅', disabled: false },
-        { to: 'archived', label: 'Archive', icon: '📦', disabled: false }
-      )
-      break
-    case 'archived':
-      transitions.push(
-        { to: 'scraped', label: 'Restore', icon: '🔄', disabled: false }
-      )
-      break
-  }
+  // Add all possible states
+  allStates.forEach(state => {
+    if (state === currentStatus) return // Skip current state
+
+    const isValidTransition = validTransitions[currentStatus]?.includes(state) || false
+
+    let label, icon
+    switch (state) {
+      case 'scraped': label = 'Reset to Scraped'; icon = '🔄'; break
+      case 'accepted': label = 'Accept'; icon = '✅'; break
+      case 'rejected': label = 'Reject'; icon = '❌'; break
+      case 'applied': label = 'Mark as Applied'; icon = '📄'; break
+      case 'sent': label = 'Mark as Sent'; icon = '📤'; break
+      case 'open': label = 'Mark as Open'; icon = '📂'; break
+      case 'archived': label = 'Archive'; icon = '📦'; break
+      default: label = state; icon = '❓'
+    }
+
+    transitions.push({
+      to: state,
+      label: label,
+      icon: icon,
+      disabled: false,
+      isOverride: !isValidTransition,
+      overrideWarning: isValidTransition ? null : `Manual override: ${currentStatus} → ${state}`
+    })
+  })
 
   return transitions
 })
@@ -265,8 +274,8 @@ const archiveProject = async () => {
   }
 }
 
-const performTransition = (newStatus) => {
-  selectedTransition.value = newStatus
+const performTransition = (transition) => {
+  selectedTransition.value = transition
   emit('transition-project', props.project)
 }
 
@@ -278,15 +287,17 @@ const confirmTransition = async () => {
     await projectsStore.updateProjectState(
       props.project.id,
       props.project.status,
-      selectedTransition.value,
-      transitionNote.value
+      selectedTransition.value.to,
+      transitionNote.value,
+      selectedTransition.value.isOverride
     )
 
     emit('status-changed', {
       projectId: props.project.id,
       oldStatus: props.project.status,
-      newStatus: selectedTransition.value,
-      note: transitionNote.value
+      newStatus: selectedTransition.value.to,
+      note: transitionNote.value,
+      isOverride: selectedTransition.value.isOverride
     })
 
     closeModal()
@@ -500,6 +511,17 @@ const closeModal = () => {
   background: #f3f4f6;
 }
 
+.transition-btn.override {
+  border-color: #f59e0b;
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.transition-btn.override:hover:not(:disabled) {
+  border-color: #d97706;
+  background: #fde68a;
+}
+
 .transition-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
@@ -561,6 +583,15 @@ const closeModal = () => {
   box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
 }
 
+.note-input.required {
+  border-color: #f59e0b;
+}
+
+.note-input.required:focus {
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+}
+
 .confirm-buttons {
   display: flex;
   gap: 0.75rem;
@@ -608,6 +639,40 @@ const closeModal = () => {
 .cancel-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+/* Override Warning Styles */
+.override-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: #fef3c7;
+  border: 1px solid #f59e0b;
+  border-radius: 0.375rem;
+  margin-bottom: 1rem;
+}
+
+.warning-icon {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+  margin-top: 0.125rem;
+}
+
+.warning-text {
+  font-size: 0.875rem;
+  color: #92400e;
+}
+
+.warning-text strong {
+  color: #78350f;
+}
+
+.warning-text small {
+  display: block;
+  margin-top: 0.25rem;
+  color: #a16207;
+  font-style: italic;
 }
 
 /* Responsive design */

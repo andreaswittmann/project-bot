@@ -87,12 +87,13 @@ export const useProjectsStore = defineStore('projects', {
       }
     },
 
-    async updateProjectState(id, fromState, toState, note = null) {
+    async updateProjectState(id, fromState, toState, note = null, force = false) {
       try {
         const response = await api.post(`/api/v1/projects/${id}/transition`, {
           from_state: fromState,
           to_state: toState,
-          note: note
+          note: note,
+          force: force
         })
 
         // Update the project in the local state
@@ -101,7 +102,7 @@ export const useProjectsStore = defineStore('projects', {
           this.projects[projectIndex] = response.data.project
         }
 
-        console.log(`Project ${id} state updated: ${fromState} → ${toState}`)
+        console.log(`Project ${id} state updated: ${fromState} → ${toState}${force ? ' (manual override)' : ''}`)
         return response.data
       } catch (error) {
         console.error('Error updating project state:', error)

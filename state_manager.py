@@ -173,14 +173,15 @@ class ProjectStateManager:
 
         return new_state in self.VALID_TRANSITIONS[current_state]
 
-    def update_state(self, project_path: str, new_state: str, note: Optional[str] = None) -> bool:
+    def update_state(self, project_path: str, new_state: str, note: Optional[str] = None, force: bool = False) -> bool:
         """
-        Update project state with validation and history tracking.
+        Update project state with optional validation bypass for manual overrides.
 
         Args:
             project_path: Path to project file
             new_state: New state to set
             note: Optional note for the state change
+            force: If True, bypass validation for manual state changes
 
         Returns:
             True if successful, False otherwise
@@ -189,8 +190,8 @@ class ProjectStateManager:
 
         current_state = frontmatter.get('state')
 
-        # Validate transition
-        if current_state and not self.validate_transition(current_state, new_state):
+        # Validate transition (unless forced)
+        if not force and current_state and not self.validate_transition(current_state, new_state):
             print(f"Invalid state transition: {current_state} -> {new_state}")
             return False
 
@@ -207,6 +208,12 @@ class ProjectStateManager:
         }
         if note:
             history_entry['note'] = note
+
+        # Add override flag for manual changes
+        if force:
+            history_entry['override'] = True
+            if not note:
+                history_entry['note'] = f"Manual override: {current_state or 'none'} → {new_state}"
 
         frontmatter['state_history'].append(history_entry)
 

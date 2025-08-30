@@ -62,6 +62,7 @@ class ProjectStateUpdateRequest(BaseModel):
     from_state: str
     to_state: str
     note: Optional[str] = None
+    force: bool = False
 
 class ProjectResponse(BaseModel):
     id: str
@@ -341,7 +342,8 @@ def update_project_state(project_id: str):
     success = state_manager.update_state(
         str(project_file),
         update_request.to_state,
-        update_request.note
+        update_request.note,
+        update_request.force
     )
 
     if not success:
