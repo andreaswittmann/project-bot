@@ -145,12 +145,37 @@ def parse_project_file(file_path: str) -> Dict[str, Any]:
             "metadata": {}
         }
 
+        # Extract title from H1 heading if not in frontmatter
+        if not metadata["title"] or metadata["title"] == Path(file_path).stem:
+            import re
+            title_match = re.search(r"^#\s*(.*)", content, re.MULTILINE)
+            if title_match:
+                metadata["title"] = title_match.group(1).strip()
+
+        # Extract company from content if not in frontmatter
+        if not metadata["company"]:
+            company_match = re.search(r"- \*\*Von:\*\*\s*(.*?)(?:\n|$)", content)
+            if company_match:
+                metadata["company"] = company_match.group(1).strip()
+
+        # Extract URL from content if not in frontmatter
+        if not metadata["url"]:
+            url_match = re.search(r"\*\*URL:\*\*\s*\[(.*?)\]\((.*?)\)", content)
+            if url_match:
+                metadata["url"] = url_match.group(2).strip()
+
         # Extract dates
         if "scraped_date" in frontmatter:
             metadata["retrieval_date"] = frontmatter["scraped_date"]
+        else:
+            # Try to extract from filename timestamp
+            filename_match = re.search(r"(\d{8})_(\d{6})", Path(file_path).name)
+            if filename_match:
+                date_str = filename_match.group(1)
+                time_str = filename_match.group(2)
+                metadata["retrieval_date"] = f"{date_str[:4]}-{date_str[4:6]}-{date_str[6:8]}T{time_str[:2]}:{time_str[2:4]}:{time_str[4:6]}"
 
         # Extract posted date from content if available
-        import re
         posted_match = re.search(r"- \*\*Eingestellt:\*\*\s*(.*?)(?:\n|$)", content)
         if posted_match:
             metadata["posted_date"] = posted_match.group(1).strip()

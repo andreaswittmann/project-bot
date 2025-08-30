@@ -94,33 +94,13 @@
               </span>
             </td>
             <td>
-              <div class="actions">
-                <button
-                  @click="viewProject(project.id)"
-                  class="action-btn view-btn"
-                  title="View Project Details"
-                >
-                  👁️
-                </button>
-                <button
-                  v-if="project.status === 'accepted'"
-                  @click="generateApplication(project.id)"
-                  class="action-btn generate-btn"
-                  title="Generate Application"
-                  :disabled="generatingProjects.has(project.id)"
-                >
-                  <span v-if="generatingProjects.has(project.id)">⏳</span>
-                  <span v-else>📄</span>
-                </button>
-                <button
-                  v-if="canTransition(project.status)"
-                  @click="transitionProject(project)"
-                  class="action-btn transition-btn"
-                  title="Change Status"
-                >
-                  🔄
-                </button>
-              </div>
+              <ProjectActions
+                :project="project"
+                @view-project="handleViewProject"
+                @generate-application="handleGenerateApplication"
+                @transition-project="handleTransitionProject"
+                @status-changed="handleStatusChanged"
+              />
             </td>
           </tr>
         </tbody>
@@ -163,6 +143,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useProjectsStore } from '../stores/projects'
+import ProjectActions from './ProjectActions.vue'
 
 // Props
 const props = defineProps({
@@ -191,7 +172,7 @@ const props = defineProps({
 })
 
 // Emits
-const emit = defineEmits(['view-project', 'generate-application', 'transition-project', 'retry', 'page-change'])
+const emit = defineEmits(['view-project', 'generate-application', 'transition-project', 'status-changed', 'retry', 'page-change'])
 
 // Store
 const projectsStore = useProjectsStore()
@@ -268,6 +249,22 @@ const canTransition = (status) => {
 
 const goToPage = (page) => {
   emit('page-change', page)
+}
+
+const handleViewProject = (project) => {
+  emit('view-project', project)
+}
+
+const handleGenerateApplication = (projectId) => {
+  emit('generate-application', projectId)
+}
+
+const handleTransitionProject = (project) => {
+  emit('transition-project', project)
+}
+
+const handleStatusChanged = (data) => {
+  emit('status-changed', data)
 }
 
 const retry = () => {

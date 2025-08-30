@@ -33,6 +33,7 @@
         @view-project="handleViewProject"
         @generate-application="handleGenerateApplication"
         @transition-project="handleTransitionProject"
+        @status-changed="handleStatusChanged"
         @retry="handleRetry"
         @page-change="handlePageChange"
       />
@@ -51,6 +52,22 @@
           </div>
         </div>
       </div>
+
+      <!-- Project Details Modal -->
+      <ProjectDetailsModal
+        :project-id="selectedProjectId"
+        :show="showProjectModal"
+        @close="closeProjectModal"
+        @generate-application="handleGenerateApplication"
+        @transition-project="handleTransitionProject"
+      />
+
+      <!-- Project Actions Modal -->
+      <ProjectActions
+        v-if="selectedProjectForTransition"
+        :project="selectedProjectForTransition"
+        @status-changed="handleStatusChanged"
+      />
     </main>
   </div>
 </template>
@@ -60,6 +77,8 @@ import { ref, computed, onMounted } from 'vue'
 import { useProjectsStore } from '../stores/projects'
 import ProjectFilters from '../components/ProjectFilters.vue'
 import ProjectTable from '../components/ProjectTable.vue'
+import ProjectDetailsModal from '../components/ProjectDetailsModal.vue'
+import ProjectActions from '../components/ProjectActions.vue'
 
 // Store
 const projectsStore = useProjectsStore()
@@ -67,6 +86,9 @@ const projectsStore = useProjectsStore()
 // Local state
 const availableCompanies = ref([])
 const recentActivity = ref([])
+const selectedProjectId = ref(null)
+const showProjectModal = ref(false)
+const selectedProjectForTransition = ref(null)
 
 // Computed
 const projects = computed(() => projectsStore.projects)
@@ -86,9 +108,15 @@ const handleFiltersChanged = async (filters) => {
   }
 }
 
-const handleViewProject = (projectId) => {
-  console.log('View project:', projectId)
-  // TODO: Implement project details modal/view
+const handleViewProject = (project) => {
+  console.log('View project:', project)
+  selectedProjectId.value = project.id
+  showProjectModal.value = true
+}
+
+const closeProjectModal = () => {
+  showProjectModal.value = false
+  selectedProjectId.value = null
 }
 
 const handleGenerateApplication = async (projectId) => {
@@ -105,7 +133,16 @@ const handleGenerateApplication = async (projectId) => {
 
 const handleTransitionProject = (project) => {
   console.log('Transition project:', project)
-  // TODO: Implement status transition modal
+  selectedProjectForTransition.value = project
+}
+
+const handleStatusChanged = async (data) => {
+  console.log('Status changed:', data)
+  // Close the transition modal
+  selectedProjectForTransition.value = null
+  // Refresh data
+  await projectsStore.fetchProjects()
+  await projectsStore.fetchStats()
 }
 
 const handleRetry = async () => {
