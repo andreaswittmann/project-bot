@@ -54,8 +54,10 @@ class ProjectFilters(BaseModel):
     companies: List[str] = []
     date_from: Optional[str] = None
     date_to: Optional[str] = None
-    score_min: Optional[int] = None
-    score_max: Optional[int] = None
+    pre_eval_score_min: Optional[int] = None
+    pre_eval_score_max: Optional[int] = None
+    llm_score_min: Optional[int] = None
+    llm_score_max: Optional[int] = None
     page: int = 1
     page_size: int = 50
 
@@ -223,7 +225,7 @@ def get_projects_with_filters(filters: ProjectFilters) -> List[Dict[str, Any]]:
         all_projects.append(project_data)
 
     logger.info(f"📊 Total projects loaded: {len(all_projects)}")
-    logger.info(f"🔍 Applied filters: search={filters.search}, statuses={filters.statuses}, companies={filters.companies}, date_from={filters.date_from}, date_to={filters.date_to}, score_min={filters.score_min}, score_max={filters.score_max}")
+    logger.info(f"🔍 Applied filters: search={filters.search}, statuses={filters.statuses}, companies={filters.companies}, date_from={filters.date_from}, date_to={filters.date_to}, pre_eval_score_min={filters.pre_eval_score_min}, pre_eval_score_max={filters.pre_eval_score_max}, llm_score_min={filters.llm_score_min}, llm_score_max={filters.llm_score_max}")
 
     # Apply filters
     filtered_projects = []
@@ -285,13 +287,22 @@ def get_projects_with_filters(filters: ProjectFilters) -> List[Dict[str, Any]]:
                 logger.warning(f"⚠️ Error parsing date for project {project_id}: {e}, project_date='{project_date}', date_from='{filters.date_from}', date_to='{filters.date_to}'")
                 continue
 
-        # Score filters
+        # Pre-Eval Score filters
         pre_score = project.get("pre_eval_score")
-        if filters.score_min is not None and (pre_score is None or pre_score < filters.score_min):
-            logger.debug(f"❌ Project {project_id} filtered out by score_min")
+        if filters.pre_eval_score_min is not None and (pre_score is None or pre_score < filters.pre_eval_score_min):
+            logger.debug(f"❌ Project {project_id} filtered out by pre_eval_score_min")
             continue
-        if filters.score_max is not None and (pre_score is None or pre_score > filters.score_max):
-            logger.debug(f"❌ Project {project_id} filtered out by score_max")
+        if filters.pre_eval_score_max is not None and (pre_score is None or pre_score > filters.pre_eval_score_max):
+            logger.debug(f"❌ Project {project_id} filtered out by pre_eval_score_max")
+            continue
+
+        # LLM Score filters
+        llm_score = project.get("llm_score")
+        if filters.llm_score_min is not None and (llm_score is None or llm_score < filters.llm_score_min):
+            logger.debug(f"❌ Project {project_id} filtered out by llm_score_min")
+            continue
+        if filters.llm_score_max is not None and (llm_score is None or llm_score > filters.llm_score_max):
+            logger.debug(f"❌ Project {project_id} filtered out by llm_score_max")
             continue
 
         logger.debug(f"✅ Project {project_id} passed all filters")
@@ -318,8 +329,10 @@ def get_projects():
             "companies": request.args.getlist("companies"),
             "date_from": request.args.get("date_from"),
             "date_to": request.args.get("date_to"),
-            "score_min": int(request.args.get("score_min")) if request.args.get("score_min") else None,
-            "score_max": int(request.args.get("score_max")) if request.args.get("score_max") else None,
+            "pre_eval_score_min": int(request.args.get("pre_eval_score_min")) if request.args.get("pre_eval_score_min") else None,
+            "pre_eval_score_max": int(request.args.get("pre_eval_score_max")) if request.args.get("pre_eval_score_max") else None,
+            "llm_score_min": int(request.args.get("llm_score_min")) if request.args.get("llm_score_min") else None,
+            "llm_score_max": int(request.args.get("llm_score_max")) if request.args.get("llm_score_max") else None,
             "page": int(request.args.get("page", 1)),
             "page_size": int(request.args.get("page_size", 50))
         }
@@ -328,17 +341,31 @@ def get_projects():
         all_projects = get_projects_with_filters(filters)
 
         # Pagination
-        start_idx = (filters.page - 1) * filters.page_size
-        end_idx = start_idx + filters.page_size
-        paginated_projects = all_projects[start_idx:end_idx]
+        if filters.page_size == 0:
+            # Special case: page_size = 0 means "All" items
+            paginated_projects = all_projects
+            actual_page_size = len(all_projects)
+        else:
+            start_idx = (filters.page - 1) * filters.page_size
+            end_idx = start_idx + filters.page_size
+            paginated_projects = all_projects[start_idx:end_idx]
+            actual_page_size = filters.page_size
+
+        # Calculate pagination info
+        if filters.page_size == 0:
+            has_next = False
+            has_prev = False
+        else:
+            has_next = end_idx < len(all_projects)
+            has_prev = filters.page > 1
 
         response = ProjectListResponse(
             projects=paginated_projects,
             total=len(all_projects),
             page=filters.page,
-            page_size=filters.page_size,
-            has_next=end_idx < len(all_projects),
-            has_prev=filters.page > 1
+            page_size=actual_page_size,
+            has_next=has_next,
+            has_prev=has_prev
         )
 
         return jsonify(response.dict())

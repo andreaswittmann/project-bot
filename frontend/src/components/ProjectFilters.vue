@@ -49,43 +49,69 @@
 
       <!-- Company Filter -->
       <div class="filter-group">
-        <label for="company-select" class="filter-label">Company</label>
-        <select
-          id="company-select"
+        <label class="filter-label">Company</label>
+        <CompanyMultiSelect
           v-model="localFilters.companies"
-          multiple
-          class="filter-select"
-          @change="applyFilters"
-        >
-          <option v-for="company in availableCompanies" :key="company" :value="company">
-            {{ company }}
-          </option>
-        </select>
+          :available-companies="availableCompanies"
+          @update:modelValue="applyFilters"
+        />
       </div>
 
-      <!-- Score Range -->
+      <!-- Score Ranges -->
       <div class="filter-group">
-        <label class="filter-label">Score Range (%)</label>
-        <div class="score-range">
-          <input
-            v-model.number="localFilters.score_min"
-            type="number"
-            placeholder="Min"
-            min="0"
-            max="100"
-            class="filter-input score-input"
-            @input="debounceApplyFilters"
-          />
-          <span class="range-separator">-</span>
-          <input
-            v-model.number="localFilters.score_max"
-            type="number"
-            placeholder="Max"
-            min="0"
-            max="100"
-            class="filter-input score-input"
-            @input="debounceApplyFilters"
-          />
+        <label class="filter-label">Score Ranges (%)</label>
+        <div class="score-ranges-container">
+          <!-- Pre-Eval Score Range -->
+          <div class="score-range-group">
+            <span class="score-type-label">Pre-Eval:</span>
+            <div class="score-range">
+              <input
+                v-model.number="localFilters.pre_eval_score_min"
+                type="number"
+                placeholder="Min"
+                min="0"
+                max="100"
+                class="filter-input score-input"
+                @input="debounceApplyFilters"
+              />
+              <span class="range-separator">-</span>
+              <input
+                v-model.number="localFilters.pre_eval_score_max"
+                type="number"
+                placeholder="Max"
+                min="0"
+                max="100"
+                class="filter-input score-input"
+                @input="debounceApplyFilters"
+              />
+            </div>
+          </div>
+
+          <!-- LLM Score Range -->
+          <div class="score-range-group">
+            <span class="score-type-label">LLM:</span>
+            <div class="score-range">
+              <input
+                v-model.number="localFilters.llm_score_min"
+                type="number"
+                placeholder="Min"
+                min="0"
+                max="100"
+                class="filter-input score-input"
+                @input="debounceApplyFilters"
+              />
+              <span class="range-separator">-</span>
+              <input
+                v-model.number="localFilters.llm_score_max"
+                type="number"
+                placeholder="Max"
+                min="0"
+                max="100"
+                class="filter-input score-input"
+                @input="debounceApplyFilters"
+              />
+            </div>
+          </div>
         </div>
       </div>
 
@@ -144,6 +170,8 @@
           <option :value="25">25</option>
           <option :value="50">50</option>
           <option :value="100">100</option>
+          <option :value="500">500</option>
+          <option :value="0">All</option>
         </select>
       </div>
     </div>
@@ -164,9 +192,13 @@
           Company: {{ company }}
           <button @click="removeCompany(company)" class="tag-remove">×</button>
         </span>
-        <span v-if="localFilters.score_min || localFilters.score_max" class="filter-tag">
-          Score: {{ localFilters.score_min || 0 }}% - {{ localFilters.score_max || 100 }}%
-          <button @click="clearScoreRange" class="tag-remove">×</button>
+        <span v-if="localFilters.pre_eval_score_min || localFilters.pre_eval_score_max" class="filter-tag">
+          Pre-Eval Score: {{ localFilters.pre_eval_score_min || 0 }}% - {{ localFilters.pre_eval_score_max || 100 }}%
+          <button @click="clearPreEvalScoreRange" class="tag-remove">×</button>
+        </span>
+        <span v-if="localFilters.llm_score_min || localFilters.llm_score_max" class="filter-tag">
+          LLM Score: {{ localFilters.llm_score_min || 0 }}% - {{ localFilters.llm_score_max || 100 }}%
+          <button @click="clearLlmScoreRange" class="tag-remove">×</button>
         </span>
         <span v-if="localFilters.date_from || localFilters.date_to" class="filter-tag">
           Date: {{ formatDate(localFilters.date_from) || '...' }} to {{ formatDate(localFilters.date_to) || '...' }}
@@ -199,6 +231,7 @@
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue'
 import { useProjectsStore } from '../stores/projects'
+import CompanyMultiSelect from './CompanyMultiSelect.vue'
 
 // Props
 const props = defineProps({
@@ -229,8 +262,10 @@ const localFilters = ref({
   companies: [],
   date_from: null,
   date_to: null,
-  score_min: null,
-  score_max: null,
+  pre_eval_score_min: null,
+  pre_eval_score_max: null,
+  llm_score_min: null,
+  llm_score_max: null,
   page: 1,
   page_size: 50
 })
@@ -242,12 +277,14 @@ let debounceTimer = null
 // Computed
 const hasActiveFilters = computed(() => {
   return localFilters.value.search ||
-         localFilters.value.statuses.length > 0 ||
-         localFilters.value.companies.length > 0 ||
-         localFilters.value.date_from ||
-         localFilters.value.date_to ||
-         localFilters.value.score_min !== null ||
-         localFilters.value.score_max !== null
+          localFilters.value.statuses.length > 0 ||
+          localFilters.value.companies.length > 0 ||
+          localFilters.value.date_from ||
+          localFilters.value.date_to ||
+          localFilters.value.pre_eval_score_min !== null ||
+          localFilters.value.pre_eval_score_max !== null ||
+          localFilters.value.llm_score_min !== null ||
+          localFilters.value.llm_score_max !== null
 })
 
 // Watch for store changes
@@ -281,8 +318,10 @@ const resetFilters = () => {
     companies: [],
     date_from: null,
     date_to: null,
-    score_min: null,
-    score_max: null,
+    pre_eval_score_min: null,
+    pre_eval_score_max: null,
+    llm_score_min: null,
+    llm_score_max: null,
     page: 1,
     page_size: 50
   }
@@ -311,9 +350,15 @@ const removeCompany = (company) => {
   }
 }
 
-const clearScoreRange = () => {
-  localFilters.value.score_min = null
-  localFilters.value.score_max = null
+const clearPreEvalScoreRange = () => {
+  localFilters.value.pre_eval_score_min = null
+  localFilters.value.pre_eval_score_max = null
+  applyFilters()
+}
+
+const clearLlmScoreRange = () => {
+  localFilters.value.llm_score_min = null
+  localFilters.value.llm_score_max = null
   applyFilters()
 }
 
@@ -343,22 +388,32 @@ const applyQuickFilter = (filterType) => {
       localFilters.value.companies = []
       localFilters.value.date_from = null
       localFilters.value.date_to = null
-      localFilters.value.score_min = null
-      localFilters.value.score_max = null
+      localFilters.value.pre_eval_score_min = null
+      localFilters.value.pre_eval_score_max = null
+      localFilters.value.llm_score_min = null
+      localFilters.value.llm_score_max = null
       break
 
     case 'high_score':
-      localFilters.value.score_min = 80
-      localFilters.value.score_max = null
+      localFilters.value.pre_eval_score_min = 80
+      localFilters.value.pre_eval_score_max = null
       break
 
     case 'recent':
       localFilters.value.date_from = sevenDaysAgo.toISOString().split('T')[0]
       localFilters.value.date_to = today.toISOString().split('T')[0]
+      localFilters.value.pre_eval_score_min = null
+      localFilters.value.pre_eval_score_max = null
+      localFilters.value.llm_score_min = null
+      localFilters.value.llm_score_max = null
       break
 
     case 'needs_action':
       localFilters.value.statuses = ['accepted', 'applied']
+      localFilters.value.pre_eval_score_min = null
+      localFilters.value.pre_eval_score_max = null
+      localFilters.value.llm_score_min = null
+      localFilters.value.llm_score_max = null
       break
   }
 
@@ -633,6 +688,25 @@ onMounted(() => {
   flex: 1;
 }
 
+.score-ranges-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.score-range-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.score-type-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+  min-width: 70px;
+}
+
 .date-input:disabled {
   background-color: #f9fafb;
   cursor: not-allowed;
@@ -644,9 +718,6 @@ onMounted(() => {
   font-size: 0.875rem;
 }
 
-.filter-select[multiple] {
-  height: 100px;
-}
 
 .active-filters {
   border-top: 1px solid #e5e7eb;
@@ -759,6 +830,20 @@ onMounted(() => {
   .score-range, .date-range {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .score-ranges-container {
+    gap: 0.5rem;
+  }
+
+  .score-range-group {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+
+  .score-type-label {
+    min-width: auto;
   }
 
   .date-range-container {

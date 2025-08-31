@@ -10,8 +10,10 @@ export const useProjectsStore = defineStore('projects', {
       companies: [],
       date_from: null,
       date_to: null,
-      score_min: null,
-      score_max: null,
+      pre_eval_score_min: null,
+      pre_eval_score_max: null,
+      llm_score_min: null,
+      llm_score_max: null,
       page: 1,
       page_size: 50
     },
@@ -52,8 +54,10 @@ export const useProjectsStore = defineStore('projects', {
         }
         if (this.filters.date_from) params.append('date_from', this.filters.date_from)
         if (this.filters.date_to) params.append('date_to', this.filters.date_to)
-        if (this.filters.score_min !== null) params.append('score_min', this.filters.score_min)
-        if (this.filters.score_max !== null) params.append('score_max', this.filters.score_max)
+        if (this.filters.pre_eval_score_min !== null) params.append('pre_eval_score_min', this.filters.pre_eval_score_min)
+        if (this.filters.pre_eval_score_max !== null) params.append('pre_eval_score_max', this.filters.pre_eval_score_max)
+        if (this.filters.llm_score_min !== null) params.append('llm_score_min', this.filters.llm_score_min)
+        if (this.filters.llm_score_max !== null) params.append('llm_score_max', this.filters.llm_score_max)
         if (this.filters.page !== 1) params.append('page', this.filters.page)
         if (this.filters.page_size !== 50) params.append('page_size', this.filters.page_size)
 
@@ -189,8 +193,10 @@ export const useProjectsStore = defineStore('projects', {
         companies: [],
         date_from: null,
         date_to: null,
-        score_min: null,
-        score_max: null,
+        pre_eval_score_min: null,
+        pre_eval_score_max: null,
+        llm_score_min: null,
+        llm_score_max: null,
         page: 1,
         page_size: 50
       }
