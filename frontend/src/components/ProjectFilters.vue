@@ -92,20 +92,42 @@
       <!-- Date Range -->
       <div class="filter-group">
         <label class="filter-label">Date Range</label>
-        <div class="date-range">
-          <input
-            v-model="localFilters.date_from"
-            type="date"
-            class="filter-input date-input"
-            @change="applyFilters"
-          />
-          <span class="range-separator">to</span>
-          <input
-            v-model="localFilters.date_to"
-            type="date"
-            class="filter-input date-input"
-            @change="applyFilters"
-          />
+        <div class="date-range-container">
+          <!-- Quick Date Range Selector -->
+          <select
+            v-model="selectedQuickDateRange"
+            @change="applyQuickDateRange"
+            class="filter-select quick-date-select"
+          >
+            <option value="">Custom Range</option>
+            <option value="today">Today</option>
+            <option value="last_2_days">Last 2 days</option>
+            <option value="last_3_days">Last 3 days</option>
+            <option value="last_10_days">Last 10 days</option>
+            <option value="this_week">This week</option>
+            <option value="last_week">Last week</option>
+            <option value="this_month">This month</option>
+            <option value="last_month">Last month</option>
+          </select>
+
+          <!-- Manual Date Inputs -->
+          <div class="date-range">
+            <input
+              v-model="localFilters.date_from"
+              type="date"
+              class="filter-input date-input"
+              @change="onManualDateChange"
+              :disabled="selectedQuickDateRange !== ''"
+            />
+            <span class="range-separator">to</span>
+            <input
+              v-model="localFilters.date_to"
+              type="date"
+              class="filter-input date-input"
+              @change="onManualDateChange"
+              :disabled="selectedQuickDateRange !== ''"
+            />
+          </div>
         </div>
       </div>
 
@@ -213,6 +235,8 @@ const localFilters = ref({
   page_size: 50
 })
 
+const selectedQuickDateRange = ref('')
+
 let debounceTimer = null
 
 // Computed
@@ -262,6 +286,7 @@ const resetFilters = () => {
     page: 1,
     page_size: 50
   }
+  selectedQuickDateRange.value = ''
   applyFilters()
 }
 
@@ -295,6 +320,7 @@ const clearScoreRange = () => {
 const clearDateRange = () => {
   localFilters.value.date_from = null
   localFilters.value.date_to = null
+  selectedQuickDateRange.value = ''
   applyFilters()
 }
 
@@ -341,6 +367,92 @@ const applyQuickFilter = (filterType) => {
 
 const handleWorkflowRun = () => {
   emit('run-workflow', 'main')
+}
+
+const applyQuickDateRange = () => {
+  const range = selectedQuickDateRange.value
+  if (!range) {
+    // Custom range selected, don't change dates
+    return
+  }
+
+  const { from, to } = calculateDateRange(range)
+  localFilters.value.date_from = from
+  localFilters.value.date_to = to
+  applyFilters()
+}
+
+const onManualDateChange = () => {
+  // When user manually changes dates, reset quick selector
+  selectedQuickDateRange.value = ''
+  applyFilters()
+}
+
+const calculateDateRange = (range) => {
+  const today = new Date()
+  const todayStr = today.toISOString().split('T')[0]
+
+  switch (range) {
+    case 'today':
+      return { from: todayStr, to: todayStr }
+
+    case 'last_2_days':
+      const twoDaysAgo = new Date(today.getTime() - 2 * 24 * 60 * 60 * 1000)
+      return {
+        from: twoDaysAgo.toISOString().split('T')[0],
+        to: todayStr
+      }
+
+    case 'last_3_days':
+      const threeDaysAgo = new Date(today.getTime() - 3 * 24 * 60 * 60 * 1000)
+      return {
+        from: threeDaysAgo.toISOString().split('T')[0],
+        to: todayStr
+      }
+
+    case 'last_10_days':
+      const tenDaysAgo = new Date(today.getTime() - 10 * 24 * 60 * 60 * 1000)
+      return {
+        from: tenDaysAgo.toISOString().split('T')[0],
+        to: todayStr
+      }
+
+    case 'this_week':
+      const startOfWeek = new Date(today)
+      startOfWeek.setDate(today.getDate() - today.getDay()) // Start of week (Sunday)
+      return {
+        from: startOfWeek.toISOString().split('T')[0],
+        to: todayStr
+      }
+
+    case 'last_week':
+      const endOfLastWeek = new Date(today)
+      endOfLastWeek.setDate(today.getDate() - today.getDay() - 1) // Last Saturday
+      const startOfLastWeek = new Date(endOfLastWeek)
+      startOfLastWeek.setDate(endOfLastWeek.getDate() - 6) // 7 days before
+      return {
+        from: startOfLastWeek.toISOString().split('T')[0],
+        to: endOfLastWeek.toISOString().split('T')[0]
+      }
+
+    case 'this_month':
+      const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1)
+      return {
+        from: startOfMonth.toISOString().split('T')[0],
+        to: todayStr
+      }
+
+    case 'last_month':
+      const startOfLastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1)
+      const endOfLastMonth = new Date(today.getFullYear(), today.getMonth(), 0)
+      return {
+        from: startOfLastMonth.toISOString().split('T')[0],
+        to: endOfLastMonth.toISOString().split('T')[0]
+      }
+
+    default:
+      return { from: null, to: null }
+  }
 }
 
 // Initialize
@@ -506,8 +618,25 @@ onMounted(() => {
   gap: 0.5rem;
 }
 
+.date-range-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.quick-date-select {
+  width: 100%;
+  margin-bottom: 0.5rem;
+}
+
 .score-input, .date-input {
   flex: 1;
+}
+
+.date-input:disabled {
+  background-color: #f9fafb;
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 .range-separator {
@@ -630,6 +759,10 @@ onMounted(() => {
   .score-range, .date-range {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .date-range-container {
+    gap: 0.75rem;
   }
 
   .range-separator {

@@ -222,33 +222,82 @@ def get_projects_with_filters(filters: ProjectFilters) -> List[Dict[str, Any]]:
         project_data = parse_project_file(str(project_file))
         all_projects.append(project_data)
 
+    logger.info(f"📊 Total projects loaded: {len(all_projects)}")
+    logger.info(f"🔍 Applied filters: search={filters.search}, statuses={filters.statuses}, companies={filters.companies}, date_from={filters.date_from}, date_to={filters.date_to}, score_min={filters.score_min}, score_max={filters.score_max}")
+
     # Apply filters
     filtered_projects = []
     for project in all_projects:
+        project_id = project.get("id", "unknown")
+        project_date = project.get("retrieval_date")
+        logger.debug(f"🔍 Checking project {project_id}: date={project_date}, status={project.get('status')}, company={project.get('company')}")
+
         # Search filter
         if filters.search:
             search_term = filters.search.lower()
             title = (project.get("title") or "").lower()
             company = (project.get("company") or "").lower()
             if not (search_term in title or search_term in company):
+                logger.debug(f"❌ Project {project_id} filtered out by search")
                 continue
 
         # Status filter
         if filters.statuses and project.get("status") not in filters.statuses:
+            logger.debug(f"❌ Project {project_id} filtered out by status")
             continue
 
         # Company filter
         if filters.companies and project.get("company") not in filters.companies:
+            logger.debug(f"❌ Project {project_id} filtered out by company")
             continue
+
+        # Date filters
+        if filters.date_from or filters.date_to:
+            if not project_date:
+                logger.debug(f"❌ Project {project_id} filtered out - no date")
+                continue
+
+            try:
+                # Parse project date - handle both date-only and datetime formats
+                if 'T' in project_date:
+                    project_date_obj = datetime.fromisoformat(project_date.replace('Z', '+00:00'))
+                else:
+                    project_date_obj = datetime.strptime(project_date, '%Y-%m-%d')
+                logger.debug(f"📅 Project {project_id} date: {project_date_obj}")
+
+                if filters.date_from:
+                    # Parse date_from as date (YYYY-MM-DD)
+                    from_date = datetime.strptime(filters.date_from, '%Y-%m-%d').date()
+                    project_date_only = project_date_obj.date()
+                    if project_date_only < from_date:
+                        logger.debug(f"❌ Project {project_id} filtered out - before date_from ({project_date_only} < {from_date})")
+                        continue
+
+                if filters.date_to:
+                    # Parse date_to as date (YYYY-MM-DD)
+                    to_date = datetime.strptime(filters.date_to, '%Y-%m-%d').date()
+                    project_date_only = project_date_obj.date()
+                    if project_date_only > to_date:
+                        logger.debug(f"❌ Project {project_id} filtered out - after date_to ({project_date_only} > {to_date})")
+                        continue
+
+            except Exception as e:
+                logger.warning(f"⚠️ Error parsing date for project {project_id}: {e}, project_date='{project_date}', date_from='{filters.date_from}', date_to='{filters.date_to}'")
+                continue
 
         # Score filters
         pre_score = project.get("pre_eval_score")
         if filters.score_min is not None and (pre_score is None or pre_score < filters.score_min):
+            logger.debug(f"❌ Project {project_id} filtered out by score_min")
             continue
         if filters.score_max is not None and (pre_score is None or pre_score > filters.score_max):
+            logger.debug(f"❌ Project {project_id} filtered out by score_max")
             continue
 
+        logger.debug(f"✅ Project {project_id} passed all filters")
         filtered_projects.append(project)
+
+    logger.info(f"📊 Projects after filtering: {len(filtered_projects)}")
 
     # Sort by retrieval date (newest first), handling None values
     filtered_projects.sort(key=lambda x: x.get("retrieval_date") or "", reverse=True)
