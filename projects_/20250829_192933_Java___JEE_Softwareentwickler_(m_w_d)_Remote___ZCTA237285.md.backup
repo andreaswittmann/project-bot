@@ -1,0 +1,91 @@
+---
+state: applied
+state_history:
+- note: 'LLM evaluation: 85% fit score'
+  state: accepted
+  timestamp: '2025-08-29T19:30:24.036767'
+- note: Starting application generation
+  state: applied
+  timestamp: '2025-08-29T19:30:43.484783'
+---
+
+
+# Java / JEE Softwareentwickler (m/w/d) Remote / ZCTA237285
+**URL:** [https://www.freelancermap.de/projekt/java-jee-softwareentwickler-m-w-d-remote-zcta237285?ref=rss](https://www.freelancermap.de/projekt/java-jee-softwareentwickler-m-w-d-remote-zcta237285?ref=rss)
+## Details
+- **Start:** keine Angabe
+- **Von:** GECO Deutschland GmbH - A Yoh Company
+- **Eingestellt:** 29.08.2025
+- **Ansprechpartner:** Stefanie Wiebusch
+- **Projekt-ID:** 2913975
+- **Branche:** IT
+- **Vertragsart:** Freiberuflich
+
+## Schlagworte
+J2EE, Java, Datenbanken, Hibernate, Java Persistence API, Oracle Financials, Serviceorientierte Architektur, SOAP, Softwareentwicklung, Extensible Markup Language, Git, Technische Beratung
+
+## Beschreibung
+Für einen unserer Großkunden suchen wir derzeit**einen freiberuflichen Mitarbeiter**, der die nachfolgenden Anforderungen erfüllt:
+
+**Ihre Aufgaben:**
+
+- Konzeption und Entwicklung von IT-Anwendungen im Bereich Java Enterprise Edition (JEE), JPA und Hibernate
+- Erstellung von Lösungen auf Basis standardisierter Technologien
+- Technische Beratung interner und externer Stakeholder
+
+**Ihr Profil:**
+
+- Sehr gute Kenntnisse in Java / JEE sowie in der UI-Softwareentwicklung
+- Erfahrungen mit Git
+- Gute Kenntnisse in serviceorientierten Architekturen (SOAP, XML)
+- Praktische Erfahrung im Umgang mit Oracle-Datenbanken
+
+**Rahmenparameter:**
+
+- Einsatzort: Remote und nach Absprache in Berlin oder Bonn
+- Laufzeit: Ab sofort - + Option auf Verlängerung
+- Auslastung: Vollauslastung
+
+Ihr**GECO-Ansprechpartner**freut sich auf Ihre Kontaktaufnahme und über die Zusendung Ihrer aussagekräftigen Projekthistorie sowie Ihrer Honorarvorstellung.
+
+---
+
+## 🤖 AI Evaluation Results
+
+**Evaluation Timestamp:** 2025-08-29T19:30:24.035679
+
+### Pre-Evaluation Phase
+- **Score:** 11/100
+- **Threshold:** 10/100
+- **Result:** ✅ Passed
+- **Rationale:** Score: 11%. Found tags: ['ai', 'ml', 'architekt', 'architektur', 'git', 'api', 'soap', 'oracle', 'enterprise', 'beratung', 'remote', 'freelance', 'projekt', 'xml']
+
+### LLM Analysis Phase
+- **Fit Score:** 85/100
+- **Acceptance Threshold:** 85/100
+- **Final Decision:** ✅ ACCEPTED
+
+#### Detailed Rationale
+- Key requirements (from offer): Java / JEE, JPA / Hibernate, UI software development, Git, service-oriented architectures (SOAP, XML), Oracle databases, technical/consulting skills, full-time freelance (remote/onsite Berlin or Bonn).
+
+- Strong matches:
+  - Java / JEE: CV documents ~30 years of enterprise Java (WebLogic, BEA WLS, EJB, Java 7/8, Java-Enterprise projects). High confidence.
+  - Service-oriented architecture, SOAP / WS-Security / XML: many OSB, Weblogic, OSB-to-AWS migrations and WS-Security projects. Excellent match.
+  - Oracle database & Oracle stack: extensive experience (Oracle Forms/Reports, WebLogic, Oracle Service Bus, Oracle DB) — very strong.
+  - Git & CI/CD: Git, GitLab CI/CD, GitHub referenced; experience with versioning and pipelines present.
+  - Technical consulting role fits: long history as consultant/architect and stakeholder advising.
+
+- Partial / weaker matches:
+  - JPA / Hibernate: CV does not explicitly show modern Hibernate or JPA artifacts; there is ORM experience (Kodo JDO, long J2EE background) so skills are likely transferable, but direct, recent Hibernate/JPA evidence is limited.
+  - UI software development: historical UI work (Gupta SQLWindows, various application fronts) but recent projects emphasize backend/architecture/DevOps. Risk: not much explicit modern UI-framework experience shown.
+  - Oracle Financials (domain): keyword appears in offer; CV shows broad Oracle technical experience but no explicit Oracle Financials (ERP/financial modules) domain experience.
+
+- Other considerations:
+  - Availability/engagement model: self-employed founder with current freelance projects — likely suitable for full-time freelance engagement.
+  - Seniority: very senior (architect/consultant) which aligns with technical advisory responsibilities but may exceed expectations if client wants pure hands-on mid-level dev for long-term coding.
+
+- Overall assessment: excellent fit for backend/JEE, SOA, Oracle and consulting needs; minor gaps around explicit, recent Hibernate/JPA and modern UI work and domain-specific Oracle Financials. Given transferability of deep Java/enterprise experience, strong likelihood of success in the role.
+
+- Recommendation: proceed with interview / technical screen focusing on recent hands-on Hibernate/JPA usage and UI-framework experience; clarify expectation re. Oracle Financials domain knowledge.
+
+---

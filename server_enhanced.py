@@ -13,6 +13,7 @@ import sys
 from pathlib import Path
 import json
 import logging
+import re
 from datetime import datetime
 from typing import Dict, List, Optional, Any
 from pydantic import BaseModel, ValidationError
@@ -27,8 +28,8 @@ logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 
-# Enable CORS for Vue3 development server
-CORS(app, origins=["http://localhost:3000", "http://localhost:5173"])
+# Enable CORS for all origins (server now listens on all interfaces)
+CORS(app, origins=["*"])
 
 # Disable caching globally
 @app.after_request
@@ -148,7 +149,6 @@ def parse_project_file(file_path: str) -> Dict[str, Any]:
 
         # Extract title from H1 heading if not in frontmatter
         if not metadata["title"] or metadata["title"] == Path(file_path).stem:
-            import re
             title_match = re.search(r"^#\s*(.*)", content, re.MULTILINE)
             if title_match:
                 metadata["title"] = title_match.group(1).strip()
@@ -228,8 +228,9 @@ def get_projects_with_filters(filters: ProjectFilters) -> List[Dict[str, Any]]:
         # Search filter
         if filters.search:
             search_term = filters.search.lower()
-            if not (search_term in project.get("title", "").lower() or
-                    search_term in project.get("company", "").lower()):
+            title = (project.get("title") or "").lower()
+            company = (project.get("company") or "").lower()
+            if not (search_term in title or search_term in company):
                 continue
 
         # Status filter
@@ -436,6 +437,89 @@ def reevaluate_project(project_id: str):
         return jsonify(APIErrorResponse(
             error="InternalServerError",
             message=f"Failed to reevaluate project: {str(e)}",
+            code=500,
+            timestamp=datetime.now().isoformat()
+        ).dict()), 500
+
+@app.route('/api/v1/projects/<project_id>/generate', methods=['POST'])
+@handle_api_errors
+def generate_application(project_id: str):
+    """Generate application for a specific project"""
+    projects_dir = Path("projects")
+    project_file = projects_dir / f"{project_id}.md"
+
+    if not project_file.exists():
+        return jsonify(APIErrorResponse(
+            error="NotFound",
+            message=f"Project {project_id} not found",
+            code=404,
+            timestamp=datetime.now().isoformat()
+        ).dict()), 404
+
+    try:
+        # Check if project is in accepted state
+        project_data = parse_project_file(str(project_file))
+        if project_data.get("status") != "accepted":
+            return jsonify(APIErrorResponse(
+                error="InvalidState",
+                message=f"Project {project_id} is not in 'accepted' state (current: {project_data.get('status')})",
+                code=400,
+                timestamp=datetime.now().isoformat()
+            ).dict()), 400
+
+        # Execute the application generation for this specific project
+        import subprocess
+        import sys
+
+        # Run main.py with generate-applications flag for this specific project
+        result = subprocess.run([
+            sys.executable, "main.py", "--generate-applications", str(project_file)
+        ], capture_output=True, text=True, timeout=300)
+
+        if result.returncode == 0:
+            # Parse the updated project data
+            project_data = parse_project_file(str(project_file))
+            response = ProjectResponse(**project_data)
+
+            # Regenerate dashboard data to reflect the application generation
+            try:
+                dashboard_result = subprocess.run([
+                    sys.executable, "dashboard/generate_dashboard_data.py"
+                ], capture_output=True, text=True, timeout=60)
+
+                if dashboard_result.returncode != 0:
+                    logger.warning(f"Dashboard data regeneration failed: {dashboard_result.stderr}")
+            except Exception as e:
+                logger.warning(f"Failed to regenerate dashboard data: {e}")
+
+            return jsonify({
+                "success": True,
+                "message": f"Application generated successfully for project {project_id}",
+                "project": response.dict(),
+                "output": result.stdout,
+                "timestamp": datetime.now().isoformat()
+            })
+        else:
+            return jsonify(APIErrorResponse(
+                error="GenerationError",
+                message=f"Application generation failed: {result.stderr}",
+                code=500,
+                details={"stdout": result.stdout, "stderr": result.stderr},
+                timestamp=datetime.now().isoformat()
+            ).dict()), 500
+
+    except subprocess.TimeoutExpired:
+        return jsonify(APIErrorResponse(
+            error="TimeoutError",
+            message="Application generation timed out after 5 minutes",
+            code=408,
+            timestamp=datetime.now().isoformat()
+        ).dict()), 408
+    except Exception as e:
+        logger.error(f"Error generating application for project {project_id}: {e}")
+        return jsonify(APIErrorResponse(
+            error="InternalServerError",
+            message=f"Failed to generate application: {str(e)}",
             code=500,
             timestamp=datetime.now().isoformat()
         ).dict()), 500
@@ -675,16 +759,17 @@ def serve_frontend(filename):
 
 if __name__ == '__main__':
     print("🚀 Starting Enhanced Flask Backend for Vue3 Frontend...")
-    print("📊 API: http://localhost:8002/api/v1/")
-    print("🔧 Health: http://localhost:8002/api/v1/health")
-    print("🌐 Frontend: http://localhost:8002/ (when built)")
+    print("📊 API: http://0.0.0.0:8002/api/v1/")
+    print("🔧 Health: http://0.0.0.0:8002/api/v1/health")
+    print("🌐 Frontend: http://0.0.0.0:8002/ (when built)")
+    print("🌍 Server accessible from all network interfaces")
     print("📁 Projects Directory: projects/")
     print("🔄 State Management: Enhanced")
     print("📋 API Version: v1")
 
     app.run(
         debug=True,
-        host='127.0.0.1',
+        host='0.0.0.0',
         port=8002,
         threaded=True
     )

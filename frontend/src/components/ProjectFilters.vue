@@ -2,9 +2,19 @@
   <div class="project-filters">
     <div class="filters-header">
       <h3>Filters & Search</h3>
-      <button @click="resetFilters" class="reset-btn" :disabled="!hasActiveFilters">
-        Reset All
-      </button>
+      <div class="header-actions">
+        <button
+          @click="handleWorkflowRun"
+          :disabled="isWorkflowRunning"
+          class="workflow-btn"
+        >
+          <span v-if="isWorkflowRunning" class="spinner">⏳</span>
+          {{ isWorkflowRunning ? 'Running...' : 'Run Full Workflow' }}
+        </button>
+        <button @click="resetFilters" class="reset-btn" :disabled="!hasActiveFilters">
+          Reset All
+        </button>
+      </div>
     </div>
 
     <div class="filters-grid">
@@ -177,11 +187,15 @@ const props = defineProps({
   availableCompanies: {
     type: Array,
     default: () => []
+  },
+  isWorkflowRunning: {
+    type: Boolean,
+    default: false
   }
 })
 
 // Emits
-const emit = defineEmits(['filters-changed'])
+const emit = defineEmits(['filters-changed', 'run-workflow'])
 
 // Store
 const projectsStore = useProjectsStore()
@@ -325,6 +339,10 @@ const applyQuickFilter = (filterType) => {
   applyFilters()
 }
 
+const handleWorkflowRun = () => {
+  emit('run-workflow', 'main')
+}
+
 // Initialize
 onMounted(() => {
   // Sync with store on mount
@@ -355,6 +373,44 @@ onMounted(() => {
   font-weight: 600;
 }
 
+.header-actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.workflow-btn {
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.workflow-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #4338ca, #6d28d9);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(79, 70, 229, 0.3);
+}
+
+.workflow-btn:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.workflow-btn .spinner {
+  font-size: 1rem;
+}
+
 .reset-btn {
   background: #6b7280;
   color: white;
@@ -381,6 +437,18 @@ onMounted(() => {
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 1.5rem;
   margin-bottom: 1.5rem;
+}
+
+/* Large screen optimization for filters */
+@media (min-width: 1440px) {
+  .filters-grid {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+  }
+
+  .checkbox-grid {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  }
 }
 
 .filter-group {
@@ -539,6 +607,15 @@ onMounted(() => {
     flex-direction: column;
     align-items: flex-start;
     gap: 1rem;
+  }
+
+  .header-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .workflow-btn {
+    flex: 1;
   }
 
   .filters-grid {

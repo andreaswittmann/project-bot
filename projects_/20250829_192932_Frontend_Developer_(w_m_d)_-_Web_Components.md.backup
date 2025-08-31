@@ -1,0 +1,122 @@
+---
+state: applied
+state_history:
+- note: 'Pre-evaluation failed: 6% score'
+  state: rejected
+  timestamp: '2025-08-29T19:29:35.855219'
+- note: Manual review - good fit
+  state: accepted
+  timestamp: '2025-08-30T13:41:28.390553'
+- note: Starting application generation
+  state: applied
+  timestamp: '2025-08-30T15:51:22.570162'
+---
+
+
+
+# Frontend Developer (w/m/d) - Web Components
+**URL:** [https://www.freelancermap.de/projekt/frontend-developer-w-m-d-web-components?ref=rss](https://www.freelancermap.de/projekt/frontend-developer-w-m-d-web-components?ref=rss)
+## Details
+- **Start:** 09.2025
+- **Von:** Hyand Solutions GmbH
+- **Auslastung:** 100% (5 Tage pro Woche)
+- **Eingestellt:** 29.08.2025
+- **Ansprechpartner:** Martin Diener
+- **Projekt-ID:** 2914025
+- **Branche:** Versicherungen
+- **Vertragsart:** Arbeitnehmerüberlassung
+- **Einsatzart:** 100
+                                                % Remote
+
+## Schlagworte
+HTML, Javascript, CSS, Front End, Software Quality, Web Content Accessibility Guidelines, Web Api
+
+## Beschreibung
+Hallo zusammen,
+
+wir suchen aktuell Frontend Developer (w/m/d) zur Unterstützung eines Kundenprojektes in Anstellung bei uns (Arbeitnehmerüberlassung). Projektsprache ist Deutsch und Englisch.
+
+Hintergrund:
+Component Development: Build independent, reusable Web Components from scratch with a web-first approach using web standards (HTML, CSS, JavaScript, Custom Elements, Shadow DOM). Demonstrate strong understanding of the web platform and its best practices.
+
+Skillset:
+- Strong knowledge of HTML, CSS, JavaScript, and Platform Web fundamentals.
+- Deep understanding of Web Components and related Web APIs (e.g., Custom Elements, Shadow DOM).
+- Experience building and maintaining UI component libraries and design systems.
+- Solid knowledge of accessibility best practices and standards (WCAG 2.2, WAI-ARIA).
+- Skill in developing robust tests to ensure high software quality.
+- Ability to create thorough and clear documentation.
+- Ability to communicate effectively in spoken and written English
+
+Wir freuen uns über Ihr Interesse und Ihre Nachricht.
+
+Viele Grüße
+Martin Diener
+
+---
+
+## 🤖 AI Evaluation Results
+
+**Evaluation Timestamp:** 2025-08-29T19:29:35.854955
+
+### Pre-Evaluation Phase
+- **Score:** 6/100
+- **Threshold:** 10/100
+- **Result:** ❌ Failed
+- **Rationale:** Score: 6%. Found tags: ['ai', 'ki', 'ml', 'api', 'remote', 'freelance', 'projekt']
+
+### LLM Analysis Phase
+- **Fit Score:** 0/100
+- **Acceptance Threshold:** 85/100
+- **Final Decision:** ❌ REJECTED
+
+#### Detailed Rationale
+LLM evaluation skipped (failed pre-evaluation)
+
+---
+
+
+---
+
+## 🤖 AI Evaluation Results
+
+**Evaluation Timestamp:** 2025-08-29T20:15:51.347821
+
+### Pre-Evaluation Phase
+- **Score:** 8/100
+- **Threshold:** 10/100
+- **Result:** ❌ Failed
+- **Rationale:** Score: 8%. Found tags: ['ai', 'ki', 'llm', 'ml', 'api', 'remote', 'freelance', 'projekt']
+
+### LLM Analysis Phase
+- **Fit Score:** 0/100
+- **Acceptance Threshold:** 85/100
+- **Final Decision:** ❌ REJECTED
+
+#### Detailed Rationale
+LLM evaluation skipped (failed pre-evaluation)
+
+---
+
+
+---
+
+## 🤖 AI Evaluation Results
+
+**Evaluation Timestamp:** 2025-08-30T15:49:06.826008
+
+### Pre-Evaluation Phase
+- **Score:** 8/100
+- **Threshold:** 10/100
+- **Result:** ❌ Failed
+- **Rationale:** Score: 8%. Found tags: ['ai', 'ki', 'llm', 'ml', 'api', 'remote', 'freelance', 'projekt']
+
+### LLM Analysis Phase
+- **Fit Score:** 0/100
+- **Acceptance Threshold:** 85/100
+- **Final Decision:** ❌ REJECTED
+
+#### Detailed Rationale
+LLM evaluation skipped (failed pre-evaluation)
+
+---

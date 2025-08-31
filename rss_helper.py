@@ -5,6 +5,7 @@ from parse_html import parse_project, to_markdown
 from datetime import datetime
 import re
 import os
+from state_manager import ProjectStateManager
 
 PROCESSED_LOG_FILE = 'processed_projects.log'
 
@@ -66,15 +67,35 @@ def fetch_and_process_rss(rss_urls, limit=5, output_dir='projects'):
                 # Define output path and save file
                 os.makedirs(output_dir, exist_ok=True)
                 filepath = os.path.join(output_dir, filename)
-                
+
+                # Write initial markdown content
                 with open(filepath, 'w', encoding='utf-8') as f:
                     f.write(markdown_content)
+
+                # Initialize project with state management
+                state_manager = ProjectStateManager(output_dir)
+
+                # Prepare metadata for frontmatter
+                metadata = {
+                    'title': project_data.get('titel', 'N/A'),
+                    'company': project_data.get('von', 'N/A'),
+                    'reference_id': project_data.get('projekt_id', 'N/A'),
+                    'scraped_date': datetime.now().isoformat(),
+                    'source_url': entry.link,
+                    'state': 'scraped'
+                }
+
+                # Initialize project with frontmatter
+                success = state_manager.initialize_project(filepath, metadata)
 
                 # Log the processed URL
                 with open(PROCESSED_LOG_FILE, 'a', encoding='utf-8') as f:
                     f.write(f"{entry.link}\n")
-                
-                print(f"Saved: {filepath}")
+
+                if success:
+                    print(f"Saved: {filepath} (initialized with 'scraped' state)")
+                else:
+                    print(f"Saved: {filepath} (but failed to initialize state management)")
 
             except Exception as e:
                 print(f"Error processing {entry.link}: {str(e)}")

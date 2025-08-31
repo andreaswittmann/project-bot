@@ -58,16 +58,21 @@ export const useProjectsStore = defineStore('projects', {
         if (this.filters.page_size !== 50) params.append('page_size', this.filters.page_size)
 
         const response = await api.get(`/api/v1/projects?${params.toString()}`)
-        this.projects = response.data.projects
+        console.log('📦 Raw API response:', response.data)
+        console.log('📊 Projects array:', response.data.projects)
+        console.log('📊 Projects count:', response.data.projects?.length || 0)
+
+        this.projects = response.data.projects || []
         this.pagination = {
-          total: response.data.total,
-          page: response.data.page,
-          page_size: response.data.page_size,
-          has_next: response.data.has_next,
-          has_prev: response.data.has_prev
+          total: response.data.total || 0,
+          page: response.data.page || 1,
+          page_size: response.data.page_size || 50,
+          has_next: response.data.has_next || false,
+          has_prev: response.data.has_prev || false
         }
 
-        console.log(`Fetched ${this.projects.length} projects (${this.pagination.total} total)`)
+        console.log(`✅ Store updated: ${this.projects.length} projects (${this.pagination.total} total)`)
+        console.log('🔍 First project:', this.projects[0])
       } catch (error) {
         console.error('Error fetching projects:', error)
         this.error = error.response?.data?.message || error.message

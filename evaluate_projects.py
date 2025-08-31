@@ -582,27 +582,32 @@ Examples:
             return
         process_project_file(args.project_file, config, cv_content)
     else:
-        # Process all files in the directory
-        print(f"Processing all projects in '{args.projects_dir}' directory...")
+        # Process only projects in 'scraped' state (newly scraped projects that need evaluation)
+        print(f"Processing projects in 'scraped' state from '{args.projects_dir}' directory...")
         if not os.path.isdir(args.projects_dir):
             print(f"Error: Projects directory not found at '{args.projects_dir}'")
             return
-        
-        project_files = [os.path.join(args.projects_dir, f) for f in os.listdir(args.projects_dir) if f.endswith(('.txt', '.eml', '.md'))]
-        
-        if not project_files:
-            print("No project files found to process.")
+
+        # Use state manager to get only projects in 'scraped' state
+        state_manager = ProjectStateManager(args.projects_dir)
+        scraped_projects = state_manager.get_projects_by_state('scraped')
+
+        if not scraped_projects:
+            print("No projects in 'scraped' state found to evaluate.")
             return
+
+        print(f"Found {len(scraped_projects)} projects in 'scraped' state to evaluate...")
 
         # Create a single logger for the batch run
         batch_log_filename = f"batch_run_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
         log = setup_logging(batch_log_filename)
-        print(f"Processing all projects. See log file for details: {os.path.join(LOG_DIR, batch_log_filename)}")
+        print(f"Evaluating projects. See log file for details: {os.path.join(LOG_DIR, batch_log_filename)}")
 
-        for project_path in project_files:
+        for project_info in scraped_projects:
+            project_path = project_info['path']
             process_project_file(project_path, config, cv_content, log)
-        
-        print("\nAll projects processed.")
+
+        print(f"\nEvaluated {len(scraped_projects)} projects from 'scraped' state.")
 
 if __name__ == "__main__":
     main()

@@ -399,6 +399,22 @@ const retry = () => {
   max-width: 300px;
 }
 
+/* Large screen optimization */
+@media (min-width: 1440px) {
+  .project-title {
+    max-width: 500px;
+  }
+
+  .project-table th,
+  .project-table td {
+    padding: 1rem 0.75rem;
+  }
+
+  .project-table {
+    font-size: 0.9rem;
+  }
+}
+
 .project-link {
   color: #4f46e5;
   text-decoration: none;

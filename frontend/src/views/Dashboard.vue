@@ -6,50 +6,13 @@
     </header>
 
     <main class="main-content">
-      <!-- Workflow Controls -->
-      <div class="workflow-section">
-        <h3>Workflow Controls</h3>
-        <div class="workflow-controls">
-          <button
-            @click="runWorkflow('main')"
-            :disabled="isWorkflowRunning"
-            class="workflow-btn main-workflow"
-          >
-            <span v-if="isWorkflowRunning && currentWorkflow === 'main'" class="spinner">⏳</span>
-            {{ isWorkflowRunning && currentWorkflow === 'main' ? 'Running...' : 'Run Full Workflow' }}
-          </button>
-          
-          <button
-            @click="runWorkflow('evaluate')"
-            :disabled="isWorkflowRunning"
-            class="workflow-btn evaluate-workflow"
-          >
-            <span v-if="isWorkflowRunning && currentWorkflow === 'evaluate'" class="spinner">⏳</span>
-            {{ isWorkflowRunning && currentWorkflow === 'evaluate' ? 'Evaluating...' : 'Evaluate Projects' }}
-          </button>
-          
-          <button
-            @click="runWorkflow('generate')"
-            :disabled="isWorkflowRunning"
-            class="workflow-btn generate-workflow"
-          >
-            <span v-if="isWorkflowRunning && currentWorkflow === 'generate'" class="spinner">⏳</span>
-            {{ isWorkflowRunning && currentWorkflow === 'generate' ? 'Generating...' : 'Generate Applications' }}
-          </button>
-        </div>
-        
-        <div v-if="workflowMessage" class="workflow-message" :class="workflowMessageType">
-          {{ workflowMessage }}
-        </div>
-      </div>
-
       <!-- Dashboard Stats -->
       <div class="stats-section">
-        <div class="stat-card">
+        <div class="stat-card stat-total">
           <div class="stat-number">{{ totalProjects }}</div>
           <div class="stat-label">Total Projects</div>
         </div>
-        <div v-for="(count, status) in statsByStatus" :key="status" class="stat-card">
+        <div v-for="(count, status) in statsByStatus" :key="status" class="stat-card" :class="`stat-${status}`">
           <div class="stat-number">{{ count }}</div>
           <div class="stat-label">{{ status }}</div>
         </div>
@@ -58,7 +21,9 @@
       <!-- Filters -->
       <ProjectFilters
         :available-companies="availableCompanies"
+        :is-workflow-running="isWorkflowRunning"
         @filters-changed="handleFiltersChanged"
+        @run-workflow="runWorkflow"
       />
 
       <!-- Project Table -->
@@ -133,11 +98,28 @@ const workflowMessage = ref(null)
 const workflowMessageType = ref(null)
 
 // Computed
-const projects = computed(() => projectsStore.projects)
-const loading = computed(() => projectsStore.loading)
-const error = computed(() => projectsStore.error)
+const projects = computed(() => {
+  const projs = projectsStore.projects
+  console.log('📋 Dashboard computed projects:', projs?.length || 0, 'items')
+  console.log('📋 First project in dashboard:', projs?.[0])
+  return projs
+})
+const loading = computed(() => {
+  const isLoading = projectsStore.loading
+  console.log('⏳ Dashboard loading state:', isLoading)
+  return isLoading
+})
+const error = computed(() => {
+  const err = projectsStore.error
+  if (err) console.log('❌ Dashboard error:', err)
+  return err
+})
 const pagination = computed(() => projectsStore.pagination)
-const totalProjects = computed(() => projectsStore.totalProjects)
+const totalProjects = computed(() => {
+  const total = projectsStore.totalProjects
+  console.log('📊 Dashboard total projects:', total)
+  return total
+})
 const statsByStatus = computed(() => projectsStore.stats.by_status || {})
 
 // Methods
@@ -279,6 +261,7 @@ const formatTime = (timestamp) => {
   }
 }
 
+
 // Initialize data
 const initializeData = async () => {
   try {
@@ -340,7 +323,8 @@ onMounted(() => {
 }
 
 .main-content {
-  max-width: 1400px;
+  width: 100%;
+  max-width: 1800px;
   margin: 0 auto;
   padding: 2rem;
   display: flex;
@@ -350,35 +334,83 @@ onMounted(() => {
 
 .stats-section {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 0.75rem;
 }
 
 .stat-card {
   background: white;
-  border-radius: 8px;
-  padding: 1.5rem;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 6px;
+  padding: 0.75rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   text-align: center;
   transition: transform 0.2s;
+  border: 2px solid transparent;
 }
 
 .stat-card:hover {
-  transform: translateY(-2px);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .stat-number {
-  font-size: 2rem;
+  font-size: 1.25rem;
   font-weight: 700;
-  color: #4f46e5;
-  margin-bottom: 0.5rem;
+  color: #374151;
+  margin-bottom: 0.25rem;
 }
 
 .stat-label {
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   color: #6b7280;
   text-transform: capitalize;
   font-weight: 500;
+}
+
+/* Status-specific colors matching the table indicators */
+.stat-total {
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  color: white;
+}
+
+.stat-total .stat-number,
+.stat-total .stat-label {
+  color: white;
+}
+
+.stat-scraped {
+  background: #fef3c7;
+  border-color: #f59e0b;
+}
+
+.stat-accepted {
+  background: #dcfce7;
+  border-color: #10b981;
+}
+
+.stat-rejected {
+  background: #fef2f2;
+  border-color: #ef4444;
+}
+
+.stat-applied {
+  background: #dbeafe;
+  border-color: #3b82f6;
+}
+
+.stat-sent {
+  background: #f3e8ff;
+  border-color: #8b5cf6;
+}
+
+.stat-open {
+  background: #e0f2fe;
+  border-color: #06b6d4;
+}
+
+.stat-archived {
+  background: #f3f4f6;
+  border-color: #6b7280;
 }
 
 .activity-section {
@@ -435,6 +467,32 @@ onMounted(() => {
   white-space: nowrap;
 }
 
+/* Large screen optimization */
+@media (min-width: 1440px) {
+  .main-content {
+    max-width: 2200px;
+    padding: 3rem;
+  }
+
+  .stats-section {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 1rem;
+  }
+
+  .stat-card {
+    padding: 1rem;
+  }
+
+  .stat-number {
+    font-size: 1.5rem;
+  }
+
+  .stat-label {
+    font-size: 0.875rem;
+  }
+}
+
+
 /* Responsive design */
 @media (max-width: 768px) {
   .header {
@@ -451,16 +509,20 @@ onMounted(() => {
   }
 
   .stats-section {
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: 0.75rem;
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    gap: 0.5rem;
   }
 
   .stat-card {
-    padding: 1rem;
+    padding: 0.5rem;
   }
 
   .stat-number {
-    font-size: 1.5rem;
+    font-size: 1rem;
+  }
+
+  .stat-label {
+    font-size: 0.7rem;
   }
 
   .activity-item {
@@ -476,7 +538,20 @@ onMounted(() => {
 
 @media (max-width: 480px) {
   .stats-section {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.25rem;
+  }
+
+  .stat-card {
+    padding: 0.375rem;
+  }
+
+  .stat-number {
+    font-size: 0.875rem;
+  }
+
+  .stat-label {
+    font-size: 0.625rem;
   }
 
   .activity-item {
