@@ -41,4 +41,21 @@ api.interceptors.response.use(
   }
 )
 
+// Markdown API methods
+export const markdownApi = {
+  // Get markdown content for a project
+  async getProjectMarkdown(projectId) {
+    const response = await api.get(`/api/v1/projects/${projectId}/markdown`)
+    return response.data
+  },
+
+  // Update markdown content for a project
+  async updateProjectMarkdown(projectId, content) {
+    const response = await api.put(`/api/v1/projects/${projectId}/markdown`, {
+      content: content
+    })
+    return response.data
+  }
+}
+
 export default api

@@ -10,6 +10,16 @@
       <span class="btn-text">View</span>
     </button>
 
+    <!-- Edit Markdown Button -->
+    <button
+      @click="editProject"
+      class="action-btn edit-btn"
+      title="Edit Markdown File"
+    >
+      <span class="btn-icon">✏️</span>
+      <span class="btn-text">Edit</span>
+    </button>
+
     <!-- Generate Application Button -->
     <button
       v-if="canGenerateApplication"
@@ -241,6 +251,12 @@ const viewProject = () => {
   emit('view-project', props.project.id)
 }
 
+const editProject = () => {
+  // Open markdown editor in new tab
+  const editorUrl = `/editor/${props.project.id}`
+  window.open(editorUrl, '_blank')
+}
+
 const generateApplication = async () => {
   isGenerating.value = true
   try {
@@ -390,6 +406,7 @@ const closeModal = () => {
 
 /* Specific button styles */
 .view-btn:hover { border-color: #4f46e5; color: #4f46e5; }
+.edit-btn:hover { border-color: #059669; color: #059669; }
 .generate-btn:hover { border-color: #059669; color: #059669; }
 .transition-btn:hover { border-color: #7c3aed; color: #7c3aed; }
 .reevaluate-btn:hover { border-color: #d97706; color: #d97706; }

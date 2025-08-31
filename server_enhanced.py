@@ -102,6 +102,15 @@ class APIErrorResponse(BaseModel):
     details: Optional[Dict[str, Any]] = None
     timestamp: str
 
+class MarkdownContentResponse(BaseModel):
+    content: str
+    filename: str
+    last_modified: str
+    file_size: int
+
+class MarkdownUpdateRequest(BaseModel):
+    content: str
+
 # Error handling decorator
 def handle_api_errors(f):
     @wraps(f)
@@ -596,6 +605,107 @@ def generate_application(project_id: str):
         return jsonify(APIErrorResponse(
             error="InternalServerError",
             message=f"Failed to generate application: {str(e)}",
+            code=500,
+            timestamp=datetime.now().isoformat()
+        ).dict()), 500
+
+@app.route('/api/v1/projects/<project_id>/markdown', methods=['GET'])
+@handle_api_errors
+def get_project_markdown(project_id: str):
+    """Get raw markdown content of project file"""
+    projects_dir = Path("projects")
+    project_file = projects_dir / f"{project_id}.md"
+
+    if not project_file.exists():
+        return jsonify(APIErrorResponse(
+            error="NotFound",
+            message=f"Project {project_id} not found",
+            code=404,
+            timestamp=datetime.now().isoformat()
+        ).dict()), 404
+
+    try:
+        # Read the raw markdown content
+        with open(project_file, 'r', encoding='utf-8') as f:
+            content = f.read()
+
+        # Get file metadata
+        stat = project_file.stat()
+        last_modified = datetime.fromtimestamp(stat.st_mtime).isoformat()
+
+        response = MarkdownContentResponse(
+            content=content,
+            filename=project_file.name,
+            last_modified=last_modified,
+            file_size=stat.st_size
+        )
+
+        return jsonify(response.dict())
+
+    except Exception as e:
+        logger.error(f"Error reading markdown file {project_id}: {e}")
+        return jsonify(APIErrorResponse(
+            error="ReadError",
+            message=f"Failed to read markdown file: {str(e)}",
+            code=500,
+            timestamp=datetime.now().isoformat()
+        ).dict()), 500
+
+@app.route('/api/v1/projects/<project_id>/markdown', methods=['PUT'])
+@handle_api_errors
+def update_project_markdown(project_id: str):
+    """Update markdown content of project file"""
+    data = request.get_json()
+    if not data:
+        raise ValidationError("No JSON data provided")
+
+    update_request = MarkdownUpdateRequest(**data)
+
+    projects_dir = Path("projects")
+    project_file = projects_dir / f"{project_id}.md"
+
+    if not project_file.exists():
+        return jsonify(APIErrorResponse(
+            error="NotFound",
+            message=f"Project {project_id} not found",
+            code=404,
+            timestamp=datetime.now().isoformat()
+        ).dict()), 404
+
+    try:
+        # Create backup before updating
+        backup_file = project_file.with_suffix('.md.backup')
+        shutil.copy2(project_file, backup_file)
+
+        # Write the new content
+        with open(project_file, 'w', encoding='utf-8') as f:
+            f.write(update_request.content)
+
+        # Get updated file metadata
+        stat = project_file.stat()
+        last_modified = datetime.fromtimestamp(stat.st_mtime).isoformat()
+
+        return jsonify({
+            "success": True,
+            "message": f"Markdown file {project_id} updated successfully",
+            "last_modified": last_modified,
+            "file_size": stat.st_size,
+            "timestamp": datetime.now().isoformat()
+        })
+
+    except Exception as e:
+        logger.error(f"Error updating markdown file {project_id}: {e}")
+        # Try to restore backup if it exists
+        if backup_file.exists():
+            try:
+                shutil.copy2(backup_file, project_file)
+                logger.info(f"Restored backup for {project_id} after failed update")
+            except Exception as restore_error:
+                logger.error(f"Failed to restore backup for {project_id}: {restore_error}")
+
+        return jsonify(APIErrorResponse(
+            error="WriteError",
+            message=f"Failed to update markdown file: {str(e)}",
             code=500,
             timestamp=datetime.now().isoformat()
         ).dict()), 500
