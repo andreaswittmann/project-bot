@@ -72,3 +72,5 @@ Thumbs.db
 .env.development.local
 .env.test.local
 .env.production.local
+# Node Modules
+node_modules/
