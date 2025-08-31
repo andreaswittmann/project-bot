@@ -237,11 +237,14 @@ def main():
     # Generate Markdown
     markdown_content = to_markdown(data)
 
-    # Create filename
-    title_slug = re.sub(r"[^\w\s-]", "", data.get("titel", "project")).strip()
-    title_slug = re.sub(r"[\s-]+", "_", title_slug)
+    # Create filename with validation and fallbacks
+    from rss_helper import create_safe_filename
     timestamp = dt.datetime.now().strftime("%Y%m%d_%H%M%S")
-    filename = f"{timestamp}_{title_slug}.md"
+    original_title = data.get("titel", "project")
+    filename = create_safe_filename(original_title, timestamp)
+
+    # Log filename creation for debugging
+    print(f"📄 Created filename: {filename} (from title: '{original_title}')")
 
     # Define output path and save file
     output_dir = args.output or "projects"
