@@ -58,6 +58,12 @@
         v-model="markdownContent"
         :height="'calc(100vh - 80px)'"
         :mode="editorMode"
+        :editorConfig="{
+          lineWrapping: true,
+          styleActiveLine: true,
+          // keep words intact; very long tokens still wrap nicely
+          lineNumbers: false
+        }"
         class="markdown-editor-component"
         @save="handleSave"
       />
@@ -386,6 +392,15 @@ defineExpose({ onUnmounted })
 
 
 
+
+/* Improve wrapping in CodeMirror editor (no breaking inside words) */
+:deep(.v-md-editor .CodeMirror-wrap .CodeMirror-line),
+:deep(.v-md-editor .CodeMirror-wrap .CodeMirror-line > span),
+:deep(.v-md-editor .CodeMirror-wrap pre) {
+  white-space: pre-wrap;      /* allow soft wrap */
+  word-break: normal;         /* do not break inside words */
+  overflow-wrap: break-word;  /* break very long tokens if needed */
+}
 
 /* V-MD-Editor Preview Styles - Left Alignment Fix */
 :deep(.v-md-editor-preview),
