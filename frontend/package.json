@@ -14,9 +14,10 @@
   "license": "ISC",
   "dependencies": {
     "@kangc/v-md-editor": "^2.3.15",
-    "vue": "^3.5.20",
     "autoprefixer": "^10.4.21",
     "axios": "^1.11.0",
+    "codemirror": "^5.65.13",
+    "highlight.js": "^11.11.1",
     "pinia": "^3.0.3",
     "postcss": "^8.5.6",
     "vue": "^3.5.20",

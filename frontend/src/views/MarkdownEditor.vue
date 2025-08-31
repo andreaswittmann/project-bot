@@ -68,16 +68,8 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import VMdEditor from '@kangc/v-md-editor/lib/base-editor'
-import '@kangc/v-md-editor/lib/style/base-editor.css'
-import vuepressTheme from '@kangc/v-md-editor/lib/theme/vuepress'
-import '@kangc/v-md-editor/lib/theme/style/vuepress.css'
-import enUS from '@kangc/v-md-editor/lib/lang/en-US'
 import { markdownApi } from '../services/api.js'
 
-// Use VuePress theme
-VMdEditor.use(vuepressTheme)
-VMdEditor.lang.use('en-US', enUS)
 
 // Route and router
 const route = useRoute()
@@ -392,31 +384,8 @@ defineExpose({ onUnmounted })
   overflow: hidden;
 }
 
-.editor-container.preview-left :deep(.bytemd) {
-  flex-direction: row-reverse;
-}
 
-.bytemd-editor {
-  height: 100%;
-  border: none;
-}
 
-/* ByteMD customizations */
-:deep(.bytemd) {
-  height: 100%;
-  border: none;
-}
-
-:deep(.bytemd-toolbar) {
-  background: #f9fafb;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-:deep(.bytemd-editor) {
-  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
-  font-size: 14px;
-  line-height: 1.6;
-}
 
 /* V-MD-Editor Preview Styles - Left Alignment Fix */
 :deep(.v-md-editor-preview),
@@ -429,6 +398,13 @@ defineExpose({ onUnmounted })
   text-align: left !important;
 }
 
+/* Ensure the editor (CodeMirror) text is left-aligned */
+:deep(.v-md-editor .CodeMirror),
+:deep(.v-md-editor .CodeMirror pre),
+:deep(.v-md-editor .CodeMirror-lines),
+:deep(.v-md-editor .CodeMirror-code) {
+  text-align: left !important;
+}
 :deep(.v-md-editor-preview > div),
 :deep(.v-md-editor__preview > div),
 :deep(.vuepress-markdown-body > div) {
@@ -486,30 +462,6 @@ defineExpose({ onUnmounted })
 }
 
 /* Keep original bytemd selectors as fallback */
-:deep(.bytemd-preview) {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  font-size: 16px;
-  line-height: 1.7;
-  text-align: left !important;
-}
-
-:deep(.bytemd-preview > div) {
-  text-align: left !important;
-}
-
-:deep(.bytemd-preview p),
-:deep(.bytemd-preview h1),
-:deep(.bytemd-preview h2),
-:deep(.bytemd-preview h3),
-:deep(.bytemd-preview h4),
-:deep(.bytemd-preview h5),
-:deep(.bytemd-preview h6),
-:deep(.bytemd-preview ul),
-:deep(.bytemd-preview ol),
-:deep(.bytemd-preview blockquote),
-:deep(.bytemd-preview div) {
-  text-align: left !important;
-}
 
 /* Responsive design */
 @media (max-width: 768px) {
