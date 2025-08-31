@@ -476,7 +476,89 @@ defineExpose({ onUnmounted })
   text-align: left !important;
 }
 
-/* Keep original bytemd selectors as fallback */
+/* Improve preview typography spacing */
+:deep(.v-md-editor-preview),
+:deep(.v-md-editor__preview),
+:deep(.vuepress-markdown-body) {
+  line-height: 1.7;
+}
+
+/* Paragraph spacing */
+:deep(.v-md-editor-preview p),
+:deep(.v-md-editor__preview p),
+:deep(.vuepress-markdown-body p) {
+  margin: 0.5rem 0 1rem;
+}
+
+/* Headings spacing */
+:deep(.v-md-editor-preview h1),
+:deep(.v-md-editor__preview h1),
+:deep(.vuepress-markdown-body h1) {
+  margin: 1.5rem 0 0.75rem;
+  line-height: 1.25;
+}
+:deep(.v-md-editor-preview h2),
+:deep(.v-md-editor__preview h2),
+:deep(.vuepress-markdown-body h2) {
+  margin: 1.25rem 0 0.75rem;
+  line-height: 1.3;
+}
+:deep(.v-md-editor-preview h3),
+:deep(.v-md-editor__preview h3),
+:deep(.vuepress-markdown-body h3) {
+  margin: 1rem 0 0.5rem;
+  line-height: 1.35;
+}
+:deep(.v-md-editor-preview h4),
+:deep(.v-md-editor__preview h4),
+:deep(.vuepress-markdown-body h4),
+:deep(.v-md-editor-preview h5),
+:deep(.v-md-editor__preview h5),
+:deep(.vuepress-markdown-body h5),
+:deep(.v-md-editor-preview h6),
+:deep(.v-md-editor__preview h6),
+:deep(.vuepress-markdown-body h6) {
+  margin: 0.75rem 0 0.5rem;
+}
+
+/* Lists spacing */
+:deep(.v-md-editor-preview ul),
+:deep(.v-md-editor-preview ol),
+:deep(.v-md-editor__preview ul),
+:deep(.v-md-editor__preview ol),
+:deep(.vuepress-markdown-body ul),
+:deep(.vuepress-markdown-body ol) {
+  margin: 0.75rem 0 1rem;
+  padding-left: 1.5rem;
+}
+
+/* Blockquote styling */
+:deep(.v-md-editor-preview blockquote),
+:deep(.v-md-editor__preview blockquote),
+:deep(.vuepress-markdown-body blockquote) {
+  margin: 1rem 0;
+  padding: 0.75rem 1rem;
+  border-left: 4px solid #e5e7eb;
+  background: #f9fafb;
+  color: #374151;
+}
+
+/* Code blocks */
+:deep(.v-md-editor-preview pre),
+:deep(.v-md-editor__preview pre),
+:deep(.vuepress-markdown-body pre) {
+  margin: 1rem 0;
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  overflow: auto;
+}
+
+/* Horizontal rule spacing */
+:deep(.v-md-editor-preview hr),
+:deep(.v-md-editor__preview hr),
+:deep(.vuepress-markdown-body hr) {
+  margin: 1.25rem 0;
+}
 
 /* Responsive design */
 @media (max-width: 768px) {
