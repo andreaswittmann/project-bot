@@ -16,6 +16,12 @@ import yaml
 import json
 import shutil
 
+# Import state manager for project state-based purging
+try:
+    from state_manager import ProjectStateManager
+except ImportError:
+    ProjectStateManager = None
+
 class FilePurger:
     """
     A configurable file purging system that manages cleanup of project files
@@ -47,25 +53,40 @@ class FilePurger:
                 'enabled': True,
                 'dry_run': False,
                 'retention_periods': {
-                    'logs': 30,  # days
-                    'projects': 90,  # days
-                    'applications': 180,  # days
-                    'temp_files': 7,  # days
-                    'backups': 365  # days
+                    'logs': 30,                    # Log files
+                    'temp_files': 7,              # Temporary files
+                    'backups': 365,               # Backup files
+                    'scraped': 7,                 # Unprocessed projects
+                    'rejected_low_pre_eval': 1,   # Rejected + pre-eval < 10
+                    'rejected_low_llm': 3,        # Rejected + LLM < 85
+                    'rejected_other': 14,         # Other rejected projects
+                    'accepted': 30,               # Accepted projects
+                    'applied': 90,                # Applied projects
+                    'sent': 180,                  # Sent applications
+                    'open': 365,                  # Active communications
+                    'archived': 180               # Completed projects
                 },
                 'file_patterns': {
-                    'logs': ['*.log'],
-                    'projects': ['projects/*.md', 'projects/*.txt'],
-                    'applications': ['applications_status.json', 'dashboard/dashboard_data.json'],
+                    'logs': ['*.log', 'logs/*.log', 'projects_log/*.log'],
                     'temp_files': ['*.tmp', '*.temp', 'temp/**'],
-                    'backups': ['backups/**', '*_backup.*']
+                    'backups': ['*_backup.*', 'backups/**'],
+                    'projects': ['projects_/*.md']  # All projects in single directory
+                },
+                'score_thresholds': {
+                    'pre_evaluation': 10,
+                    'llm_analysis': 85
                 },
                 'exclude_patterns': [
                     '.git/**',
                     'config.yaml',
+                    'config_template.yaml',
                     'requirements.txt',
                     'README.md',
-                    'venv/**'
+                    'main.py',
+                    'file_purger.py',
+                    'venv/**',
+                    'dashboard/dashboard.html',
+                    'dashboard/generate_dashboard_data.py'
                 ],
                 'max_deletions_per_run': 1000,
                 'confirmation_required': True
@@ -87,19 +108,29 @@ class FilePurger:
                 'dry_run': True,  # Safe default
                 'retention_periods': {
                     'logs': 30,
-                    'projects': 90,
-                    'applications': 180,
                     'temp_files': 7,
-                    'backups': 365
+                    'backups': 365,
+                    'scraped': 7,
+                    'rejected_low_pre_eval': 1,
+                    'rejected_low_llm': 3,
+                    'rejected_other': 14,
+                    'accepted': 30,
+                    'applied': 90,
+                    'sent': 180,
+                    'open': 365,
+                    'archived': 180
                 },
                 'file_patterns': {
-                    'logs': ['*.log'],
-                    'projects': ['projects/*.md', 'projects/*.txt'],
-                    'applications': ['applications_status.json', 'dashboard/dashboard_data.json'],
+                    'logs': ['*.log', 'logs/*.log', 'projects_log/*.log'],
                     'temp_files': ['*.tmp', '*.temp', 'temp/**'],
-                    'backups': ['backups/**', '*_backup.*']
+                    'backups': ['*_backup.*', 'backups/**'],
+                    'projects': ['projects/*.md']
                 },
-                'exclude_patterns': ['.git/**', 'config.yaml', 'requirements.txt', 'README.md', 'venv/**'],
+                'score_thresholds': {
+                    'pre_evaluation': 10,
+                    'llm_analysis': 85
+                },
+                'exclude_patterns': ['.git/**', 'config.yaml', 'config_template.yaml', 'requirements.txt', 'README.md', 'main.py', 'file_purger.py', 'venv/**', 'dashboard/dashboard.html', 'dashboard/generate_dashboard_data.py'],
                 'max_deletions_per_run': 1000,
                 'confirmation_required': True
             }
@@ -219,7 +250,15 @@ class FilePurger:
             List of tuples (file_path, age_days)
         """
         retention_days = self.config['retention_periods'][category]
-        patterns = self.config['file_patterns'][category]
+
+        # Handle project state categories - they all use the 'projects' pattern
+        project_states = ['scraped', 'rejected_low_pre_eval', 'rejected_low_llm', 'rejected_other',
+                         'accepted', 'applied', 'sent', 'open', 'archived']
+
+        if category in project_states:
+            patterns = self.config['file_patterns']['projects']
+        else:
+            patterns = self.config['file_patterns'].get(category, [])
 
         files_to_purge = []
 
@@ -229,18 +268,32 @@ class FilePurger:
                 base_path = Path('.')
                 for file_path in base_path.rglob(pattern):
                     if file_path.is_file() and not self._should_exclude(file_path):
-                        age_days = self._get_file_age_days(file_path)
-                        if age_days > retention_days:
-                            files_to_purge.append((file_path, age_days))
+                        # For project files, check if they match the category
+                        if category in project_states:
+                            if self._categorize_file(file_path) == category:
+                                age_days = self._get_file_age_days(file_path)
+                                if age_days > retention_days:
+                                    files_to_purge.append((file_path, age_days))
+                        else:
+                            age_days = self._get_file_age_days(file_path)
+                            if age_days > retention_days:
+                                files_to_purge.append((file_path, age_days))
             else:
                 # Handle simple patterns
                 from glob import glob
                 for file_path_str in glob(pattern):
                     file_path = Path(file_path_str)
                     if file_path.is_file() and not self._should_exclude(file_path):
-                        age_days = self._get_file_age_days(file_path)
-                        if age_days > retention_days:
-                            files_to_purge.append((file_path, age_days))
+                        # For project files, check if they match the category
+                        if category in project_states:
+                            if self._categorize_file(file_path) == category:
+                                age_days = self._get_file_age_days(file_path)
+                                if age_days > retention_days:
+                                    files_to_purge.append((file_path, age_days))
+                        else:
+                            age_days = self._get_file_age_days(file_path)
+                            if age_days > retention_days:
+                                files_to_purge.append((file_path, age_days))
 
         return files_to_purge
 
@@ -281,16 +334,77 @@ class FilePurger:
 
         if file_path.suffix == '.log' or 'log' in file_path.parts:
             return 'logs'
-        elif 'projects' in file_path.parts:
-            return 'projects'
-        elif 'applications' in file_str or 'dashboard' in file_path.parts:
-            return 'applications'
+        elif 'projects' in file_path.parts and file_path.suffix == '.md':
+            return self._categorize_project_by_score(file_path)
         elif file_path.suffix in ['.tmp', '.temp'] or 'temp' in file_path.parts:
             return 'temp_files'
         elif 'backup' in file_str:
             return 'backups'
         else:
             return 'other'
+
+    def _categorize_project_by_score(self, project_path: Path) -> str:
+        """Categorize a project based on its state and evaluation scores."""
+        if ProjectStateManager is None:
+            return 'projects'  # Fallback if state manager not available
+
+        try:
+            state_manager = ProjectStateManager("projects")
+            frontmatter, body = state_manager.read_project(str(project_path))
+
+            state = frontmatter.get('state', 'scraped')
+            if state != 'rejected':
+                return state
+
+            # For rejected projects, extract scores from evaluation results in body
+            pre_eval_score = self._extract_pre_eval_score(body)
+            llm_score = self._extract_llm_score(body)
+
+            pre_eval_threshold = self.config.get('score_thresholds', {}).get('pre_evaluation', 10)
+            llm_threshold = self.config.get('score_thresholds', {}).get('llm_analysis', 85)
+
+            if pre_eval_score < pre_eval_threshold:
+                return 'rejected_low_pre_eval'
+            elif llm_score < llm_threshold:
+                return 'rejected_low_llm'
+            else:
+                return 'rejected_other'
+
+        except Exception as e:
+            self.logger.warning(f"Failed to categorize project {project_path}: {e}")
+            return 'projects'  # Safe fallback
+
+    def _extract_pre_eval_score(self, body: str) -> int:
+        """Extract pre-evaluation score from markdown body."""
+        import re
+
+        # Look for pattern: "**Score:** X/100" in pre-evaluation section
+        pre_eval_pattern = r'### Pre-Evaluation Phase.*?\*\*Score:\*\*\s*(\d+)/100'
+        match = re.search(pre_eval_pattern, body, re.DOTALL)
+
+        if match:
+            try:
+                return int(match.group(1))
+            except ValueError:
+                pass
+
+        return 0  # Default if not found
+
+    def _extract_llm_score(self, body: str) -> int:
+        """Extract LLM fit score from markdown body."""
+        import re
+
+        # Look for pattern: "**Fit Score:** X/100" in LLM analysis section
+        llm_pattern = r'### LLM Analysis Phase.*?\*\*Fit Score:\*\*\s*(\d+)/100'
+        match = re.search(llm_pattern, body, re.DOTALL)
+
+        if match:
+            try:
+                return int(match.group(1))
+            except ValueError:
+                pass
+
+        return 0  # Default if not found
 
     def purge_files(self, categories: Optional[List[str]] = None,
                    force: bool = False, interactive: bool = True) -> Dict[str, int]:
@@ -446,7 +560,8 @@ def main():
     parser.add_argument('--config', default='config.yaml',
                        help='Path to configuration file')
     parser.add_argument('--categories', nargs='+',
-                        choices=['logs', 'projects', 'applications', 'temp_files', 'backups'],
+                        choices=['logs', 'temp_files', 'backups', 'scraped', 'rejected_low_pre_eval',
+                                'rejected_low_llm', 'rejected_other', 'accepted', 'applied', 'sent', 'open', 'archived'],
                         help='Categories to purge (default: all)')
     parser.add_argument('--dry-run', action='store_true',
                        help='Show what would be deleted without actually deleting')

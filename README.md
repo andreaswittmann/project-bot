@@ -46,12 +46,12 @@ This bot helps freelancers automate the complete process of:
 - **CLI Management**: Command-line tools for state transitions and reporting
 
 ### 🗂️ Intelligent File Purging
-- **State-Based Cleanup**: Purge projects based on state age, not directory location
-- **Granular Retention**: Different retention periods for each project state
-- **Automatic Cleanup**: Integrated into main workflow for logs and temporary files
-- **Smart Timestamp Detection**: Uses filename timestamps or creation time for accurate age calculation
+- **Score-Based Intelligence**: Automatically categorizes projects by evaluation scores for smart cleanup
+- **Automatic Categorization**: `rejected_low_pre_eval` (1-day), `rejected_low_llm` (3-day), `rejected_other` (14-day)
+- **Workflow Integration**: Automatically purges low-quality projects during main workflow execution
+- **Smart Age Detection**: Uses file modification time for accurate age calculation
 - **Safety Features**: Dry-run mode, confirmation prompts, and comprehensive exclusions
-- **Manual Control**: Command-line options for targeted purging of specific categories
+- **Manual Control**: Command-line options for targeted purging by intelligent categories
 
 ### 🔧 Multi-LLM Support
 - OpenAI GPT models
@@ -150,32 +150,39 @@ state_history:
 # Project content starts here...
 ```
 
-### File Purging Configuration
-Configure automatic file cleanup based on project states:
+### Intelligent File Purging Configuration
+Configure automatic file cleanup with score-based categorization:
 
 ```yaml
 purging:
- enabled: true
- dry_run: false  # Set to true for safe testing
+  enabled: true
+  dry_run: false  # Set to true for safe testing
 
- # Retention periods in days for different project states
- retention_periods:
-   logs: 30                    # Log files older than 30 days
-   archived: 7                 # Archived projects: 7 days
-   rejected: 1                 # Rejected projects: 1 day
-   accepted: 30                # Accepted projects: 30 days
-   applied: 90                 # Applied projects: 90 days
-   sent: 180                   # Sent projects: 180 days
-   open: 365                   # Open projects: 1 year
-   scraped: 7                  # Unprocessed projects: 7 days
-   projects: 90                # General projects: 90 days
-   applications: 180           # Application data: 180 days
-   temp_files: 7               # Temporary files: 7 days
-   backups: 365                # Backup files: 1 year
+  # Retention periods in days for different categories
+  retention_periods:
+    logs: 30                    # Log files older than 30 days
+    temp_files: 7               # Temporary files older than 7 days
+    backups: 365                # Backup files older than 1 year
 
- # Safety settings
- max_deletions_per_run: 1000   # Maximum files to delete in one run
- confirmation_required: true   # Require user confirmation before deletion
+    # Intelligent project state-based cleanup
+    scraped: 7                  # Unprocessed projects: 7 days
+    rejected_low_pre_eval: 1    # Rejected + pre-eval < 10: 1 day (aggressive)
+    rejected_low_llm: 3         # Rejected + LLM < 85: 3 days
+    rejected_other: 14          # Other rejected projects: 14 days
+    accepted: 30                # Accepted projects: 30 days
+    applied: 90                 # Applied projects: 90 days
+    sent: 180                   # Sent applications: 180 days
+    open: 365                   # Active communications: 1 year
+    archived: 180               # Completed projects: 6 months
+
+  # Score thresholds for intelligent categorization
+  score_thresholds:
+    pre_evaluation: 10          # Pre-eval threshold (0-100)
+    llm_analysis: 85            # LLM fit score threshold (0-100)
+
+  # Safety settings
+  max_deletions_per_run: 1000   # Maximum files to delete in one run
+  confirmation_required: true   # Require user confirmation before deletion
 ```
 
 ## Usage
@@ -197,10 +204,11 @@ python main.py --no-applications
 
 **What happens:**
 1. Scrapes projects from RSS feeds
-2. Evaluates projects using AI
+2. Evaluates projects using AI with score-based categorization
 3. **Automatically generates applications for high-fit projects (≥90%)**
 4. **Automatically updates dashboard data**
-5. Ready to view results in `dashboard/dashboard.html`
+5. **Automatically purges low-quality rejected projects** (score-based cleanup)
+6. Ready to view results in `dashboard/dashboard.html`
 
 ### Application Generation
 
@@ -286,10 +294,11 @@ python dashboard/generate_dashboard_data.py
 
 ### File Purging
 
-#### Automatic Purging (Integrated)
+#### Automatic Purging (Intelligent & Integrated)
 ```bash
-# Complete workflow with automatic purging of logs and temp files
+# Complete workflow with intelligent auto-purging
 python main.py
+# Automatically purges: logs, temp_files, rejected_low_pre_eval, rejected_low_llm
 
 # Skip automatic purging for this run
 python main.py --no-purge
@@ -300,23 +309,25 @@ python main.py --no-purge
 # Preview what would be purged (safe, no deletion)
 python file_purger.py --preview
 
-# Purge specific categories
-python file_purger.py --categories projects_rejected    # 1-day retention
-python file_purger.py --categories projects_accepted    # 14-day retention
-python file_purger.py --categories projects_applied     # 90-day retention
-python file_purger.py --categories logs                 # 30-day retention
+# Purge specific categories (intelligent score-based)
+python file_purger.py --categories rejected_low_pre_eval    # Very low quality: 1-day retention
+python file_purger.py --categories rejected_low_llm         # Failed LLM analysis: 3-day retention
+python file_purger.py --categories rejected_other           # Other rejected: 14-day retention
+python file_purger.py --categories accepted                 # Accepted projects: 30-day retention
+python file_purger.py --categories applied                  # Applied projects: 90-day retention
+python file_purger.py --categories logs                     # Log files: 30-day retention
 
 # Purge multiple categories
-python file_purger.py --categories projects_rejected projects_accepted logs
+python file_purger.py --categories rejected_low_pre_eval rejected_low_llm logs
 
 # Dry-run mode (show what would be deleted without actually deleting)
-python file_purger.py --dry-run --categories projects_rejected
+python file_purger.py --dry-run --categories rejected_low_pre_eval
 
 # Force purge without confirmation prompts
-python file_purger.py --force --categories projects_rejected
+python file_purger.py --force --categories rejected_low_pre_eval
 
 # Clean up empty directories after purging
-python file_purger.py --cleanup-dirs --categories projects_rejected
+python file_purger.py --cleanup-dirs --categories rejected_low_pre_eval
 ```
 
 #### Advanced Purging Options
@@ -328,7 +339,7 @@ python file_purger.py
 python file_purger.py --quiet --categories logs
 
 # Use custom configuration file
-python file_purger.py --config custom_config.yaml --categories projects_rejected
+python file_purger.py --config custom_config.yaml --categories rejected_low_pre_eval
 ```
 
 ## Project Structure
@@ -405,16 +416,19 @@ bewerbungs-bot/
      - **Audit Trail**: Complete history of all state changes with timestamps
      - **Query-able**: Filter and report on projects by state, company, or date range
 
-8. **Purging Phase:** *(State-Based Cleanup)*
-     - **Automatic**: Logs and temporary files are cleaned up during main workflow
-     - **State-Based**: Different retention periods for each project state:
-       - `archived`: 7 days (completed projects)
-       - `rejected`: 1 day (aggressive cleanup)
-       - `accepted`: 30 days (moderate retention)
-       - `applied`: 90 days (long-term reference)
-       - `sent`/`open`: 180-365 days (active projects)
-     - **Smart Detection**: Uses state timestamps for accurate age calculation
-     - **Manual Control**: Command-line options for targeted purging by state
+8. **Intelligent Purging Phase:** *(Score-Based Cleanup)*
+     - **Automatic**: Integrated into main workflow, cleans up low-quality projects automatically
+     - **Score-Based**: Intelligent categorization based on evaluation scores:
+       - `rejected_low_pre_eval`: Pre-eval < 10 → **1 day** (very aggressive cleanup)
+       - `rejected_low_llm`: LLM score < 85 → **3 days** (failed analysis)
+       - `rejected_other`: Other rejected → **14 days** (standard retention)
+       - `accepted`: Accepted projects → **30 days** (moderate retention)
+       - `applied`: Applied projects → **90 days** (long-term reference)
+       - `sent`/`open`: Active projects → **180-365 days** (preserve active work)
+       - `archived`: Completed projects → **180 days** (6-month archive)
+     - **Smart Detection**: Reads scores from evaluation results in markdown files
+     - **Automatic Categories**: `logs`, `temp_files`, `rejected_low_pre_eval`, `rejected_low_llm`
+     - **Manual Control**: Command-line options for targeted purging by category
 
 ## Advanced Features
 
@@ -495,26 +509,43 @@ python main.py --state-report
 ```
 
 ### Intelligent File Purging System
-State-based cleanup with configurable retention policies:
+Score-based cleanup with automatic categorization and configurable retention policies:
 
 **Key Features:**
-- **State-Based Cleanup**: Purge projects based on state age, not directory location
-- **Granular Control**: Separate retention periods for each project state
-- **Smart Age Detection**: Uses state timestamps for accurate age calculation
+- **Score-Based Intelligence**: Automatically categorizes projects by evaluation scores:
+  - `rejected_low_pre_eval`: Pre-evaluation score < 10 (very low quality)
+  - `rejected_low_llm`: LLM analysis score < 85 (failed deep analysis)
+  - `rejected_other`: Other rejected projects (standard retention)
+- **Automatic Integration**: Runs during main workflow, purging `logs`, `temp_files`, `rejected_low_pre_eval`, `rejected_low_llm`
+- **Smart Age Detection**: Uses file modification time for accurate age calculation
 - **Safety First**: Dry-run mode, confirmation prompts, and comprehensive exclusion patterns
-- **Automatic Integration**: Runs automatically during main workflow for logs and temp files
-- **Manual Control**: Command-line options for targeted cleanup by project state
+- **Manual Control**: Command-line options for targeted cleanup by intelligent categories
 
-**Retention Examples:**
+**Intelligent Retention Examples:**
 ```bash
-# Aggressive cleanup for archived projects (7 days)
-python file_purger.py --categories archived
+# Aggressive cleanup of very low-quality projects (1-day retention)
+python file_purger.py --categories rejected_low_pre_eval
 
-# Moderate retention for accepted projects (30 days)
+# Clean up projects that failed LLM analysis (3-day retention)
+python file_purger.py --categories rejected_low_llm
+
+# Standard cleanup of other rejected projects (14-day retention)
+python file_purger.py --categories rejected_other
+
+# Moderate retention for accepted projects (30-day retention)
 python file_purger.py --categories accepted
 
-# Long-term retention for open projects (365 days)
+# Long-term retention for active projects (365-day retention)
 python file_purger.py --categories open
+```
+
+**Automatic Workflow Integration:**
+```bash
+# Complete workflow with intelligent auto-purging
+python main.py  # Automatically purges: logs, temp_files, rejected_low_pre_eval, rejected_low_llm
+
+# Skip automatic purging
+python main.py --no-purge
 ```
 
 **Safety Features:**
@@ -522,6 +553,7 @@ python file_purger.py --categories open
 - Confirmation prompts (can be bypassed with `--force`)
 - Comprehensive exclusion patterns to protect important files
 - Maximum deletion limits per run to prevent accidents
+- Score-based categorization prevents accidental deletion of valuable projects
 
 ## Security
 

@@ -398,7 +398,7 @@ Examples:
 
     # File purging arguments
     parser.add_argument("--purge", nargs="*", metavar="CATEGORY",
-                        help="Purge old files by category (logs, projects, applications, temp_files, backups) or all if no category specified")
+                        help="Purge old files by category (logs, temp_files, backups, scraped, rejected_low_pre_eval, rejected_low_llm, rejected_other, accepted, applied, sent, open, archived) or all if no category specified. Auto-purge: logs, temp_files, rejected_low_pre_eval, rejected_low_llm")
     parser.add_argument("--purge-dry-run", action="store_true",
                         help="Show what files would be purged without actually deleting them")
     parser.add_argument("--purge-force", action="store_true",
@@ -516,8 +516,11 @@ Examples:
             print("\n🗑️  Running automatic file purging...")
             purger = FilePurger(args.config)
 
-            # Only purge logs and temp files automatically to be safe
-            auto_categories = ['logs', 'temp_files']
+            # Auto-purge safe categories: logs, temp files, and aggressively purge low-quality rejected projects
+            auto_categories = [
+                'logs', 'temp_files',
+                'rejected_low_pre_eval', 'rejected_low_llm'  # Aggressive cleanup of low-quality rejects
+            ]
             stats = purger.purge_files(categories=auto_categories, force=True, interactive=False)
 
             if stats.get('total_deleted', 0) > 0:
