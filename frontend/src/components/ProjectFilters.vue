@@ -201,6 +201,9 @@
           <button @click="clearLlmScoreRange" class="tag-remove">×</button>
         </span>
         <span v-if="localFilters.date_from || localFilters.date_to" class="filter-tag">
+          <span v-if="selectedQuickDateRange" class="filter-type-indicator">
+            {{ selectedQuickDateRange === 'today' ? '📅' : '🔄' }}
+          </span>
           Date: {{ formatDate(localFilters.date_from) || '...' }} to {{ formatDate(localFilters.date_to) || '...' }}
           <button @click="clearDateRange" class="tag-remove">×</button>
         </span>
@@ -219,7 +222,9 @@
       <div v-if="projectsStore.quickFiltersError">Error: {{ projectsStore.quickFiltersError }}</div>
       <div v-if="!projectsStore.loadingQuickFilters && projectsStore.quickFilters.length > 0" class="quick-filter-buttons">
         <div v-for="filter in projectsStore.quickFilters" :key="filter.id" class="quick-filter-item">
-          <button @click="applySavedFilter(filter)" class="quick-filter-btn">
+          <button @click="applySavedFilter(filter)" class="quick-filter-btn" :title="getFilterTooltip(filter)">
+            <span v-if="filter.isDynamic" class="filter-type-icon">🔄</span>
+            <span v-else class="filter-type-icon">📅</span>
             {{ filter.name }}
           </button>
           <button @click="renameFilter(filter)" class="edit-filter-btn">✏️</button>
@@ -386,7 +391,16 @@ const formatDate = (dateString) => {
 }
 
 const applySavedFilter = (savedFilter) => {
-  const newFilters = JSON.parse(JSON.stringify(savedFilter.filters));
+  let newFilters = JSON.parse(JSON.stringify(savedFilter.filters));
+
+  // Handle dynamic date ranges
+  if (savedFilter.isDynamic && savedFilter.originalRange) {
+    console.log('🔄 Applying dynamic filter:', savedFilter.originalRange);
+    const { from, to } = calculateDateRange(savedFilter.originalRange);
+    newFilters.date_from = from;
+    newFilters.date_to = to;
+    console.log('📅 Recalculated dates:', { from, to });
+  }
 
   const defaultFilters = {
     search: '',
@@ -407,8 +421,10 @@ const applySavedFilter = (savedFilter) => {
     ...newFilters
   };
 
-  // If the saved filter uses a relative date, update the dropdown
-  if (newFilters.date_from && isNaN(new Date(newFilters.date_from).getTime())) {
+  // Update the quick date range selector based on the filter type
+  if (savedFilter.isDynamic && savedFilter.originalRange) {
+    selectedQuickDateRange.value = savedFilter.originalRange;
+  } else if (newFilters.date_from && isNaN(new Date(newFilters.date_from).getTime())) {
     selectedQuickDateRange.value = newFilters.date_from;
   } else {
     selectedQuickDateRange.value = '';
@@ -420,11 +436,33 @@ const applySavedFilter = (savedFilter) => {
 const saveCurrentFilter = async () => {
   const name = prompt('Enter a name for this quick filter:');
   if (name) {
+    // Check if current filters include date ranges
+    const hasDateRange = localFilters.value.date_from || localFilters.value.date_to;
+
+    let isDynamic = false;
+    let originalRange = null;
+
+    if (hasDateRange && selectedQuickDateRange.value) {
+      // Ask user if they want dynamic dates
+      const makeDynamic = confirm(
+        `This filter includes a date range (${selectedQuickDateRange.value.replace(/_/g, ' ')}).\n\n` +
+        `Choose:\n` +
+        `• OK: Make dates dynamic (will recalculate relative to today when applied)\n` +
+        `• Cancel: Keep dates static (will always use the saved date range)`
+      );
+      isDynamic = makeDynamic;
+      if (isDynamic) {
+        originalRange = selectedQuickDateRange.value;
+      }
+    }
+
     // Sanitize the filters to remove page number
     const { page, ...filtersToSave } = localFilters.value;
     const newFilter = {
       name: name,
       description: `Saved on ${new Date().toLocaleDateString()}`,
+      isDynamic: isDynamic,
+      originalRange: originalRange,
       filters: filtersToSave
     };
     await projectsStore.createQuickFilter(newFilter);
@@ -447,7 +485,32 @@ const renameFilter = async (filter) => {
 const updateFilter = async (filter) => {
   if (confirm(`Are you sure you want to update the "${filter.name}" filter with the current settings?`)) {
     const { page, ...filtersToSave } = localFilters.value;
-    await projectsStore.updateQuickFilter(filter.id, { filters: filtersToSave });
+
+    // Preserve existing dynamic settings unless user explicitly changes them
+    const hasDateRange = localFilters.value.date_from || localFilters.value.date_to;
+    let isDynamic = filter.isDynamic;
+    let originalRange = filter.originalRange;
+
+    if (hasDateRange && selectedQuickDateRange.value) {
+      // Ask user if they want to change the dynamic setting
+      const dynamicChoice = confirm(
+        `Update dynamic setting?\n\n` +
+        `Current: ${filter.isDynamic ? 'Dynamic' : 'Static'}\n\n` +
+        `• OK: Keep current setting (${filter.isDynamic ? 'Dynamic' : 'Static'})\n` +
+        `• Cancel: Change to ${filter.isDynamic ? 'Static' : 'Dynamic'}`
+      );
+
+      if (!dynamicChoice) {
+        isDynamic = !filter.isDynamic;
+        originalRange = isDynamic ? selectedQuickDateRange.value : null;
+      }
+    }
+
+    await projectsStore.updateQuickFilter(filter.id, {
+      filters: filtersToSave,
+      isDynamic: isDynamic,
+      originalRange: originalRange
+    });
   }
 };
 
@@ -526,6 +589,14 @@ const onManualDateChange = () => {
   // When user manually changes dates, reset quick selector
   selectedQuickDateRange.value = ''
   applyFilters()
+}
+
+const getFilterTooltip = (filter) => {
+  if (filter.isDynamic) {
+    return `🔄 Dynamic filter: ${filter.originalRange?.replace(/_/g, ' ') || 'rolling dates'}\nDates recalculate relative to today when applied`;
+  } else {
+    return `📅 Static filter: Fixed date range\nAlways shows the same time period`;
+  }
 }
 
 // Initialize
@@ -818,6 +889,15 @@ onMounted(() => {
 .quick-filter-btn:hover {
   background: #e5e7eb;
   border-color: #9ca3af;
+}
+
+.filter-type-icon {
+  margin-right: 0.25rem;
+  font-size: 0.875rem;
+}
+
+.filter-type-indicator {
+  margin-right: 0.25rem;
 }
 
 .quick-filters-header {
