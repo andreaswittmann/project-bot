@@ -32,6 +32,10 @@
           <span v-else-if="hasChanges">💾 Save</span>
           <span v-else>✅ Saved</span>
         </button>
+        <button @click="sendApplication" :class="['send-btn', { 'sent': currentStatus === 'sent' }]" :disabled="currentStatus === 'sent'" :title="currentStatus === 'sent' ? 'Already sent' : 'Send application'">
+          <span v-if="currentStatus === 'sent'">✅ Sent</span>
+          <span v-else>📤 Send</span>
+        </button>
         <button @click="closeTab" class="close-btn" title="Close tab">
           ❌ Close
         </button>
@@ -75,11 +79,15 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { markdownApi } from '../services/api.js'
+import { useProjectsStore } from '../stores/projects'
 
 
 // Route and router
 const route = useRoute()
 const router = useRouter()
+
+// Store
+const projectsStore = useProjectsStore()
 
 // Props
 const projectId = route.params.projectId
@@ -95,6 +103,7 @@ const filename = ref('')
 const lastModified = ref('')
 const editorMode = ref('split') // 'edit', 'preview', 'split'
 const previewPosition = ref('right') // 'left', 'right'
+const currentStatus = ref('')
 
 // Editor is configured via props and theme
 
@@ -121,6 +130,15 @@ const loadMarkdownContent = async () => {
       projectTitle.value = titleMatch[1].trim()
     } else {
       projectTitle.value = `Project ${projectId}`
+    }
+
+    // Fetch project status
+    try {
+      const project = await projectsStore.fetchProjectById(projectId)
+      currentStatus.value = project.status
+    } catch (error) {
+      console.error('Failed to fetch project status:', error)
+      currentStatus.value = 'unknown'
     }
 
   } catch (err) {
@@ -180,6 +198,113 @@ const setEditorMode = (mode) => {
 
 const togglePreviewPosition = () => {
   previewPosition.value = previewPosition.value === 'right' ? 'left' : 'right'
+}
+
+// Helper functions
+const extractBetweenMarkers = (markdown) => {
+  const regex = new RegExp('MARKER_APPLICATION_START([\\s\\S]*?)MARKER_APPLICATION_END', 'g')
+  const match = regex.exec(markdown)
+  return match ? match[1].trim() : null
+}
+
+const extractSourceUrl = (markdown) => {
+  // First try frontmatter for source_url or url
+  const frontmatterMatch = markdown.match(/^---\n([\s\S]*?)\n---/)
+  if (frontmatterMatch) {
+    const frontmatter = frontmatterMatch[1]
+    let urlMatch = frontmatter.match(/^source_url:\s*(.+)$/m)
+    if (urlMatch) return urlMatch[1].trim().replace(/^["']|["']$/g, '')
+    urlMatch = frontmatter.match(/^url:\s*(.+)$/m)
+    if (urlMatch) return urlMatch[1].trim().replace(/^["']|["']$/g, '')
+  }
+
+  // Fallback to body: look for **URL:** pattern
+  const bodyRegex = new RegExp('\\*\\*URL:\\*\\*\\s*\\[([^\\]]+)\\]\\(([^)]+)\\)')
+  const bodyMatch = markdown.match(bodyRegex)
+  if (bodyMatch) return bodyMatch[2].trim()
+
+  // Alternative pattern without markdown link
+  const altRegex = new RegExp('\\*\\*URL:\\*\\*\\s*(https?://[^\\s\\n]+)')
+  const altMatch = markdown.match(altRegex)
+  if (altMatch) return altMatch[1].trim()
+
+  return null
+}
+
+const copyToClipboard = async (text) => {
+  try {
+    await navigator.clipboard.writeText(text)
+    return true
+  } catch (err) {
+    // Fallback for insecure contexts
+    const textarea = document.createElement('textarea')
+    textarea.value = text
+    textarea.style.position = 'fixed'
+    textarea.style.left = '-999999px'
+    textarea.style.top = '-999999px'
+    document.body.appendChild(textarea)
+    textarea.focus()
+    textarea.select()
+    try {
+      document.execCommand('copy')
+      return true
+    } catch (fallbackErr) {
+      return false
+    } finally {
+      document.body.removeChild(textarea)
+    }
+  }
+}
+
+// Send application method
+const sendApplication = async () => {
+  // Check for unsaved changes
+  if (hasChanges.value) {
+    const confirmed = confirm('You have unsaved changes. Save before sending?')
+    if (confirmed) {
+      await saveContent()
+    }
+  }
+
+  // Extract application text
+  const appText = extractBetweenMarkers(markdownContent.value)
+  if (!appText) {
+    alert('No generated application found. Please generate an application first.')
+    return
+  }
+
+  // Extract source URL
+  const sourceUrl = extractSourceUrl(markdownContent.value)
+  if (!sourceUrl) {
+    alert('No source URL found in frontmatter. Application copied to clipboard, but URL cannot be opened.')
+  }
+
+  // Copy to clipboard
+  const copied = await copyToClipboard(appText)
+  if (!copied) {
+    alert('Failed to copy application to clipboard.')
+  } else {
+    alert('Application copied to clipboard.')
+  }
+
+  // Open source URL
+  if (sourceUrl) {
+    window.open(sourceUrl, '_blank')
+  }
+
+  // Update state to sent
+  try {
+    const project = await projectsStore.fetchProjectById(projectId)
+    if (project.status === 'sent') {
+      alert('Project is already marked as sent.')
+    } else {
+      await projectsStore.updateProjectState(projectId, project.status, 'sent', 'Sent from editor', false)
+      currentStatus.value = 'sent'
+      alert('Project status updated to sent.')
+    }
+  } catch (error) {
+    alert('Failed to update project status: ' + error.message)
+  }
 }
 
 // Keyboard shortcuts
@@ -298,7 +423,7 @@ defineExpose({ onUnmounted })
   border-color: #4f46e5;
 }
 
-.save-btn, .close-btn {
+.save-btn, .send-btn, .close-btn {
   padding: 0.5rem 1rem;
   border-radius: 0.375rem;
   font-size: 0.875rem;
@@ -320,6 +445,29 @@ defineExpose({ onUnmounted })
 .save-btn:disabled {
   background: #9ca3af;
   cursor: not-allowed;
+}
+
+.send-btn {
+  background: #059669;
+  color: white;
+}
+
+.send-btn:hover {
+  background: #047857;
+}
+
+.send-btn.sent {
+  background: #6b7280;
+  color: white;
+}
+
+.send-btn.sent:hover {
+  background: #4b5563;
+}
+
+.send-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 .close-btn {

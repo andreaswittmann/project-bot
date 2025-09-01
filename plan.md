@@ -202,3 +202,95 @@ This proposal provides a clean, simple solution for markdown editing that:
 - ✅ Provides room for future enhancements
 
 The solution balances simplicity with functionality, ensuring users can effectively edit their project markdown files while maintaining the integrity of the existing system.
+## Proposal: Simple "Send" workflow in the Markdown Editor
+
+Goal
+- Add a "Send" button in the editor to:
+  - Scan current Markdown content
+  - Find "Generated Application" section
+  - Copy it to clipboard
+  - Open the source URL
+  - Set project status to sent via state management
+
+Scope
+- All changes localized to [MarkdownEditor.vue](frontend/src/views/MarkdownEditor.vue:1)
+- Reuse API and store already present:
+  - [markdownApi.getProjectMarkdown()](frontend/src/services/api.js:45), [markdownApi.updateProjectMarkdown()](frontend/src/services/api.js:52)
+  - [useProjectsStore().updateProjectState()](frontend/src/stores/projects.js:99)
+  - [useProjectsStore().fetchProjectById()](frontend/src/stores/projects.js:89) to get status and URL if needed
+
+UX
+- Add "Send" button next to Save in the header of [MarkdownEditor.vue](frontend/src/views/MarkdownEditor.vue:30)
+- Button state: enabled unless saving; shows small spinner/emoji only if desired (keep minimal)
+- On click:
+  1) If unsaved changes, prompt to save; on confirm, save then continue
+  2) Extract Generated Application section from current editor content
+  3) Copy extracted text to clipboard
+  4) Find and open Source URL in a new tab
+  5) Transition project status to sent using store
+
+Parsing heuristics
+- Generated Application block:
+  - Prefer: from /^##\\s*Generated Application.*$/ to next heading of same or higher level or EOF
+  - Fallbacks: /^###\\s*Application.*$/, or comment markers if present
+- Source URL:
+  - Prefer: a line like /^Source URL:\\s*(https?://\\S+)/i
+  - Fallback: first URL in document
+  - Final fallback: project detail field from [fetchProjectById()](frontend/src/stores/projects.js:89) such as source_url or url
+
+State transition
+- Read project via store when sending to get current status
+- Call [updateProjectState(id, from, 'sent', 'Auto: sent from editor', false)](frontend/src/stores/projects.js:99)
+
+Clipboard and window handling
+- Use navigator.clipboard.writeText with fallback (hidden textarea + document.execCommand('copy'))
+- Open URL synchronously during click handler (before awaiting async calls) to reduce popup blocking
+
+Minimal error handling
+- If Generated Application not found: alert and abort
+- If URL missing: copy application text, alert about missing URL, skip opening
+- If clipboard fails: alert but still try opening URL and updating state
+- If state update fails: alert and log
+
+Mermaid
+```mermaid
+flowchart TD
+  A[Click Send] --> B{Unsaved changes}
+  B -- Yes --> C[Save]
+  B -- No --> D[Extract Generated Application]
+  C --> D
+  D --> E[Extract Source URL]
+  E --> F[Copy to Clipboard]
+  F --> G[Open URL]
+  G --> H[Fetch project details]
+  H --> I[Update state to sent]
+  I --> J[Done]
+```
+
+Todo (implementation-ready)
+1) UI
+- Add "Send" button in header of [MarkdownEditor.vue](frontend/src/views/MarkdownEditor.vue:30) calling sendApplication()
+
+2) Helpers (in same file to keep simple)
+- add extractGeneratedApplication(markdown) as a function
+- add extractSourceUrl(markdown) as a function
+
+3) Logic in sendApplication() within [MarkdownEditor.vue](frontend/src/views/MarkdownEditor.vue:74)
+- If hasChanges: confirm then await [markdownApi.updateProjectMarkdown()](frontend/src/services/api.js:52), update originals
+- const appText = extractGeneratedApplication(markdownContent)
+- const srcUrl = extractSourceUrl(markdownContent) || (await [useProjectsStore().fetchProjectById()](frontend/src/stores/projects.js:89)).source_url || .url
+- Copy to clipboard (with fallback)
+- If srcUrl: window.open(srcUrl, '_blank')
+- const project = await [useProjectsStore().fetchProjectById(projectId)](frontend/src/stores/projects.js:89)
+- await [useProjectsStore().updateProjectState(projectId, project.status, 'sent', 'Auto: sent from editor', false)](frontend/src/stores/projects.js:99)
+
+4) Keep console logs; use alert() for critical failures only
+
+Assumptions to confirm
+- Section heading label is exactly "## Generated Application"
+- Project details JSON has a field for the source URL: source_url or url
+- Transition from applied to sent is allowed by backend; if not, we do not force
+
+Acceptance criteria
+- "Send" appears and works end-to-end: copy, open URL, set status to sent
+- Graceful handling if section or URL missing

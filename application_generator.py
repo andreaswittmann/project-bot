@@ -472,7 +472,7 @@ Gehaltsvorstellung: 120,- € pro Stunde
         return application_text, tokens_used, cost
 
     def append_application_to_markdown(self, project_file: str, application_text: str,
-                                     tokens_used: int, cost: float, metadata: Dict[str, str]) -> None:
+                                      tokens_used: int, cost: float, metadata: Dict[str, str]) -> None:
         """
         Append generated application to project markdown file.
 
@@ -493,8 +493,10 @@ Gehaltsvorstellung: 120,- € pro Stunde
         application_section += f"**Tokens Used**: {tokens_used}  \n"
         application_section += f"**Estimated Cost**: ${cost:.4f}  \n\n"
 
-        # Add the generated application text
+        # Wrap the generated application text with markers
+        application_section += "MARKER_APPLICATION_START\n"
         application_section += application_text
+        application_section += "\nMARKER_APPLICATION_END\n"
 
         # Add footer
         application_section += "\n\n---\n"
