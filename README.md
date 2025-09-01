@@ -581,7 +581,7 @@ python main.py --no-purge
 
 ## License
 
-This project is for personal use. Please respect FreelancerMap.de's terms of service when using this tool.
+This project is open-source under the MIT License. Please respect FreelancerMap.de's terms of service when using this tool.
 
 ## Support
 
