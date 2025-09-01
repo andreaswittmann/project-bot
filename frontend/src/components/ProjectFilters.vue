@@ -442,17 +442,31 @@ const saveCurrentFilter = async () => {
     let isDynamic = false;
     let originalRange = null;
 
-    if (hasDateRange && selectedQuickDateRange.value) {
-      // Ask user if they want dynamic dates
-      const makeDynamic = confirm(
-        `This filter includes a date range (${selectedQuickDateRange.value.replace(/_/g, ' ')}).\n\n` +
-        `Choose:\n` +
-        `• OK: Make dates dynamic (will recalculate relative to today when applied)\n` +
-        `• Cancel: Keep dates static (will always use the saved date range)`
-      );
-      isDynamic = makeDynamic;
-      if (isDynamic) {
-        originalRange = selectedQuickDateRange.value;
+    if (hasDateRange) {
+      // Determine the date range type for display
+      let rangeDescription = 'custom date range';
+      if (selectedQuickDateRange.value) {
+        rangeDescription = selectedQuickDateRange.value.replace(/_/g, ' ');
+      } else if (localFilters.value.date_from && localFilters.value.date_to) {
+        rangeDescription = `${localFilters.value.date_from} to ${localFilters.value.date_to}`;
+      }
+
+      // Ask user if they want dynamic dates (only if it's a quick range)
+      if (selectedQuickDateRange.value) {
+        const makeDynamic = confirm(
+          `Save as Dynamic Filter?\n\n` +
+          `Filter: "${name}"\n` +
+          `Date Range: ${rangeDescription}\n\n` +
+          `• OK: Dynamic (dates recalculate relative to today)\n` +
+          `• Cancel: Static (dates stay fixed)`
+        );
+        isDynamic = makeDynamic;
+        if (isDynamic) {
+          originalRange = selectedQuickDateRange.value;
+        }
+      } else {
+        // For custom date ranges, just save as static
+        alert(`Filter "${name}" saved with custom date range.\n\nNote: Custom date ranges are always static.`);
       }
     }
 
@@ -465,6 +479,8 @@ const saveCurrentFilter = async () => {
       originalRange: originalRange,
       filters: filtersToSave
     };
+
+    console.log('Saving filter:', newFilter);
     await projectsStore.createQuickFilter(newFilter);
   }
 };
