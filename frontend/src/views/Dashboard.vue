@@ -6,6 +6,9 @@
         <p>Vue3 Frontend - Connected to Flask API</p>
       </div>
       <nav class="header-nav">
+        <button @click="refreshData" class="nav-link refresh-btn" :disabled="loading">
+          🔄 Refresh
+        </button>
         <router-link to="/schedules" class="nav-link">
           ⏰ Schedule Manager
         </router-link>
@@ -216,6 +219,19 @@ const handleDeleteProject = async (projectId) => {
   }
 };
 
+const refreshData = async () => {
+  console.log('Refreshing dashboard data...')
+  try {
+    await projectsStore.fetchProjects()
+    await projectsStore.fetchStats()
+    // Update recent activity
+    recentActivity.value = projectsStore.stats.recent_activity || []
+    console.log('Dashboard data refreshed successfully')
+  } catch (error) {
+    console.error('Failed to refresh dashboard data:', error)
+  }
+}
+
 const runWorkflow = async (workflowName) => {
   if (isWorkflowRunning.value) return
   
@@ -367,6 +383,17 @@ onMounted(() => {
 .nav-link:hover {
   background: rgba(255, 255, 255, 0.2);
   transform: translateY(-1px);
+}
+
+.refresh-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.refresh-btn:disabled:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: none;
 }
 
 .main-content {
