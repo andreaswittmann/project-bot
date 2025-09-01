@@ -3,7 +3,7 @@
     <!-- Header -->
     <header class="editor-header">
       <div class="header-left">
-        <button @click="showStatusModal = true" class="status-btn" :class="`status-${currentStatus}`">
+        <button @click="openStatusModal" class="status-btn" :class="`status-${currentStatus}`">
           Status: {{ currentStatus }}
         </button>
         <h1 class="editor-title">
@@ -35,9 +35,6 @@
         <button @click="generateApplication" class="generate-btn" :disabled="isGenerating" :title="isGenerating ? 'Generating application...' : 'Generate Application'">
           <span v-if="isGenerating">⏳ Generating...</span>
           <span v-else>📄 Generate</span>
-        </button>
-        <button @click="showStatusModal = true" class="status-btn" :class="`status-${currentStatus}`">
-          Status: {{ currentStatus }}
         </button>
         <button @click="sendApplication" :class="['send-btn', { 'sent': currentStatus === 'sent' }]" :disabled="currentStatus === 'sent'" :title="currentStatus === 'sent' ? 'Already sent' : 'Send application'">
           <span v-if="currentStatus === 'sent'">✅ Sent</span>
@@ -86,12 +83,86 @@
     </div>
 
     <!-- Status Change Modal -->
-    <ProjectActions
-      v-if="showStatusModal && project"
-      :project="project"
-      @status-changed="handleStatusChanged"
-      @close="showStatusModal = false"
-    />
+    <Teleport to="body">
+      <div v-if="showStatusModal && project" class="modal-overlay" @click="showStatusModal = false">
+        <div class="modal-content" @click.stop>
+          <div class="modal-header">
+            <h3>Change Project Status</h3>
+            <button @click="showStatusModal = false" class="modal-close">×</button>
+          </div>
+
+          <div class="modal-body">
+            <div class="current-status">
+              <strong>Current Status:</strong>
+              <span :class="`status-badge status-${project.status}`">
+                {{ project.status }}
+              </span>
+            </div>
+
+            <div class="transition-options">
+              <h4>Available Transitions:</h4>
+              <div class="transition-buttons">
+                <button
+                  v-for="transition in availableTransitions"
+                  :key="transition.to"
+                  @click="performTransition(transition)"
+                  class="transition-btn"
+                  :class="{ 'override': transition.isOverride }"
+                  :disabled="transition.disabled"
+                  :title="transition.disabled ? transition.reason : (transition.isOverride ? `Manual Override: ${transition.overrideWarning}` : `Change to ${transition.to}`)"
+                >
+                  <span class="transition-icon">{{ transition.icon }}</span>
+                  <span class="transition-text">{{ transition.label }}</span>
+                  <span v-if="transition.disabled" class="transition-disabled">🚫</span>
+                </button>
+              </div>
+            </div>
+
+            <div v-if="selectedTransition" class="transition-confirm">
+              <h4>Confirm Status Change</h4>
+              <p>
+                Change project status from
+                <strong>{{ project.status }}</strong> to
+                <strong>{{ selectedTransition.to }}</strong>?
+              </p>
+
+              <!-- Override Warning -->
+              <div v-if="selectedTransition.isOverride" class="override-warning">
+                <div class="warning-icon">⚠️</div>
+                <div class="warning-text">
+                  <strong>Manual Override:</strong> This transition is not normally allowed.
+                  <br>
+                  <small>{{ selectedTransition.overrideWarning }}</small>
+                </div>
+              </div>
+
+              <div class="note-section">
+                <label for="transition-note" class="note-label">
+                  {{ selectedTransition.isOverride ? 'Required Note:' : 'Optional Note:' }}
+                </label>
+                <textarea
+                  id="transition-note"
+                  v-model="transitionNote"
+                  :placeholder="selectedTransition.isOverride ? 'Please explain why you are making this manual override...' : 'Add a note about this status change...'"
+                  class="note-input"
+                  :class="{ 'required': selectedTransition.isOverride }"
+                  rows="3"
+                ></textarea>
+              </div>
+
+              <div class="confirm-buttons">
+                <button @click="confirmTransition" class="confirm-btn" :disabled="isTransitioning || (selectedTransition.isOverride && !transitionNote.trim())">
+                  {{ isTransitioning ? 'Changing...' : (selectedTransition.isOverride ? 'Force Change' : 'Confirm Change') }}
+                </button>
+                <button @click="cancelTransition" class="cancel-btn" :disabled="isTransitioning">
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 
@@ -129,12 +200,63 @@ const isGenerating = ref(false)
 const showStatusModal = ref(false)
 const editorRef = ref(null)
 const project = ref(null)
+const selectedTransition = ref(null)
+const transitionNote = ref('')
+const isTransitioning = ref(false)
 
 // Editor is configured via props and theme
 
 // Computed
 const hasChanges = computed(() => {
   return markdownContent.value !== originalContent.value
+})
+
+const availableTransitions = computed(() => {
+  if (!project.value) return []
+
+  const currentStatus = project.value.status
+  const allStates = ['scraped', 'accepted', 'rejected', 'applied', 'sent', 'open', 'archived']
+  const validTransitions = {
+    'scraped': ['accepted', 'rejected'],
+    'accepted': ['applied', 'rejected'],
+    'applied': ['sent', 'archived'],
+    'sent': ['open', 'archived'],
+    'open': ['archived'],
+    'rejected': ['accepted', 'archived'],
+    'archived': ['scraped']
+  }
+
+  const transitions = []
+
+  // Add all possible states
+  allStates.forEach(state => {
+    if (state === currentStatus) return // Skip current state
+
+    const isValidTransition = validTransitions[currentStatus]?.includes(state) || false
+
+    let label, icon
+    switch (state) {
+      case 'scraped': label = 'Reset to Scraped'; icon = '🔄'; break
+      case 'accepted': label = 'Accept'; icon = '✅'; break
+      case 'rejected': label = 'Reject'; icon = '❌'; break
+      case 'applied': label = 'Mark as Applied'; icon = '📄'; break
+      case 'sent': label = 'Mark as Sent'; icon = '📤'; break
+      case 'open': label = 'Mark as Open'; icon = '📂'; break
+      case 'archived': label = 'Archive'; icon = '📦'; break
+      default: label = state; icon = '❓'
+    }
+
+    transitions.push({
+      to: state,
+      label: label,
+      icon: icon,
+      disabled: false,
+      isOverride: !isValidTransition,
+      overrideWarning: isValidTransition ? null : `Manual override: ${currentStatus} → ${state}`
+    })
+  })
+
+  return transitions
 })
 
 // Methods
@@ -210,6 +332,83 @@ const closeTab = () => {
 const handleStatusChanged = (data) => {
   currentStatus.value = data.newStatus;
   showStatusModal.value = false;
+};
+
+const openStatusModal = () => {
+  console.log('🔍 Status button clicked');
+  console.log('📊 Current projectId:', projectId);
+  console.log('📊 Current project:', project.value);
+  console.log('📊 Current status:', currentStatus.value);
+  console.log('📊 Loading state:', loading.value);
+  console.log('📊 Error state:', error.value);
+
+  if (!project.value) {
+    console.error('❌ Cannot open status modal: project is null/undefined');
+    alert('Project data is not loaded yet. Please wait for the page to finish loading.');
+    return;
+  }
+
+  if (loading.value) {
+    console.warn('⚠️ Cannot open status modal: still loading');
+    alert('Please wait for the page to finish loading.');
+    return;
+  }
+
+  if (error.value) {
+    console.error('❌ Cannot open status modal: error state', error.value);
+    alert('There was an error loading the project. Please refresh the page.');
+    return;
+  }
+
+  console.log('✅ Opening status modal');
+  showStatusModal.value = true;
+};
+
+const performTransition = (transition) => {
+  selectedTransition.value = transition;
+};
+
+const confirmTransition = async () => {
+  if (!selectedTransition.value) return;
+
+  isTransitioning.value = true;
+  console.log('Confirming transition:', {
+    projectId: project.value.id,
+    fromState: project.value.status,
+    toState: selectedTransition.value.to,
+    note: transitionNote.value,
+    isOverride: selectedTransition.value.isOverride
+  });
+
+  try {
+    await projectsStore.updateProjectState(
+      project.value.id,
+      project.value.status,
+      selectedTransition.value.to,
+      transitionNote.value,
+      selectedTransition.value.isOverride
+    );
+
+    handleStatusChanged({
+      projectId: project.value.id,
+      oldStatus: project.value.status,
+      newStatus: selectedTransition.value.to,
+      note: transitionNote.value,
+      isOverride: selectedTransition.value.isOverride
+    });
+
+    showStatusModal.value = false;
+  } catch (error) {
+    console.error('Failed to transition project status:', error);
+    alert('Failed to change project status: ' + (error.response?.data?.message || error.message));
+  } finally {
+    isTransitioning.value = false;
+  }
+};
+
+const cancelTransition = () => {
+  selectedTransition.value = null;
+  transitionNote.value = '';
 };
 
 const retryLoad = () => {
@@ -853,6 +1052,294 @@ defineExpose({ onUnmounted })
   margin: 1.25rem 0;
 }
 
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  max-width: 500px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.modal-header h3 {
+  margin: 0;
+  color: #374151;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #6b7280;
+  padding: 0;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.25rem;
+  transition: background-color 0.2s;
+}
+
+.modal-close:hover {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.modal-body {
+  padding: 1.5rem;
+}
+
+.current-status {
+  margin-bottom: 1.5rem;
+}
+
+.current-status strong {
+  color: #374151;
+  margin-right: 0.5rem;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.status-accepted { background: #dcfce7; color: #166534; }
+.status-rejected { background: #fef2f2; color: #991b1b; }
+.status-applied { background: #dbeafe; color: #1e40af; }
+.status-sent { background: #f3e8ff; color: #7c3aed; }
+.status-open { background: #e0f2fe; color: #0c4a6e; }
+.status-archived { background: #f3f4f6; color: #374151; }
+.status-scraped { background: #fef3c7; color: #92400e; }
+
+.transition-options h4 {
+  margin: 0 0 1rem 0;
+  color: #374151;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.transition-buttons {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.transition-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  background: white;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.transition-btn:hover:not(:disabled) {
+  border-color: #4f46e5;
+  background: #f3f4f6;
+}
+
+.transition-btn.override {
+  border-color: #f59e0b;
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.transition-btn.override:hover:not(:disabled) {
+  border-color: #d97706;
+  background: #fde68a;
+}
+
+.transition-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: #f9fafb;
+}
+
+.transition-icon {
+  font-size: 1rem;
+}
+
+.transition-disabled {
+  margin-left: auto;
+  opacity: 0.5;
+}
+
+.transition-confirm {
+  border-top: 1px solid #e5e7eb;
+  padding-top: 1.5rem;
+}
+
+.transition-confirm h4 {
+  margin: 0 0 0.5rem 0;
+  color: #374151;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.transition-confirm p {
+  margin: 0 0 1rem 0;
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.note-section {
+  margin-bottom: 1.5rem;
+}
+
+.note-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #374151;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.note-input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.note-input:focus {
+  outline: none;
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.note-input.required {
+  border-color: #f59e0b;
+}
+
+.note-input.required:focus {
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+}
+
+.confirm-buttons {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+}
+
+.confirm-btn {
+  background: #4f46e5;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.confirm-btn:hover:not(:disabled) {
+  background: #4338ca;
+}
+
+.confirm-btn:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+
+.cancel-btn {
+  background: white;
+  color: #6b7280;
+  border: 1px solid #d1d5db;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.cancel-btn:hover:not(:disabled) {
+  border-color: #9ca3af;
+  background: #f9fafb;
+}
+
+.cancel-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Override Warning Styles */
+.override-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: #fef3c7;
+  border: 1px solid #f59e0b;
+  border-radius: 0.375rem;
+  margin-bottom: 1rem;
+}
+
+.warning-icon {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+  margin-top: 0.125rem;
+}
+
+.warning-text {
+  font-size: 0.875rem;
+  color: #92400e;
+}
+
+.warning-text strong {
+  color: #78350f;
+}
+
+.warning-text small {
+  display: block;
+  margin-top: 0.25rem;
+  color: #a16207;
+  font-style: italic;
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
   .editor-header {
@@ -879,6 +1366,23 @@ defineExpose({ onUnmounted })
   .back-btn, .save-btn, .close-btn {
     padding: 0.375rem 0.75rem;
     font-size: 0.8rem;
+  }
+
+  .modal-content {
+    width: 95%;
+    margin: 1rem;
+  }
+
+  .transition-buttons {
+    grid-template-columns: 1fr;
+  }
+
+  .confirm-buttons {
+    flex-direction: column;
+  }
+
+  .confirm-btn, .cancel-btn {
+    width: 100%;
   }
 }
 </style>
