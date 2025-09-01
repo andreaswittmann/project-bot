@@ -1467,16 +1467,38 @@ def dashboard():
     """Serve the Vue3 frontend"""
     return send_from_directory('frontend/dist', 'index.html')
 
+@app.route('/editor/<path:project_id>')
+def serve_editor(project_id):
+    """Serve Vue3 frontend for editor routes"""
+    logger.info(f"🎯 EDITOR ROUTE: Serving editor for project: {project_id}")
+    print(f"🎯 EDITOR ROUTE: Serving editor for project: {project_id}")
+    return send_from_directory('frontend/dist', 'index.html')
+
+@app.route('/test')
+def test_route():
+    """Test route"""
+    logger.info("🎯 TEST ROUTE: Test route called")
+    print("🎯 TEST ROUTE: Test route called")
+    return "Test route working"
+
 @app.route('/<path:filename>')
 def serve_frontend(filename):
     """Serve Vue3 frontend files"""
-    try:
-        return send_from_directory('frontend/dist', filename)
-    except FileNotFoundError:
-        # Fallback to index.html for SPA routing
-        if not filename.startswith('api/'):
-            return send_from_directory('frontend/dist', 'index.html')
-        return {"error": "File not found"}, 404
+    logger.info(f"🎯 CATCH-ALL ROUTE: Serving frontend file: {filename}")
+    print(f"🎯 CATCH-ALL ROUTE: Serving frontend file: {filename}")
+
+    # First try to serve the requested file
+    response = send_from_directory('frontend/dist', filename)
+    logger.info(f"📁 Response status for {filename}: {response.status_code}")
+    print(f"📁 Response status for {filename}: {response.status_code}")
+
+    # If the file doesn't exist (404), serve index.html for SPA routing
+    if response.status_code == 404 and not filename.startswith('api/'):
+        logger.info(f"🔄 Serving index.html for SPA route: {filename}")
+        print(f"🔄 Serving index.html for SPA route: {filename}")
+        return send_from_directory('frontend/dist', 'index.html')
+
+    return response
 
 # Flask app lifecycle management for scheduler
 def startup():

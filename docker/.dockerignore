@@ -1,0 +1,44 @@
+# Exclude everything by default
+*
+
+# Allow specific files and directories needed for build
+!../requirements.txt
+!../frontend/package*.json
+!../frontend/vite.config.js
+!../frontend/index.html
+!../frontend/src/
+!../frontend/public/
+!../*.py
+!../data/
+!../projects/
+!../logs/
+!../config.yaml
+!../config_template.yaml
+!../applications_status.json
+
+# Exclude specific files we don't want
+../frontend/node_modules
+../frontend/dist
+../*.pyc
+../__pycache__
+../.pytest_cache
+../.coverage
+../.git
+../.gitignore
+../*.log
+../.vscode
+../.idea
+../*.swp
+../*.swo
+../.DS_Store
+../Thumbs.db
+../*.tmp
+../*.bak
+
+# Exclude Docker files to avoid recursion
+Dockerfile
+docker-compose.yml
+.dockerignore
+DOCKER_README.md
+docker-setup.sh
+.env.template

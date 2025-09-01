@@ -1,0 +1,26 @@
+services:
+  bewerbungs-bot:
+    build: ..
+    ports:
+      - "8002:8002"
+    environment:
+      # API Keys - Set these in your .env file
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      # Optional: Additional API keys if you use multiple Anthropic keys
+      - ANTHROPIC_API_KEY2=${ANTHROPIC_API_KEY2:-$ANTHROPIC_API_KEY}
+      # Flask settings
+      - FLASK_ENV=production
+    volumes:
+      # Mount data directories to host for persistence (relative to docker directory)
+      - ../data:/app/data
+      - ../projects:/app/projects
+      - ../logs:/app/logs
+      # Mount config file
+      - ../config.yaml:/app/config.yaml
+      # Optional: Mount additional directories if needed
+      - ../applications_status.json:/app/applications_status.json
+    restart: unless-stopped
+    # Multi-architecture support - will use native architecture by default
+    # For multi-arch builds, use: docker buildx build --platform linux/amd64,linux/arm64
