@@ -19,10 +19,19 @@
       "cron_schedule": "0 8-23 * * mon-fri",
       "timezone": "Europe/Berlin",
       "created_at": "2025-09-01T15:25:40.520354",
-      "updated_at": "2025-09-01T15:38:38.075005",
-      "last_run": "2025-09-01T16:00:00.010353",
-      "last_status": "running",
+      "updated_at": "2025-09-01T15:00:00.055607",
+      "last_run": "2025-09-01T15:00:00.014398",
+      "last_status": "failed",
       "execution_history": [
+        {
+          "run_id": "6559ae33-8c4e-4b8a-b916-a0b65fd0b806",
+          "started_at": "2025-09-01T15:00:00.014398",
+          "completed_at": "2025-09-01T15:00:00.055540",
+          "status": "failed",
+          "output": "",
+          "error": "Traceback (most recent call last):\n  File \"/app/main.py\", line 8, in <module>\n    from rss_helper import generate_rss_urls, fetch_and_process_rss\n  File \"/app/rss_helper.py\", line 2, in <module>\n    import feedparser\nModuleNotFoundError: No module named 'feedparser'\n",
+          "exit_code": 1
+        },
         {
           "run_id": "944d0bbc-35cf-4de1-b860-d43f66c633df",
           "started_at": "2025-09-01T16:00:00.010353",
@@ -100,5 +109,5 @@
       "execution_history": []
     }
   ],
-  "last_updated": "2025-09-01T14:07:29.994954"
+  "last_updated": "2025-09-01T15:00:00.055739"
 }
