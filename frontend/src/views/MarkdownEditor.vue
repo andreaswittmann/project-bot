@@ -3,8 +3,8 @@
     <!-- Header -->
     <header class="editor-header">
       <div class="header-left">
-        <button @click="goBackToDashboard" class="back-btn" title="Back to Dashboard">
-          🏠 Back to Dashboard
+        <button @click="showStatusModal = true" class="status-btn" :class="`status-${currentStatus}`">
+          Status: {{ currentStatus }}
         </button>
         <h1 class="editor-title">
           <span class="project-title">{{ projectTitle || 'Loading...' }}</span>
@@ -35,6 +35,9 @@
         <button @click="generateApplication" class="generate-btn" :disabled="isGenerating" :title="isGenerating ? 'Generating application...' : 'Generate Application'">
           <span v-if="isGenerating">⏳ Generating...</span>
           <span v-else>📄 Generate</span>
+        </button>
+        <button @click="showStatusModal = true" class="status-btn" :class="`status-${currentStatus}`">
+          Status: {{ currentStatus }}
         </button>
         <button @click="sendApplication" :class="['send-btn', { 'sent': currentStatus === 'sent' }]" :disabled="currentStatus === 'sent'" :title="currentStatus === 'sent' ? 'Already sent' : 'Send application'">
           <span v-if="currentStatus === 'sent'">✅ Sent</span>
@@ -81,6 +84,14 @@
         @ready="onEditorReady"
       />
     </div>
+
+    <!-- Status Change Modal -->
+    <ProjectActions
+      v-if="showStatusModal && project"
+      :project="project"
+      @status-changed="handleStatusChanged"
+      @close="showStatusModal = false"
+    />
   </div>
 </template>
 
@@ -89,6 +100,7 @@ import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { markdownApi } from '../services/api.js'
 import { useProjectsStore } from '../stores/projects'
+import ProjectActions from '../components/ProjectActions.vue';
 
 
 // Route and router
@@ -114,7 +126,9 @@ const editorMode = ref('split') // 'edit', 'preview', 'split'
 const previewPosition = ref('right') // 'left', 'right'
 const currentStatus = ref('')
 const isGenerating = ref(false)
+const showStatusModal = ref(false)
 const editorRef = ref(null)
+const project = ref(null)
 
 // Editor is configured via props and theme
 
@@ -145,8 +159,8 @@ const loadMarkdownContent = async () => {
 
     // Fetch project status
     try {
-      const project = await projectsStore.fetchProjectById(projectId)
-      currentStatus.value = project.status
+      project.value = await projectsStore.fetchProjectById(projectId)
+      currentStatus.value = project.value.status
     } catch (error) {
       console.error('Failed to fetch project status:', error)
       currentStatus.value = 'unknown'
@@ -183,13 +197,7 @@ const handleSave = () => {
   saveContent()
 }
 
-const goBackToDashboard = () => {
-  if (hasChanges.value) {
-    const confirmed = confirm('You have unsaved changes. Are you sure you want to leave?')
-    if (!confirmed) return
-  }
-  router.push('/')
-}
+
 
 const closeTab = () => {
   if (hasChanges.value) {
@@ -198,6 +206,11 @@ const closeTab = () => {
   }
   window.close()
 }
+
+const handleStatusChanged = (data) => {
+  currentStatus.value = data.newStatus;
+  showStatusModal.value = false;
+};
 
 const retryLoad = () => {
   loadMarkdownContent()
@@ -380,8 +393,8 @@ const reloadContent = async () => {
 
     // Fetch project status
     try {
-      const project = await projectsStore.fetchProjectById(projectId)
-      currentStatus.value = project.status
+      project.value = await projectsStore.fetchProjectById(projectId)
+      currentStatus.value = project.value.status
     } catch (error) {
       console.error('Failed to fetch project status:', error)
       currentStatus.value = 'unknown'
@@ -583,6 +596,24 @@ defineExpose({ onUnmounted })
   background: #9ca3af;
   cursor: not-allowed;
 }
+
+.status-btn {
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid transparent;
+}
+
+.status-scraped { background: #fef3c7; color: #92400e; border-color: #f59e0b; }
+.status-accepted { background: #dcfce7; color: #166534; border-color: #10b981; }
+.status-rejected { background: #fef2f2; color: #991b1b; border-color: #ef4444; }
+.status-applied { background: #dbeafe; color: #1e40af; border-color: #3b82f6; }
+.status-sent { background: #f3e8ff; color: #7c3aed; border-color: #8b5cf6; }
+.status-open { background: #e0f2fe; color: #0c4a6e; border-color: #06b6d4; }
+.status-archived { background: #f3f4f6; color: #374151; border-color: #6b7280; }
 
 .close-btn {
   background: #ef4444;

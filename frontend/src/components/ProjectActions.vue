@@ -347,6 +347,7 @@ const closeModal = () => {
 .action-btn {
   display: flex;
   align-items: center;
+  vertical-align: middle;
   gap: 0.375rem;
   padding: 0.375rem 0.75rem;
   border: 1px solid #d1d5db;
@@ -381,6 +382,7 @@ const closeModal = () => {
 
 .btn-text {
   display: inline;
+  line-height: 1;
 }
 
 @media (max-width: 768px) {
