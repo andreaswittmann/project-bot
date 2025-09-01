@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import api, { quickFiltersApi } from '../services/api'
+import api, { quickFiltersApi, projectsApi } from '../services/api'
 
 export const useProjectsStore = defineStore('projects', {
   state: () => ({
@@ -248,6 +248,17 @@ export const useProjectsStore = defineStore('projects', {
         await this.fetchQuickFilters();
       } catch (error) {
         this.quickFiltersError = error.response?.data?.message || error.message;
+        throw error;
+      }
+    },
+
+    async deleteProject(projectId) {
+      try {
+        await projectsApi.deleteProject(projectId);
+        this.projects = this.projects.filter(p => p.id !== projectId);
+        this.pagination.total -= 1;
+      } catch (error) {
+        console.error('Error deleting project:', error);
         throw error;
       }
     },

@@ -41,7 +41,7 @@
       title="Change Project Status"
     >
       <span class="btn-icon">🔄</span>
-      <span class="btn-text">Change Status</span>
+      <span class="btn-text">Status</span>
     </button>
 
     <!-- Re-evaluate Button -->
@@ -56,17 +56,14 @@
       <span class="btn-text">{{ isReevaluating ? 'Re-evaluating...' : 'Re-evaluate' }}</span>
     </button>
 
-    <!-- Archive Button -->
+    <!-- Delete Button -->
     <button
-      v-if="canArchive"
-      @click="archiveProject"
-      class="action-btn archive-btn"
-      :disabled="isArchiving"
-      :title="isArchiving ? 'Archiving project...' : 'Archive Project'"
+      @click="deleteProject"
+      class="action-btn delete-btn"
+      title="Delete Project"
     >
-      <span class="btn-icon" v-if="isArchiving">⏳</span>
-      <span class="btn-icon" v-else>📦</span>
-      <span class="btn-text">{{ isArchiving ? 'Archiving...' : 'Archive' }}</span>
+      <span class="btn-icon">🗑️</span>
+      <span class="btn-text">Delete</span>
     </button>
   </div>
 
@@ -171,8 +168,8 @@ const emit = defineEmits([
   'generate-application',
   'reevaluate-project',
   'transition-project',
-  'archive-project',
-  'status-changed'
+  'status-changed',
+  'delete-project'
 ])
 
 // Store
@@ -184,7 +181,6 @@ const selectedTransition = ref(null)
 const transitionNote = ref('')
 const isGenerating = ref(false)
 const isReevaluating = ref(false)
-const isArchiving = ref(false)
 const isTransitioning = ref(false)
 
 // Computed
@@ -196,9 +192,7 @@ const canTransition = computed(() => {
   return true // Allow transitions for all states, including archived
 })
 
-const canArchive = computed(() => {
-  return props.project.status !== 'archived'
-})
+
 
 const availableTransitions = computed(() => {
   const currentStatus = props.project.status
@@ -279,16 +273,13 @@ const reevaluateProject = async () => {
   }
 }
 
-const archiveProject = async () => {
-  isArchiving.value = true
-  try {
-    await emit('archive-project', props.project.id)
-  } finally {
-    setTimeout(() => {
-      isArchiving.value = false
-    }, 2000)
+const deleteProject = () => {
+  if (confirm(`Are you sure you want to permanently delete the project "${props.project.title}"? This action cannot be undone.`)) {
+    emit('delete-project', props.project.id);
   }
-}
+};
+
+
 
 const performTransition = (transition) => {
   selectedTransition.value = transition
@@ -411,6 +402,7 @@ const closeModal = () => {
 .transition-btn:hover { border-color: #7c3aed; color: #7c3aed; }
 .reevaluate-btn:hover { border-color: #d97706; color: #d97706; }
 .archive-btn:hover { border-color: #6b7280; color: #6b7280; }
+.delete-btn:hover { border-color: #ef4444; color: #ef4444; }
 
 /* Modal Styles */
 .modal-overlay {

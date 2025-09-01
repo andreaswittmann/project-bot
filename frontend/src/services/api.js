@@ -58,6 +58,13 @@ export const markdownApi = {
   }
 }
 
+export const projectsApi = {
+  async deleteProject(projectId) {
+    const response = await api.delete(`/api/v1/projects/${projectId}`);
+    return response.data;
+  },
+};
+
 export const quickFiltersApi = {
   async getQuickFilters() {
     const response = await api.get('/api/v1/quick-filters');

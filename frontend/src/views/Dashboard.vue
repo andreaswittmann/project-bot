@@ -39,6 +39,7 @@
         @status-changed="handleStatusChanged"
         @retry="handleRetry"
         @page-change="handlePageChange"
+        @delete-project="handleDeleteProject"
       />
 
       <!-- Recent Activity -->
@@ -197,6 +198,16 @@ const handlePageChange = async (page) => {
     console.error('Failed to fetch page:', error)
   }
 }
+
+const handleDeleteProject = async (projectId) => {
+  try {
+    await projectsStore.deleteProject(projectId);
+    // The store will automatically remove the project from the list,
+    // so no need to refetch projects here.
+  } catch (error) {
+    console.error('Failed to delete project:', error);
+  }
+};
 
 const runWorkflow = async (workflowName) => {
   if (isWorkflowRunning.value) return

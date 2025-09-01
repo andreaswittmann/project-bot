@@ -494,6 +494,33 @@ def get_project(project_id: str):
 
     return jsonify(response.dict())
 
+@app.route('/api/v1/projects/<project_id>', methods=['DELETE'])
+@handle_api_errors
+def delete_project(project_id: str):
+    """Delete a project file"""
+    projects_dir = Path("projects")
+    project_file = projects_dir / f"{project_id}.md"
+
+    if not project_file.exists():
+        return jsonify(APIErrorResponse(
+            error="NotFound",
+            message=f"Project {project_id} not found",
+            code=404,
+            timestamp=datetime.now().isoformat()
+        ).dict()), 404
+
+    try:
+        project_file.unlink()
+        return jsonify({"success": True, "message": f"Project {project_id} deleted successfully"}), 200
+    except Exception as e:
+        logger.error(f"Error deleting project file {project_id}: {e}")
+        return jsonify(APIErrorResponse(
+            error="InternalServerError",
+            message=f"Failed to delete project file: {str(e)}",
+            code=500,
+            timestamp=datetime.now().isoformat()
+        ).dict()), 500
+
 @app.route('/api/v1/projects/<project_id>/transition', methods=['POST'])
 @handle_api_errors
 def update_project_state(project_id: str):

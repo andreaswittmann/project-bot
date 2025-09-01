@@ -101,6 +101,7 @@
                 @reevaluate-project="handleReevaluateProject"
                 @transition-project="handleTransitionProject"
                 @status-changed="handleStatusChanged"
+                @delete-project="handleDeleteProject"
               />
             </td>
           </tr>
@@ -173,7 +174,7 @@ const props = defineProps({
 })
 
 // Emits
-const emit = defineEmits(['view-project', 'generate-application', 'reevaluate-project', 'transition-project', 'status-changed', 'retry', 'page-change'])
+const emit = defineEmits(['view-project', 'generate-application', 'reevaluate-project', 'transition-project', 'status-changed', 'retry', 'page-change', 'delete-project'])
 
 // Store
 const projectsStore = useProjectsStore()
@@ -278,6 +279,10 @@ const handleTransitionProject = (project) => {
 
 const handleStatusChanged = (data) => {
   emit('status-changed', data)
+}
+
+const handleDeleteProject = (projectId) => {
+  emit('delete-project', projectId)
 }
 
 const retry = () => {
