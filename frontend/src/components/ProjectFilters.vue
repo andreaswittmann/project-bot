@@ -458,14 +458,68 @@ const handleWorkflowRun = () => {
 const applyQuickDateRange = () => {
   const range = selectedQuickDateRange.value;
   if (range) {
-    localFilters.value.date_from = range;
-    localFilters.value.date_to = null;
+    const { from, to } = calculateDateRange(range);
+    localFilters.value.date_from = from;
+    localFilters.value.date_to = to;
   } else {
     // Switched back to custom range, clear the dates
     localFilters.value.date_from = null;
     localFilters.value.date_to = null;
   }
   applyFilters();
+}
+
+const calculateDateRange = (range) => {
+  const today = new Date();
+  const from = new Date();
+  let to = new Date();
+
+  switch (range) {
+    case 'today':
+      from.setDate(today.getDate());
+      to.setDate(today.getDate());
+      break;
+    case 'last_2_days':
+      from.setDate(today.getDate() - 1); // Yesterday
+      to.setDate(today.getDate());
+      break;
+    case 'last_3_days':
+      from.setDate(today.getDate() - 2); // 2 days ago
+      to.setDate(today.getDate());
+      break;
+    case 'last_10_days':
+      from.setDate(today.getDate() - 9); // 9 days ago
+      to.setDate(today.getDate());
+      break;
+    case 'this_week':
+      const dayOfWeek = today.getDay();
+      from.setDate(today.getDate() - dayOfWeek); // Start of week (Sunday)
+      to.setDate(today.getDate());
+      break;
+    case 'last_week':
+      const lastWeekStart = new Date(today);
+      lastWeekStart.setDate(today.getDate() - today.getDay() - 7); // Last week's Sunday
+      const lastWeekEnd = new Date(lastWeekStart);
+      lastWeekEnd.setDate(lastWeekStart.getDate() + 6); // Last week's Saturday
+      from.setTime(lastWeekStart.getTime());
+      to.setTime(lastWeekEnd.getTime());
+      break;
+    case 'this_month':
+      from.setDate(1); // First day of current month
+      to.setDate(today.getDate());
+      break;
+    case 'last_month':
+      from.setMonth(today.getMonth() - 1, 1); // First day of last month
+      to.setMonth(today.getMonth(), 0); // Last day of last month
+      break;
+    default:
+      return { from: null, to: null };
+  }
+
+  return {
+    from: from.toISOString().split('T')[0], // YYYY-MM-DD format
+    to: to.toISOString().split('T')[0]    // YYYY-MM-DD format
+  };
 }
 
 const onManualDateChange = () => {
