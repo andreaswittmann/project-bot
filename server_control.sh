@@ -73,12 +73,36 @@ restart_python_server() {
     start_python_server
 }
 
+# Function to stop Python server
+stop_python_server() {
+    echo -e "${YELLOW}Stopping Python server...${NC}"
+    pkill -f "python.*server_enhanced.py"
+    sleep 1
+    if ! pgrep -f "python.*server_enhanced.py" > /dev/null; then
+        echo -e "${GREEN}Python server stopped successfully${NC}"
+    else
+        echo -e "${RED}Failed to stop Python server${NC}"
+    fi
+}
+
 # Function to restart frontend server
 restart_frontend_server() {
     echo -e "${YELLOW}Restarting frontend dev server...${NC}"
     pkill -f "npm.*run dev"
     sleep 1
     start_frontend_server
+}
+
+# Function to stop frontend server
+stop_frontend_server() {
+    echo -e "${YELLOW}Stopping frontend dev server...${NC}"
+    pkill -f "npm.*run dev"
+    sleep 1
+    if ! pgrep -f "npm.*run dev" > /dev/null; then
+        echo -e "${GREEN}Frontend dev server stopped successfully${NC}"
+    else
+        echo -e "${RED}Failed to stop frontend dev server${NC}"
+    fi
 }
 
 # Main function
@@ -93,8 +117,11 @@ main() {
     echo "start-frontend  - Start frontend dev server"
     echo "restart-python  - Restart Python server"
     echo "restart-frontend- Restart frontend dev server"
+    echo "stop-python     - Stop Python server"
+    echo "stop-frontend   - Stop frontend dev server"
     echo "start-all       - Start both servers"
     echo "restart-all     - Restart both servers"
+    echo "stop-all        - Stop both servers"
     echo "status          - Show current status"
     echo "quit            - Exit script"
     echo
@@ -119,6 +146,12 @@ main() {
         "restart-frontend")
             restart_frontend_server
             ;;
+        "stop-python")
+            stop_python_server
+            ;;
+        "stop-frontend")
+            stop_frontend_server
+            ;;
         "start-all")
             start_python_server
             start_frontend_server
@@ -126,6 +159,10 @@ main() {
         "restart-all")
             restart_python_server
             restart_frontend_server
+            ;;
+        "stop-all")
+            stop_python_server
+            stop_frontend_server
             ;;
         "status")
             echo -e "${BLUE}=== Server URLs ===${NC}"
