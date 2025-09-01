@@ -146,6 +146,8 @@ class QuickFilterItem(BaseModel):
     name: str
     description: Optional[str] = None
     filters: Dict[str, Any]
+    isDynamic: bool = False
+    originalRange: Optional[str] = None
     created_at: str
     updated_at: str
 
@@ -156,11 +158,15 @@ class QuickFilterCreateRequest(BaseModel):
     name: str
     description: Optional[str] = None
     filters: Dict[str, Any]
+    isDynamic: Optional[bool] = False
+    originalRange: Optional[str] = None
 
 class QuickFilterUpdateRequest(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
     filters: Optional[Dict[str, Any]] = None
+    isDynamic: Optional[bool] = None
+    originalRange: Optional[str] = None
 
 
 # Helper functions for Quick Filters
@@ -1084,6 +1090,8 @@ def create_quick_filter():
         name=create_request.name,
         description=create_request.description,
         filters=create_request.filters,
+        isDynamic=create_request.isDynamic or False,
+        originalRange=create_request.originalRange,
         created_at=datetime.now().isoformat(),
         updated_at=datetime.now().isoformat()
     )
@@ -1125,6 +1133,10 @@ def update_quick_filter(filter_id: str):
         filter_to_update.description = update_request.description
     if update_request.filters is not None:
         filter_to_update.filters = update_request.filters
+    if update_request.isDynamic is not None:
+        filter_to_update.isDynamic = update_request.isDynamic
+    if update_request.originalRange is not None:
+        filter_to_update.originalRange = update_request.originalRange
         
     filter_to_update.updated_at = datetime.now().isoformat()
     
