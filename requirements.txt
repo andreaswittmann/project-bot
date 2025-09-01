@@ -10,6 +10,10 @@ flask
 flask-cors
 flask-cors
 
+# APScheduler for job scheduling
+APScheduler==3.10.4
+pytz>=2023.3
+
 # LangChain dependencies for application generation
 langchain>=0.1.17
 langchain-community>=0.0.38

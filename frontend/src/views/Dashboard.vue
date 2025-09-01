@@ -1,8 +1,15 @@
 <template>
   <div class="dashboard">
     <header class="header">
-      <h1>Project Application Dashboard</h1>
-      <p>Vue3 Frontend - Connected to Flask API</p>
+      <div class="header-content">
+        <h1>Project Application Dashboard</h1>
+        <p>Vue3 Frontend - Connected to Flask API</p>
+      </div>
+      <nav class="header-nav">
+        <router-link to="/schedules" class="nav-link">
+          ⏰ Schedule Manager
+        </router-link>
+      </nav>
     </header>
 
     <main class="main-content">
@@ -318,19 +325,48 @@ onMounted(() => {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   padding: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header-content {
   text-align: center;
 }
 
-.header h1 {
+.header-content h1 {
   margin: 0;
   font-size: 2.5rem;
   font-weight: 300;
 }
 
-.header p {
+.header-content p {
   margin: 0.5rem 0 0 0;
   opacity: 0.9;
   font-size: 1.1rem;
+}
+
+.header-nav {
+  display: flex;
+  gap: 1rem;
+}
+
+.nav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  text-decoration: none;
+  border-radius: 6px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.nav-link:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
 }
 
 .main-content {
@@ -508,6 +544,18 @@ onMounted(() => {
 @media (max-width: 768px) {
   .header {
     padding: 1.5rem;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .header-content {
+    order: 1;
+  }
+
+  .header-nav {
+    order: 2;
+    width: 100%;
+    justify-content: center;
   }
 
   .header h1 {

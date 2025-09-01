@@ -87,4 +87,46 @@ export const quickFiltersApi = {
   },
 };
 
+export const schedulesApi = {
+  async getSchedules() {
+    const response = await api.get('/api/v1/schedules');
+    return response.data;
+  },
+
+  async createSchedule(schedule) {
+    const response = await api.post('/api/v1/schedules', schedule);
+    return response.data;
+  },
+
+  async updateSchedule(id, schedule) {
+    const response = await api.put(`/api/v1/schedules/${id}`, schedule);
+    return response.data;
+  },
+
+  async deleteSchedule(id) {
+    const response = await api.delete(`/api/v1/schedules/${id}`);
+    return response.data;
+  },
+
+  async toggleSchedule(id) {
+    const response = await api.post(`/api/v1/schedules/${id}/toggle`);
+    return response.data;
+  },
+
+  async runScheduleNow(id) {
+    const response = await api.post(`/api/v1/schedules/${id}/run`);
+    return response.data;
+  },
+
+  async getScheduleRuns(id) {
+    const response = await api.get(`/api/v1/schedules/${id}/runs`);
+    return response.data;
+  },
+
+  async getSchedulerStatus() {
+    const response = await api.get('/api/v1/schedules/status');
+    return response.data;
+  },
+};
+
 export default api

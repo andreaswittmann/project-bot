@@ -1,0 +1,94 @@
+{
+  "schedules": [
+    {
+      "id": "69bf5e1e-8e82-4b58-bec4-e1fbb0cd3a46",
+      "name": "Weekday Full Workflow",
+      "description": "Run full workflow every hour between 8-23 on weekdays",
+      "enabled": true,
+      "workflow_type": "main",
+      "parameters": {
+        "number": 50,
+        "regions": [
+          "germany",
+          "austria",
+          "switzerland"
+        ],
+        "no_applications": false,
+        "no_purge": false
+      },
+      "cron_schedule": "0 8-23 * * mon-fri",
+      "timezone": "Europe/Berlin",
+      "created_at": "2025-09-01T15:25:40.520354",
+      "updated_at": "2025-09-01T15:38:38.075005",
+      "last_run": null,
+      "last_status": null,
+      "execution_history": []
+    },
+    {
+      "id": "7fcf431d-539d-40b7-8b29-fa1664a5d5a6",
+      "name": "Weekend 3x Daily Full Workflow",
+      "description": "Run full workflow 3 times a day on weekends",
+      "enabled": false,
+      "workflow_type": "main",
+      "parameters": {
+        "number": 15,
+        "regions": [
+          "germany",
+          "austria",
+          "switzerland"
+        ]
+      },
+      "cron_schedule": "0 9,15,21 * * 6,0",
+      "timezone": "Europe/Berlin",
+      "created_at": "2025-09-01T15:25:40.522886",
+      "updated_at": "2025-09-01T15:32:41.252354",
+      "last_run": null,
+      "last_status": null,
+      "execution_history": []
+    },
+    {
+      "id": "ee2adf3b-4eda-4484-a117-aa271226e654",
+      "name": "Weekday Full Workflow",
+      "description": "Run full workflow every hour between 8-23 on weekdays",
+      "enabled": false,
+      "workflow_type": "main",
+      "parameters": {
+        "number": 10,
+        "regions": [
+          "germany",
+          "austria"
+        ]
+      },
+      "cron_schedule": "0 8-23 * * 1-5",
+      "timezone": "Europe/Berlin",
+      "created_at": "2025-09-01T15:25:57.127419",
+      "updated_at": "2025-09-01T15:32:40.035130",
+      "last_run": null,
+      "last_status": null,
+      "execution_history": []
+    },
+    {
+      "id": "c55faaef-afe1-494b-9f45-b4f530afd061",
+      "name": "Weekend 3x Daily Full Workflow",
+      "description": "Run full workflow 3 times a day on weekends",
+      "enabled": true,
+      "workflow_type": "main",
+      "parameters": {
+        "number": 15,
+        "regions": [
+          "germany",
+          "austria",
+          "switzerland"
+        ]
+      },
+      "cron_schedule": "0 9,15,21 * * sat,sun",
+      "timezone": "Europe/Berlin",
+      "created_at": "2025-09-01T15:25:57.129910",
+      "updated_at": "2025-09-01T15:39:13.775956",
+      "last_run": null,
+      "last_status": null,
+      "execution_history": []
+    }
+  ],
+  "last_updated": "2025-09-01T15:39:13.776469"
+}

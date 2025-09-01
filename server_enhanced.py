@@ -20,9 +20,13 @@ from pydantic import BaseModel, ValidationError
 from functools import wraps
 import uuid
 from datetime import timedelta
+from dataclasses import asdict
 
 # Import existing modules
 from state_manager import ProjectStateManager
+
+# Import scheduler manager
+from scheduler_manager import get_scheduler_manager
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -47,6 +51,9 @@ def add_no_cache_headers(response):
 
 # Initialize state manager
 state_manager = ProjectStateManager()
+
+# Initialize scheduler manager
+scheduler_manager = get_scheduler_manager()
 
 # Pydantic Models for API validation
 
@@ -112,6 +119,57 @@ class MarkdownContentResponse(BaseModel):
 
 class MarkdownUpdateRequest(BaseModel):
     content: str
+
+# Pydantic Models for Scheduling API
+
+class ScheduleCreateRequest(BaseModel):
+    name: str
+    description: str
+    workflow_type: str  # main, evaluate, generate
+    parameters: Dict[str, Any]
+    cron_schedule: str
+    timezone: str = "Europe/Berlin"
+
+class ScheduleUpdateRequest(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+    workflow_type: Optional[str] = None
+    parameters: Optional[Dict[str, Any]] = None
+    cron_schedule: Optional[str] = None
+    timezone: Optional[str] = None
+
+class ScheduleResponse(BaseModel):
+    id: str
+    name: str
+    description: str
+    enabled: bool
+    workflow_type: str
+    parameters: Dict[str, Any]
+    cron_schedule: str
+    timezone: str
+    created_at: str
+    updated_at: str
+    last_run: Optional[str]
+    last_status: Optional[str]
+    next_run: Optional[str]
+    execution_history: List[Dict[str, Any]]
+
+class ExecutionHistoryResponse(BaseModel):
+    run_id: str
+    started_at: str
+    completed_at: Optional[str]
+    status: str
+    output: Optional[str]
+    error: Optional[str]
+    exit_code: Optional[int]
+
+class SchedulerStatusResponse(BaseModel):
+    running: bool
+    total_schedules: int
+    enabled_schedules: int
+    active_jobs: int
+    next_job: Optional[Dict[str, Any]]
+    timestamp: str
 
 # Error handling decorator
 def handle_api_errors(f):
@@ -1165,6 +1223,244 @@ def delete_quick_filter(filter_id: str):
     
     return jsonify({"success": True, "message": f"Quick filter {filter_id} deleted"}), 200
 
+# API Endpoints for Scheduling
+
+@app.route('/api/v1/schedules', methods=['GET'])
+@handle_api_errors
+def get_schedules():
+    """Get all schedules"""
+    schedules = scheduler_manager.list_schedules()
+
+    # Convert to response format with next run times
+    response_schedules = []
+    for schedule in schedules:
+        # Get next run time from APScheduler
+        next_run = None
+        if schedule.enabled:
+            job_id = f"job_{schedule.id}"
+            job = scheduler_manager.scheduler.get_job(job_id)
+            if job and job.next_run_time:
+                next_run = job.next_run_time.isoformat()
+
+        schedule_dict = {
+            **asdict(schedule),
+            'next_run': next_run
+        }
+        response_schedules.append(schedule_dict)
+
+    return jsonify(response_schedules)
+
+@app.route('/api/v1/schedules', methods=['POST'])
+@handle_api_errors
+def create_schedule():
+    """Create a new schedule"""
+    data = request.get_json()
+    if not data:
+        raise ValidationError("No JSON data provided")
+
+    create_request = ScheduleCreateRequest(**data)
+
+    schedule = scheduler_manager.create_schedule(
+        name=create_request.name,
+        description=create_request.description,
+        workflow_type=create_request.workflow_type,
+        parameters=create_request.parameters,
+        cron_schedule=create_request.cron_schedule,
+        timezone=create_request.timezone
+    )
+
+    # Get next run time
+    next_run = None
+    if schedule.enabled:
+        job_id = f"job_{schedule.id}"
+        job = scheduler_manager.scheduler.get_job(job_id)
+        if job and job.next_run_time:
+            next_run = job.next_run_time.isoformat()
+
+    response = ScheduleResponse(
+        **asdict(schedule),
+        next_run=next_run
+    )
+
+    return jsonify(response.dict()), 201
+
+@app.route('/api/v1/schedules/<schedule_id>', methods=['PUT'])
+@handle_api_errors
+def update_schedule(schedule_id: str):
+    """Update an existing schedule"""
+    data = request.get_json()
+    if not data:
+        raise ValidationError("No JSON data provided")
+
+    update_request = ScheduleUpdateRequest(**data)
+
+    # Build update dict
+    updates = {}
+    if update_request.name is not None:
+        updates['name'] = update_request.name
+    if update_request.description is not None:
+        updates['description'] = update_request.description
+    if update_request.workflow_type is not None:
+        updates['workflow_type'] = update_request.workflow_type
+    if update_request.parameters is not None:
+        updates['parameters'] = update_request.parameters
+    if update_request.cron_schedule is not None:
+        updates['cron_schedule'] = update_request.cron_schedule
+    if update_request.timezone is not None:
+        updates['timezone'] = update_request.timezone
+
+    schedule = scheduler_manager.update_schedule(schedule_id, **updates)
+
+    if not schedule:
+        return jsonify(APIErrorResponse(
+            error="NotFound",
+            message=f"Schedule {schedule_id} not found",
+            code=404,
+            timestamp=datetime.now().isoformat()
+        ).dict()), 404
+
+    # Get next run time
+    next_run = None
+    if schedule.enabled:
+        job_id = f"job_{schedule.id}"
+        job = scheduler_manager.scheduler.get_job(job_id)
+        if job and job.next_run_time:
+            next_run = job.next_run_time.isoformat()
+
+    response = ScheduleResponse(
+        **asdict(schedule),
+        next_run=next_run
+    )
+
+    return jsonify(response.dict())
+
+@app.route('/api/v1/schedules/<schedule_id>', methods=['DELETE'])
+@handle_api_errors
+def delete_schedule(schedule_id: str):
+    """Delete a schedule"""
+    success = scheduler_manager.delete_schedule(schedule_id)
+
+    if not success:
+        return jsonify(APIErrorResponse(
+            error="NotFound",
+            message=f"Schedule {schedule_id} not found",
+            code=404,
+            timestamp=datetime.now().isoformat()
+        ).dict()), 404
+
+    return jsonify({"success": True, "message": f"Schedule {schedule_id} deleted"}), 200
+
+@app.route('/api/v1/schedules/<schedule_id>/toggle', methods=['POST'])
+@handle_api_errors
+def toggle_schedule(schedule_id: str):
+    """Enable/disable a schedule"""
+    schedule = scheduler_manager.toggle_schedule(schedule_id)
+
+    if not schedule:
+        return jsonify(APIErrorResponse(
+            error="NotFound",
+            message=f"Schedule {schedule_id} not found",
+            code=404,
+            timestamp=datetime.now().isoformat()
+        ).dict()), 404
+
+    # Get next run time
+    next_run = None
+    if schedule.enabled:
+        job_id = f"job_{schedule.id}"
+        job = scheduler_manager.scheduler.get_job(job_id)
+        if job and job.next_run_time:
+            next_run = job.next_run_time.isoformat()
+
+    response = ScheduleResponse(
+        **asdict(schedule),
+        next_run=next_run
+    )
+
+    return jsonify(response.dict())
+
+@app.route('/api/v1/schedules/<schedule_id>/run', methods=['POST'])
+@handle_api_errors
+def run_schedule_now(schedule_id: str):
+    """Run a schedule immediately"""
+    message = scheduler_manager.run_schedule_now(schedule_id)
+
+    if message is None:
+        return jsonify(APIErrorResponse(
+            error="NotFound",
+            message=f"Schedule {schedule_id} not found",
+            code=404,
+            timestamp=datetime.now().isoformat()
+        ).dict()), 404
+
+    return jsonify({
+        "success": True,
+        "message": message,
+        "timestamp": datetime.now().isoformat()
+    })
+
+@app.route('/api/v1/schedules/<schedule_id>/runs', methods=['GET'])
+@handle_api_errors
+def get_schedule_runs(schedule_id: str):
+    """Get execution history for a schedule"""
+    schedule = scheduler_manager.get_schedule(schedule_id)
+
+    if not schedule:
+        return jsonify(APIErrorResponse(
+            error="NotFound",
+            message=f"Schedule {schedule_id} not found",
+            code=404,
+            timestamp=datetime.now().isoformat()
+        ).dict()), 404
+
+    # Convert execution history to response format
+    history = []
+    for result in schedule.execution_history:
+        history.append({
+            "run_id": result.run_id,
+            "started_at": result.started_at,
+            "completed_at": result.completed_at,
+            "status": result.status,
+            "output": result.output,
+            "error": result.error,
+            "exit_code": result.exit_code
+        })
+
+    return jsonify(history)
+
+@app.route('/api/v1/schedules/status', methods=['GET'])
+@handle_api_errors
+def get_scheduler_status():
+    """Get overall scheduler status"""
+    status = scheduler_manager.get_scheduler_status()
+
+    # Get next job information
+    next_job = None
+    if status.get('jobs'):
+        # Find the job with the earliest next run time
+        earliest_job = min(
+            (job for job in status['jobs'] if job.get('next_run_time')),
+            key=lambda x: x['next_run_time'],
+            default=None
+        )
+        if earliest_job:
+            next_job = {
+                'job_id': earliest_job['id'],
+                'name': earliest_job['name'],
+                'next_run_time': earliest_job['next_run_time']
+            }
+
+    response = SchedulerStatusResponse(
+        running=status['running'],
+        total_schedules=status['total_schedules'],
+        enabled_schedules=status['enabled_schedules'],
+        active_jobs=status['active_jobs'],
+        next_job=next_job,
+        timestamp=datetime.now().isoformat()
+    )
+
+    return jsonify(response.dict())
+
 # Legacy routes for backward compatibility
 @app.route('/')
 def dashboard():
@@ -1182,6 +1478,26 @@ def serve_frontend(filename):
             return send_from_directory('frontend/dist', 'index.html')
         return {"error": "File not found"}, 404
 
+# Flask app lifecycle management for scheduler
+def startup():
+    """Initialize scheduler on startup"""
+    try:
+        scheduler_manager.start()
+        logger.info("Scheduler started successfully")
+    except Exception as e:
+        logger.error(f"Failed to start scheduler: {e}")
+
+import atexit
+
+@atexit.register
+def shutdown():
+    """Shutdown scheduler on app exit"""
+    try:
+        scheduler_manager.stop()
+        logger.info("Scheduler stopped successfully")
+    except Exception as e:
+        logger.error(f"Error stopping scheduler: {e}")
+
 if __name__ == '__main__':
     print("🚀 Starting Enhanced Flask Backend for Vue3 Frontend...")
     print("📊 API: http://0.0.0.0:8002/api/v1/")
@@ -1191,6 +1507,10 @@ if __name__ == '__main__':
     print("📁 Projects Directory: projects/")
     print("🔄 State Management: Enhanced")
     print("📋 API Version: v1")
+    print("⏰ Scheduler: Integrated")
+
+    # Start scheduler
+    startup()
 
     app.run(
         debug=True,

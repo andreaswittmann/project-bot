@@ -1,0 +1,110 @@
+{
+  "filters": [
+    {
+      "id": "f4716f18-6b59-4d3a-89c7-ceaf30b30e72",
+      "name": "heute active",
+      "description": null,
+      "filters": {
+        "search": "",
+        "statuses": [
+          "applied",
+          "sent",
+          "accepted",
+          "open"
+        ],
+        "companies": [],
+        "date_from": "2025-09-01",
+        "date_to": "2025-09-01",
+        "pre_eval_score_min": null,
+        "pre_eval_score_max": null,
+        "llm_score_min": null,
+        "llm_score_max": null,
+        "page": 1,
+        "page_size": 50
+      },
+      "isDynamic": false,
+      "originalRange": null,
+      "created_at": "2025-09-01T13:15:21.747503",
+      "updated_at": "2025-09-01T13:15:21.747516"
+    },
+    {
+      "id": "033464ce-a0e0-4e05-8150-4491d50f28ea",
+      "name": "2day-75",
+      "description": null,
+      "filters": {
+        "search": "",
+        "statuses": [
+          "applied",
+          "sent",
+          "accepted",
+          "open"
+        ],
+        "companies": [],
+        "date_from": "2025-08-30",
+        "date_to": "2025-09-01",
+        "pre_eval_score_min": null,
+        "pre_eval_score_max": null,
+        "llm_score_min": 75,
+        "llm_score_max": null,
+        "page": 1,
+        "page_size": 50
+      },
+      "isDynamic": false,
+      "originalRange": null,
+      "created_at": "2025-09-01T13:16:07.215745",
+      "updated_at": "2025-09-01T13:16:07.215764"
+    },
+    {
+      "id": "3c131f24-297d-4869-9503-c4b0003f6264",
+      "name": "my range",
+      "description": "Saved on 1.9.2025",
+      "filters": {
+        "search": "",
+        "statuses": [
+          "applied",
+          "sent",
+          "accepted",
+          "open"
+        ],
+        "companies": [],
+        "date_from": "2025-08-30",
+        "date_to": "2025-09-01",
+        "pre_eval_score_min": null,
+        "pre_eval_score_max": null,
+        "llm_score_min": 75,
+        "llm_score_max": null,
+        "page_size": 50
+      },
+      "isDynamic": false,
+      "originalRange": null,
+      "created_at": "2025-09-01T15:05:42.683814",
+      "updated_at": "2025-09-01T15:05:42.683828"
+    },
+    {
+      "id": "673d0f21-255b-4da5-a625-86bb7ed8308e",
+      "name": "2dyn",
+      "description": "Saved on 1.9.2025",
+      "filters": {
+        "search": "",
+        "statuses": [
+          "applied",
+          "sent",
+          "accepted",
+          "open"
+        ],
+        "companies": [],
+        "date_from": "2025-08-31",
+        "date_to": "2025-09-01",
+        "pre_eval_score_min": null,
+        "pre_eval_score_max": null,
+        "llm_score_min": 75,
+        "llm_score_max": null,
+        "page_size": 50
+      },
+      "isDynamic": true,
+      "originalRange": "last_2_days",
+      "created_at": "2025-09-01T15:14:37.418828",
+      "updated_at": "2025-09-01T15:14:37.418839"
+    }
+  ]
+}
