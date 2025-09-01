@@ -365,7 +365,7 @@ const retry = () => {
 
 .project-table th {
   background: #f9fafb;
-  padding: 0.75rem;
+  padding: 0.5rem 0.75rem;
   text-align: left;
   font-weight: 600;
   color: #374151;
@@ -391,7 +391,7 @@ const retry = () => {
 }
 
 .project-table td {
-  padding: 0.75rem;
+  padding: 0.375rem 0.75rem;
   border-bottom: 1px solid #f3f4f6;
   vertical-align: top;
 }
@@ -534,7 +534,7 @@ const retry = () => {
 
   .project-table th,
   .project-table td {
-    padding: 0.5rem;
+    padding: 0.25rem 0.5rem;
   }
 
   .project-title {
