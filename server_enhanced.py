@@ -487,7 +487,7 @@ def reevaluate_project(project_id: str):
             try:
                 dashboard_result = subprocess.run([
                     sys.executable, "dashboard/generate_dashboard_data.py"
-                ], capture_output=True, text=True, timeout=60)
+                ], capture_output=True, text=True, timeout=300)
 
                 if dashboard_result.returncode != 0:
                     logger.warning(f"Dashboard data regeneration failed: {dashboard_result.stderr}")
@@ -542,12 +542,13 @@ def generate_application(project_id: str):
         ).dict()), 404
 
     try:
-        # Check if project is in accepted state
+        # Check if project is in a valid state for generation
         project_data = parse_project_file(str(project_file))
-        if project_data.get("status") != "accepted":
+        valid_states = ["accepted", "rejected", "applied"]
+        if project_data.get("status") not in valid_states:
             return jsonify(APIErrorResponse(
                 error="InvalidState",
-                message=f"Project {project_id} is not in 'accepted' state (current: {project_data.get('status')})",
+                message=f"Project {project_id} must be in 'accepted', 'rejected', or 'applied' state (current: {project_data.get('status')})",
                 code=400,
                 timestamp=datetime.now().isoformat()
             ).dict()), 400
@@ -562,6 +563,19 @@ def generate_application(project_id: str):
         ], capture_output=True, text=True, timeout=300)
 
         if result.returncode == 0:
+            # Update project state to applied (even if already applied) to track generation
+            current_state = project_data.get("status")
+            use_force = current_state == "applied"  # Force if already applied to allow same-state transition
+            state_update_success = state_manager.update_state(
+                str(project_file),
+                "applied",
+                f"Application generated/regenerated via API",
+                force=use_force
+            )
+
+            if not state_update_success:
+                logger.warning(f"Failed to update state for project {project_id} after generation")
+
             # Parse the updated project data
             project_data = parse_project_file(str(project_file))
             response = ProjectResponse(**project_data)
@@ -570,7 +584,7 @@ def generate_application(project_id: str):
             try:
                 dashboard_result = subprocess.run([
                     sys.executable, "dashboard/generate_dashboard_data.py"
-                ], capture_output=True, text=True, timeout=60)
+                ], capture_output=True, text=True, timeout=300)
 
                 if dashboard_result.returncode != 0:
                     logger.warning(f"Dashboard data regeneration failed: {dashboard_result.stderr}")
@@ -823,7 +837,7 @@ def run_workflow(workflow_name: str):
                 try:
                     subprocess.run([
                         sys.executable, "dashboard/generate_dashboard_data.py"
-                    ], capture_output=True, text=True, timeout=60)
+                    ], capture_output=True, text=True, timeout=300)
                 except Exception as e:
                     logger.warning(f"Failed to regenerate dashboard: {e}")
 
@@ -856,7 +870,7 @@ def run_workflow(workflow_name: str):
                 try:
                     subprocess.run([
                         sys.executable, "dashboard/generate_dashboard_data.py"
-                    ], capture_output=True, text=True, timeout=60)
+                    ], capture_output=True, text=True, timeout=300)
                 except Exception as e:
                     logger.warning(f"Failed to regenerate dashboard: {e}")
 
