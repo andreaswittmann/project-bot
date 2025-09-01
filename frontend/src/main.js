@@ -21,6 +21,7 @@ import '@kangc/v-md-editor/lib/theme/style/vuepress.css'
 import enUS from '@kangc/v-md-editor/lib/lang/en-US'
 import hljs from 'highlight.js'
 import 'highlight.js/styles/github.css'
+
 const app = createApp(App)
 const pinia = createPinia()
 

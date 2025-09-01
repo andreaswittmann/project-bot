@@ -32,9 +32,16 @@
           <span v-else-if="hasChanges">💾 Save</span>
           <span v-else>✅ Saved</span>
         </button>
+        <button @click="generateApplication" class="generate-btn" :disabled="isGenerating" :title="isGenerating ? 'Generating application...' : 'Generate Application'">
+          <span v-if="isGenerating">⏳ Generating...</span>
+          <span v-else>📄 Generate</span>
+        </button>
         <button @click="sendApplication" :class="['send-btn', { 'sent': currentStatus === 'sent' }]" :disabled="currentStatus === 'sent'" :title="currentStatus === 'sent' ? 'Already sent' : 'Send application'">
           <span v-if="currentStatus === 'sent'">✅ Sent</span>
           <span v-else>📤 Send</span>
+        </button>
+        <button @click="reloadContent" class="reload-btn" title="Reload content from server">
+          🔄 Reload
         </button>
         <button @click="closeTab" class="close-btn" title="Close tab">
           ❌ Close
@@ -59,6 +66,7 @@
     <!-- Editor -->
     <div v-else class="editor-container" :class="{ 'preview-left': previewPosition === 'left' }">
       <v-md-editor
+        ref="editorRef"
         v-model="markdownContent"
         :height="'calc(100vh - 80px)'"
         :mode="editorMode"
@@ -70,6 +78,7 @@
         }"
         class="markdown-editor-component"
         @save="handleSave"
+        @ready="onEditorReady"
       />
     </div>
   </div>
@@ -104,6 +113,8 @@ const lastModified = ref('')
 const editorMode = ref('split') // 'edit', 'preview', 'split'
 const previewPosition = ref('right') // 'left', 'right'
 const currentStatus = ref('')
+const isGenerating = ref(false)
+const editorRef = ref(null)
 
 // Editor is configured via props and theme
 
@@ -200,6 +211,13 @@ const togglePreviewPosition = () => {
   previewPosition.value = previewPosition.value === 'right' ? 'left' : 'right'
 }
 
+const onEditorReady = () => {
+  // Enable TOC by default when editor is ready
+  if (editorRef.value && editorRef.value.toggleToc) {
+    editorRef.value.toggleToc()
+  }
+}
+
 // Helper functions
 const extractBetweenMarkers = (markdown) => {
   const regex = new RegExp('MARKER_APPLICATION_START([\\s\\S]*?)MARKER_APPLICATION_END', 'g')
@@ -256,6 +274,35 @@ const copyToClipboard = async (text) => {
   }
 }
 
+// Generate application method
+const generateApplication = async () => {
+  if (isGenerating.value) return
+
+  // Check if project is in a valid state for generation
+  const validStates = ['accepted', 'rejected', 'applied']
+  if (!validStates.includes(currentStatus.value)) {
+    alert(`Project must be in "accepted", "rejected", or "applied" state to generate an application. Current state: ${currentStatus.value}`)
+    return
+  }
+
+  isGenerating.value = true
+  try {
+    await projectsStore.generateApplication(projectId)
+
+    // Reload content to show the generated application
+    await reloadContent()
+
+    alert('Application generated successfully!')
+  } catch (error) {
+    console.error('Failed to generate application:', error)
+    alert('Failed to generate application: ' + (error.response?.data?.message || error.message))
+  } finally {
+    setTimeout(() => {
+      isGenerating.value = false
+    }, 2000)
+  }
+}
+
 // Send application method
 const sendApplication = async () => {
   // Check for unsaved changes
@@ -283,8 +330,6 @@ const sendApplication = async () => {
   const copied = await copyToClipboard(appText)
   if (!copied) {
     alert('Failed to copy application to clipboard.')
-  } else {
-    alert('Application copied to clipboard.')
   }
 
   // Open source URL
@@ -304,6 +349,52 @@ const sendApplication = async () => {
     }
   } catch (error) {
     alert('Failed to update project status: ' + error.message)
+  }
+}
+
+// Reload content method
+const reloadContent = async () => {
+  // Check for unsaved changes
+  if (hasChanges.value) {
+    const confirmed = confirm('You have unsaved changes. Reload will discard them. Continue?')
+    if (!confirmed) return
+  }
+
+  try {
+    loading.value = true
+    error.value = null
+
+    const response = await markdownApi.getProjectMarkdown(projectId)
+    markdownContent.value = response.content
+    originalContent.value = response.content
+    filename.value = response.filename
+    lastModified.value = response.last_modified
+
+    // Extract project title from content
+    const titleMatch = response.content.match(/^#\s*(.+)$/m)
+    if (titleMatch) {
+      projectTitle.value = titleMatch[1].trim()
+    } else {
+      projectTitle.value = `Project ${projectId}`
+    }
+
+    // Fetch project status
+    try {
+      const project = await projectsStore.fetchProjectById(projectId)
+      currentStatus.value = project.status
+    } catch (error) {
+      console.error('Failed to fetch project status:', error)
+      currentStatus.value = 'unknown'
+    }
+
+    console.log('✅ Content reloaded successfully')
+
+  } catch (err) {
+    console.error('Failed to reload markdown content:', err)
+    error.value = err.response?.data?.message || err.message || 'Failed to reload content'
+    alert('Failed to reload content: ' + error.value)
+  } finally {
+    loading.value = false
   }
 }
 
@@ -423,7 +514,7 @@ defineExpose({ onUnmounted })
   border-color: #4f46e5;
 }
 
-.save-btn, .send-btn, .close-btn {
+.save-btn, .send-btn, .reload-btn, .generate-btn, .close-btn {
   padding: 0.5rem 1rem;
   border-radius: 0.375rem;
   font-size: 0.875rem;
@@ -468,6 +559,29 @@ defineExpose({ onUnmounted })
 .send-btn:disabled {
   cursor: not-allowed;
   opacity: 0.6;
+}
+
+.reload-btn {
+  background: #3b82f6;
+  color: white;
+}
+
+.reload-btn:hover {
+  background: #2563eb;
+}
+
+.generate-btn {
+  background: #059669;
+  color: white;
+}
+
+.generate-btn:hover:not(:disabled) {
+  background: #047857;
+}
+
+.generate-btn:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
 }
 
 .close-btn {
