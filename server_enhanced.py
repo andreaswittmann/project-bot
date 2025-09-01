@@ -18,6 +18,8 @@ from datetime import datetime
 from typing import Dict, List, Optional, Any
 from pydantic import BaseModel, ValidationError
 from functools import wraps
+import uuid
+from datetime import timedelta
 
 # Import existing modules
 from state_manager import ProjectStateManager
@@ -135,6 +137,58 @@ def handle_api_errors(f):
             ).dict()), 500
     return decorated_function
 
+# Quick Filters Configuration
+QUICK_FILTERS_FILE = Path("data/quick_filters.json")
+
+# Pydantic Models for Quick Filters
+class QuickFilterItem(BaseModel):
+    id: str
+    name: str
+    description: Optional[str] = None
+    filters: Dict[str, Any]
+    created_at: str
+    updated_at: str
+
+class QuickFilterList(BaseModel):
+    filters: List[QuickFilterItem]
+
+class QuickFilterCreateRequest(BaseModel):
+    name: str
+    description: Optional[str] = None
+    filters: Dict[str, Any]
+
+class QuickFilterUpdateRequest(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+    filters: Optional[Dict[str, Any]] = None
+
+
+# Helper functions for Quick Filters
+def load_quick_filters() -> QuickFilterList:
+    """Load quick filters from JSON file"""
+    if not QUICK_FILTERS_FILE.exists():
+        return QuickFilterList(filters=[])
+    with open(QUICK_FILTERS_FILE, 'r') as f:
+        data = json.load(f)
+        # Check if the loaded data is a dictionary and has the 'filters' key
+        if isinstance(data, dict) and 'filters' in data:
+            return QuickFilterList(**data)
+        # Handle the case where the JSON file contains a list directly
+        elif isinstance(data, list):
+            return QuickFilterList(filters=data)
+        else:
+            # If the structure is unexpected, return an empty list
+            logger.warning(f"Unexpected structure in {QUICK_FILTERS_FILE}. Returning empty list.")
+            return QuickFilterList(filters=[])
+
+
+def save_quick_filters(filters: QuickFilterList):
+    """Save quick filters to JSON file"""
+    with open(QUICK_FILTERS_FILE, 'w') as f:
+        # The root of the JSON should be an object with a 'filters' key
+        json.dump({"filters": [f.dict() for f in filters.filters]}, f, indent=2)
+
+
 # Utility functions
 
 def parse_project_file(file_path: str) -> Dict[str, Any]:
@@ -222,6 +276,9 @@ def parse_project_file(file_path: str) -> Dict[str, Any]:
 
 def get_projects_with_filters(filters: ProjectFilters) -> List[Dict[str, Any]]:
     """Get projects with filtering and pagination"""
+    
+    filters = handle_relative_dates(filters) # Add this line
+
     projects_dir = Path("projects")
     if not projects_dir.exists():
         return []
@@ -323,6 +380,40 @@ def get_projects_with_filters(filters: ProjectFilters) -> List[Dict[str, Any]]:
     filtered_projects.sort(key=lambda x: x.get("retrieval_date") or "", reverse=True)
 
     return filtered_projects
+
+def handle_relative_dates(filters: ProjectFilters) -> ProjectFilters:
+    """Handle relative date strings"""
+    today = datetime.now().date()
+
+    # Handle date_from
+    if filters.date_from:
+        if filters.date_from == "today":
+            filters.date_from = today.strftime('%Y-%m-%d')
+        elif filters.date_from == "last_7_days":
+            filters.date_from = (today - timedelta(days=7)).strftime('%Y-%m-%d')
+        elif filters.date_from == "current_week":
+            start_of_week = today - timedelta(days=today.weekday())
+            filters.date_from = start_of_week.strftime('%Y-%m-%d')
+        elif filters.date_from == "previous_week":
+            end_of_last_week = today - timedelta(days=today.weekday() + 1)
+            start_of_last_week = end_of_last_week - timedelta(days=6)
+            filters.date_from = start_of_last_week.strftime('%Y-%m-%d')
+            filters.date_to = end_of_last_week.strftime('%Y-%m-%d')
+        elif filters.date_from == "current_month":
+            filters.date_from = today.replace(day=1).strftime('%Y-%m-%d')
+        elif filters.date_from == "previous_month":
+            first_day_current_month = today.replace(day=1)
+            last_day_previous_month = first_day_current_month - timedelta(days=1)
+            first_day_previous_month = last_day_previous_month.replace(day=1)
+            filters.date_from = first_day_previous_month.strftime('%Y-%m-%d')
+            filters.date_to = last_day_previous_month.strftime('%Y-%m-%d')
+
+    # Handle date_to
+    if filters.date_to:
+        if filters.date_to == "today":
+            filters.date_to = today.strftime('%Y-%m-%d')
+
+    return filters
 
 # API Endpoints
 
@@ -939,6 +1030,101 @@ def health_check():
             "workflow_execution"
         ]
     })
+
+# API Endpoints for Quick Filters
+
+@app.route('/api/v1/quick-filters', methods=['GET'])
+@handle_api_errors
+def get_quick_filters():
+    """Get all quick filters"""
+    filters = load_quick_filters()
+    return jsonify(filters.dict())
+
+@app.route('/api/v1/quick-filters', methods=['POST'])
+@handle_api_errors
+def create_quick_filter():
+    """Create a new quick filter"""
+    data = request.get_json()
+    if not data:
+        raise ValidationError("No JSON data provided")
+
+    create_request = QuickFilterCreateRequest(**data)
+    
+    filters = load_quick_filters()
+    
+    new_filter = QuickFilterItem(
+        id=str(uuid.uuid4()),
+        name=create_request.name,
+        description=create_request.description,
+        filters=create_request.filters,
+        created_at=datetime.now().isoformat(),
+        updated_at=datetime.now().isoformat()
+    )
+    
+    filters.filters.append(new_filter)
+    save_quick_filters(filters)
+    
+    return jsonify(new_filter.dict()), 201
+
+@app.route('/api/v1/quick-filters/<filter_id>', methods=['PUT'])
+@handle_api_errors
+def update_quick_filter(filter_id: str):
+    """Update an existing quick filter"""
+    data = request.get_json()
+    if not data:
+        raise ValidationError("No JSON data provided")
+
+    update_request = QuickFilterUpdateRequest(**data)
+    
+    filters = load_quick_filters()
+    
+    filter_to_update = None
+    for f in filters.filters:
+        if f.id == filter_id:
+            filter_to_update = f
+            break
+            
+    if not filter_to_update:
+        return jsonify(APIErrorResponse(
+            error="NotFound",
+            message=f"Quick filter with id {filter_id} not found",
+            code=404,
+            timestamp=datetime.now().isoformat()
+        ).dict()), 404
+
+    if update_request.name is not None:
+        filter_to_update.name = update_request.name
+    if update_request.description is not None:
+        filter_to_update.description = update_request.description
+    if update_request.filters is not None:
+        filter_to_update.filters = update_request.filters
+        
+    filter_to_update.updated_at = datetime.now().isoformat()
+    
+    save_quick_filters(filters)
+    
+    return jsonify(filter_to_update.dict())
+
+@app.route('/api/v1/quick-filters/<filter_id>', methods=['DELETE'])
+@handle_api_errors
+def delete_quick_filter(filter_id: str):
+    """Delete a quick filter"""
+    filters = load_quick_filters()
+    
+    initial_len = len(filters.filters)
+    filters.filters = [f for f in filters.filters if f.id != filter_id]
+    
+    if len(filters.filters) == initial_len:
+        return jsonify(APIErrorResponse(
+            error="NotFound",
+            message=f"Quick filter with id {filter_id} not found",
+            code=404,
+            timestamp=datetime.now().isoformat()
+        ).dict()), 404
+        
+    save_quick_filters(filters)
+    
+    return jsonify({"success": True, "message": f"Quick filter {filter_id} deleted"}), 200
 
 # Legacy routes for backward compatibility
 @app.route('/')

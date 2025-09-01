@@ -209,20 +209,23 @@
 
     <!-- Quick Filters -->
     <div class="quick-filters">
-      <h4>Quick Filters:</h4>
-      <div class="quick-filter-buttons">
-        <button @click="applyQuickFilter('active')" class="quick-filter-btn">
-          Active Projects
+      <div class="quick-filters-header">
+        <h4>Quick Filters:</h4>
+        <button @click="saveCurrentFilter" class="save-filter-btn">
+          Save Current Filter
         </button>
-        <button @click="applyQuickFilter('high_score')" class="quick-filter-btn">
-          High Score (≥80%)
-        </button>
-        <button @click="applyQuickFilter('recent')" class="quick-filter-btn">
-          Recent (Last 7 days)
-        </button>
-        <button @click="applyQuickFilter('needs_action')" class="quick-filter-btn">
-          Needs Action
-        </button>
+      </div>
+      <div v-if="projectsStore.loadingQuickFilters">Loading...</div>
+      <div v-if="projectsStore.quickFiltersError">Error: {{ projectsStore.quickFiltersError }}</div>
+      <div v-if="!projectsStore.loadingQuickFilters && projectsStore.quickFilters.length > 0" class="quick-filter-buttons">
+        <div v-for="filter in projectsStore.quickFilters" :key="filter.id" class="quick-filter-item">
+          <button @click="applySavedFilter(filter)" class="quick-filter-btn">
+            {{ filter.name }}
+          </button>
+          <button @click="renameFilter(filter)" class="edit-filter-btn">✏️</button>
+          <button @click="updateFilter(filter)" class="edit-filter-btn">💾</button>
+          <button @click="deleteFilter(filter.id)" class="delete-filter-btn">×</button>
+        </div>
       </div>
     </div>
   </div>
@@ -371,6 +374,10 @@ const clearDateRange = () => {
 
 const formatDate = (dateString) => {
   if (!dateString) return null
+  // Check if it's a relative date string
+  if (isNaN(new Date(dateString).getTime())) {
+    return dateString.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+  }
   try {
     return new Date(dateString).toLocaleDateString()
   } catch {
@@ -378,63 +385,87 @@ const formatDate = (dateString) => {
   }
 }
 
-const applyQuickFilter = (filterType) => {
-  const today = new Date()
-  const sevenDaysAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000)
+const applySavedFilter = (savedFilter) => {
+  const newFilters = JSON.parse(JSON.stringify(savedFilter.filters));
 
-  switch (filterType) {
-    case 'active':
-      localFilters.value.statuses = ['accepted', 'applied', 'sent', 'open']
-      localFilters.value.companies = []
-      localFilters.value.date_from = null
-      localFilters.value.date_to = null
-      localFilters.value.pre_eval_score_min = null
-      localFilters.value.pre_eval_score_max = null
-      localFilters.value.llm_score_min = null
-      localFilters.value.llm_score_max = null
-      break
+  const defaultFilters = {
+    search: '',
+    statuses: [],
+    companies: [],
+    date_from: null,
+    date_to: null,
+    pre_eval_score_min: null,
+    pre_eval_score_max: null,
+    llm_score_min: null,
+    llm_score_max: null,
+    page: 1,
+  };
 
-    case 'high_score':
-      localFilters.value.pre_eval_score_min = 80
-      localFilters.value.pre_eval_score_max = null
-      break
+  localFilters.value = {
+    ...defaultFilters,
+    page_size: localFilters.value.page_size, // preserve page size
+    ...newFilters
+  };
 
-    case 'recent':
-      localFilters.value.date_from = sevenDaysAgo.toISOString().split('T')[0]
-      localFilters.value.date_to = today.toISOString().split('T')[0]
-      localFilters.value.pre_eval_score_min = null
-      localFilters.value.pre_eval_score_max = null
-      localFilters.value.llm_score_min = null
-      localFilters.value.llm_score_max = null
-      break
-
-    case 'needs_action':
-      localFilters.value.statuses = ['accepted', 'applied']
-      localFilters.value.pre_eval_score_min = null
-      localFilters.value.pre_eval_score_max = null
-      localFilters.value.llm_score_min = null
-      localFilters.value.llm_score_max = null
-      break
+  // If the saved filter uses a relative date, update the dropdown
+  if (newFilters.date_from && isNaN(new Date(newFilters.date_from).getTime())) {
+    selectedQuickDateRange.value = newFilters.date_from;
+  } else {
+    selectedQuickDateRange.value = '';
   }
 
-  applyFilters()
-}
+  applyFilters();
+};
+
+const saveCurrentFilter = async () => {
+  const name = prompt('Enter a name for this quick filter:');
+  if (name) {
+    // Sanitize the filters to remove page number
+    const { page, ...filtersToSave } = localFilters.value;
+    const newFilter = {
+      name: name,
+      description: `Saved on ${new Date().toLocaleDateString()}`,
+      filters: filtersToSave
+    };
+    await projectsStore.createQuickFilter(newFilter);
+  }
+};
+
+const deleteFilter = async (id) => {
+  if (confirm('Are you sure you want to delete this quick filter?')) {
+    await projectsStore.deleteQuickFilter(id);
+  }
+};
+
+const renameFilter = async (filter) => {
+  const newName = prompt('Enter a new name for this quick filter:', filter.name);
+  if (newName && newName !== filter.name) {
+    await projectsStore.updateQuickFilter(filter.id, { name: newName });
+  }
+};
+
+const updateFilter = async (filter) => {
+  if (confirm(`Are you sure you want to update the "${filter.name}" filter with the current settings?`)) {
+    const { page, ...filtersToSave } = localFilters.value;
+    await projectsStore.updateQuickFilter(filter.id, { filters: filtersToSave });
+  }
+};
 
 const handleWorkflowRun = () => {
   emit('run-workflow', 'main')
 }
 
 const applyQuickDateRange = () => {
-  const range = selectedQuickDateRange.value
-  if (!range) {
-    // Custom range selected, don't change dates
-    return
+  const range = selectedQuickDateRange.value;
+  if (range) {
+    localFilters.value.date_from = range;
+    localFilters.value.date_to = null;
+  } else {
+    // Switched back to custom range, clear the dates
+    localFilters.value.date_from = null;
+    localFilters.value.date_to = null;
   }
-
-  const { from, to } = calculateDateRange(range)
-  localFilters.value.date_from = from
-  localFilters.value.date_to = to
-  applyFilters()
+  applyFilters();
 }
 
 const onManualDateChange = () => {
@@ -443,77 +474,11 @@ const onManualDateChange = () => {
   applyFilters()
 }
 
-const calculateDateRange = (range) => {
-  const today = new Date()
-  const todayStr = today.toISOString().split('T')[0]
-
-  switch (range) {
-    case 'today':
-      return { from: todayStr, to: todayStr }
-
-    case 'last_2_days':
-      const twoDaysAgo = new Date(today.getTime() - 2 * 24 * 60 * 60 * 1000)
-      return {
-        from: twoDaysAgo.toISOString().split('T')[0],
-        to: todayStr
-      }
-
-    case 'last_3_days':
-      const threeDaysAgo = new Date(today.getTime() - 3 * 24 * 60 * 60 * 1000)
-      return {
-        from: threeDaysAgo.toISOString().split('T')[0],
-        to: todayStr
-      }
-
-    case 'last_10_days':
-      const tenDaysAgo = new Date(today.getTime() - 10 * 24 * 60 * 60 * 1000)
-      return {
-        from: tenDaysAgo.toISOString().split('T')[0],
-        to: todayStr
-      }
-
-    case 'this_week':
-      const startOfWeek = new Date(today)
-      startOfWeek.setDate(today.getDate() - today.getDay()) // Start of week (Sunday)
-      return {
-        from: startOfWeek.toISOString().split('T')[0],
-        to: todayStr
-      }
-
-    case 'last_week':
-      const endOfLastWeek = new Date(today)
-      endOfLastWeek.setDate(today.getDate() - today.getDay() - 1) // Last Saturday
-      const startOfLastWeek = new Date(endOfLastWeek)
-      startOfLastWeek.setDate(endOfLastWeek.getDate() - 6) // 7 days before
-      return {
-        from: startOfLastWeek.toISOString().split('T')[0],
-        to: endOfLastWeek.toISOString().split('T')[0]
-      }
-
-    case 'this_month':
-      const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1)
-      return {
-        from: startOfMonth.toISOString().split('T')[0],
-        to: todayStr
-      }
-
-    case 'last_month':
-      const startOfLastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1)
-      const endOfLastMonth = new Date(today.getFullYear(), today.getMonth(), 0)
-      return {
-        from: startOfLastMonth.toISOString().split('T')[0],
-        to: endOfLastMonth.toISOString().split('T')[0]
-      }
-
-    default:
-      return { from: null, to: null }
-  }
-}
-
 // Initialize
 onMounted(() => {
   // Sync with store on mount
-  localFilters.value = { ...projectsStore.filters }
+  localFilters.value = { ...projectsStore.filters };
+  projectsStore.fetchQuickFilters();
 })
 </script>
 
@@ -799,6 +764,67 @@ onMounted(() => {
 .quick-filter-btn:hover {
   background: #e5e7eb;
   border-color: #9ca3af;
+}
+
+.quick-filters-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.save-filter-btn {
+  background: #10b981;
+  color: white;
+  border: none;
+  padding: 0.375rem 0.75rem;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  font-size: 0.75rem;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.save-filter-btn:hover {
+  background: #059669;
+}
+
+.quick-filter-item {
+  display: flex;
+  align-items: center;
+}
+
+.delete-filter-btn {
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  margin-left: 0.5rem;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.delete-filter-btn:hover {
+  opacity: 1;
+}
+
+.edit-filter-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+  padding: 0 0.25rem;
+}
+
+.edit-filter-btn:hover {
+  opacity: 1;
 }
 
 /* Responsive design */

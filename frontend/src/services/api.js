@@ -58,4 +58,26 @@ export const markdownApi = {
   }
 }
 
+export const quickFiltersApi = {
+  async getQuickFilters() {
+    const response = await api.get('/api/v1/quick-filters');
+    return response.data;
+  },
+
+  async createQuickFilter(filter) {
+    const response = await api.post('/api/v1/quick-filters', filter);
+    return response.data;
+  },
+
+  async updateQuickFilter(id, filter) {
+    const response = await api.put(`/api/v1/quick-filters/${id}`, filter);
+    return response.data;
+  },
+
+  async deleteQuickFilter(id) {
+    const response = await api.delete(`/api/v1/quick-filters/${id}`);
+    return response.data;
+  },
+};
+
 export default api

@@ -25,10 +25,19 @@ This bot helps freelancers automate the complete process of:
 - **Flexible Thresholds**: Customizable acceptance criteria
 
 ### 📊 Interactive Dashboard
-- Static HTML dashboard with no server requirements
-- Sortable and filterable project table
-- Application status tracking
-- Export functionality
+- **Enhanced Filtering:** Sortable and filterable project table with multi-select for statuses and companies, date ranges, and score ranges.
+- **Configurable Quick Filters:** Save any filter combination for later use. Your saved filters are available on any browser or device.
+- **Application Status Tracking:** Easily track the status of your applications.
+- **Export Functionality:** Export your filtered project list.
+
+### 🚀 Configurable Quick Filters
+- **Save & Reuse:** Save any combination of filters as a named "Quick Filter".
+- **Server-Side Storage:** Your quick filters are saved on the server, so they are available across all your devices.
+- **Dynamic & Editable:**
+    - **Rename:** Easily rename your quick filters.
+    - **Update:** Overwrite a saved filter with the current filter selection.
+    - **Delete:** Remove quick filters you no longer need.
+- **Relative Dates:** Save filters with dynamic date ranges like "Today", "Last 7 days", or "Current month" that always stay up-to-date.
 
 ### 🤖 Automatic Application Generation
 - **Smart Filtering**: Only generates applications for projects with fit score ≥90%

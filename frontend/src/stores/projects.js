@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import api from '../services/api'
+import api, { quickFiltersApi } from '../services/api'
 
 export const useProjectsStore = defineStore('projects', {
   state: () => ({
@@ -26,7 +26,10 @@ export const useProjectsStore = defineStore('projects', {
     },
     loading: false,
     error: null,
-    stats: {}
+    stats: {},
+    quickFilters: [],
+    loadingQuickFilters: false,
+    quickFiltersError: null,
   }),
 
   getters: {
@@ -204,6 +207,49 @@ export const useProjectsStore = defineStore('projects', {
 
     clearError() {
       this.error = null
-    }
+    },
+
+    async fetchQuickFilters() {
+      this.loadingQuickFilters = true;
+      this.quickFiltersError = null;
+      try {
+        const response = await quickFiltersApi.getQuickFilters();
+        this.quickFilters = response.filters;
+      } catch (error) {
+        this.quickFiltersError = error.response?.data?.message || error.message;
+      } finally {
+        this.loadingQuickFilters = false;
+      }
+    },
+
+    async createQuickFilter(filter) {
+      try {
+        await quickFiltersApi.createQuickFilter(filter);
+        await this.fetchQuickFilters();
+      } catch (error) {
+        this.quickFiltersError = error.response?.data?.message || error.message;
+        throw error;
+      }
+    },
+
+    async updateQuickFilter(id, filter) {
+      try {
+        await quickFiltersApi.updateQuickFilter(id, filter);
+        await this.fetchQuickFilters();
+      } catch (error) {
+        this.quickFiltersError = error.response?.data?.message || error.message;
+        throw error;
+      }
+    },
+
+    async deleteQuickFilter(id) {
+      try {
+        await quickFiltersApi.deleteQuickFilter(id);
+        await this.fetchQuickFilters();
+      } catch (error) {
+        this.quickFiltersError = error.response?.data?.message || error.message;
+        throw error;
+      }
+    },
   }
 })
