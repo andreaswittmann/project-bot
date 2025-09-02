@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const baseURL = import.meta.env.VITE_API_BASE_URL
+const baseURL = 'http://localhost:8002'
 
 // Create axios instance - if baseURL is empty, axios will use relative URLs
 const apiConfig = {
