@@ -3,7 +3,7 @@
 
 llm:
   provider: OpenAI  # Options: OpenAI, Anthropic, Google
-  model: gpt-4o     # OpenAI: gpt-4o, gpt-4-turbo | Anthropic: claude-3-sonnet-20240229 | Google: gemini-pro
+  model: gpt-5-mini     # OpenAI: gpt-4o, gpt-4-turbo | Anthropic: claude-3-sonnet-20240229 | Google: gemini-pro
   api_key: ${OPENAI_API_KEY}  # Read from environment variable
 
 settings:
