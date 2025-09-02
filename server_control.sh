@@ -96,12 +96,19 @@ restart_frontend_server() {
 # Function to stop frontend server
 stop_frontend_server() {
     echo -e "${YELLOW}Stopping frontend dev server...${NC}"
+
+    # Kill all related frontend processes
     pkill -f "npm.*run dev"
-    sleep 1
-    if ! pgrep -f "npm.*run dev" > /dev/null; then
+    pkill -f "vite"
+    pkill -f "esbuild.*--service"
+    sleep 2
+
+    # Check if any frontend processes are still running
+    if ! pgrep -f "npm.*run dev" > /dev/null && ! pgrep -f "vite" > /dev/null; then
         echo -e "${GREEN}Frontend dev server stopped successfully${NC}"
     else
         echo -e "${RED}Failed to stop frontend dev server${NC}"
+        echo -e "${YELLOW}Some processes may still be running. Try manual cleanup if needed.${NC}"
     fi
 }
 

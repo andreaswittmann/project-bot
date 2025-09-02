@@ -9,6 +9,31 @@ from state_manager import ProjectStateManager
 
 PROCESSED_LOG_FILE = 'processed_projects.log'
 
+def prune_processed_log_efficient(max_entries: int = 5000):
+    """
+    Efficiently prune the processed log by keeping only the most recent entries.
+    Since entries are appended chronologically, we just keep the last N.
+    """
+    if not os.path.exists(PROCESSED_LOG_FILE):
+        return
+
+    # Read all entries
+    with open(PROCESSED_LOG_FILE, 'r', encoding='utf-8') as f:
+        entries = [line.strip() for line in f if line.strip()]
+
+    if len(entries) <= max_entries:
+        return  # No pruning needed
+
+    # Keep only the most recent entries (last max_entries)
+    entries_to_keep = entries[-max_entries:]
+
+    # Write back efficiently
+    with open(PROCESSED_LOG_FILE, 'w', encoding='utf-8') as f:
+        for url in entries_to_keep:
+            f.write(f"{url}\n")
+
+    print(f"✂️ Pruned processed log: {len(entries)} → {len(entries_to_keep)} entries")
+
 def load_processed_urls():
     """Load processed URLs from the log file."""
     if not os.path.exists(PROCESSED_LOG_FILE):
@@ -99,12 +124,16 @@ def generate_rss_urls(regions):
 
 def fetch_and_process_rss(rss_urls, limit=5, output_dir='projects'):
     """Fetch projects from RSS feeds and process them using parse_html."""
+    # First, prune the log to keep it efficient
+    prune_processed_log_efficient(max_entries=5000)
+
+    # Load processed URLs after pruning
     processed_urls = load_processed_urls()
-    
+
     for rss_url in rss_urls:
         print(f"Fetching from RSS: {rss_url}")
         feed = feedparser.parse(rss_url)
-        
+
         for entry in feed.entries[:limit]:
             if entry.link in processed_urls:
                 print(f"Skipping already processed project: {entry.title}")
@@ -113,10 +142,10 @@ def fetch_and_process_rss(rss_urls, limit=5, output_dir='projects'):
             print(f"\n--- Processing project: {entry.title} ---")
             try:
                 project_data = parse_project(entry.link)
-                
+
                 # Generate Markdown from parsed data
                 markdown_content = to_markdown(project_data)
-                
+
                 # Create filename with validation and fallbacks
                 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
                 original_title = project_data.get('titel', 'Untitled')
@@ -124,7 +153,7 @@ def fetch_and_process_rss(rss_urls, limit=5, output_dir='projects'):
 
                 # Log filename creation for debugging
                 print(f"📄 Created filename: {filename} (from title: '{original_title}')")
-                
+
                 # Define output path and save file
                 os.makedirs(output_dir, exist_ok=True)
                 filepath = os.path.join(output_dir, filename)
@@ -149,9 +178,10 @@ def fetch_and_process_rss(rss_urls, limit=5, output_dir='projects'):
                 # Initialize project with frontmatter
                 success = state_manager.initialize_project(filepath, metadata)
 
-                # Log the processed URL
+                # ✅ FIX: Update both the in-memory set AND the log file
+                processed_urls.add(entry.link)  # Add to memory
                 with open(PROCESSED_LOG_FILE, 'a', encoding='utf-8') as f:
-                    f.write(f"{entry.link}\n")
+                    f.write(f"{entry.link}\n")  # Append to disk
 
                 if success:
                     print(f"Saved: {filepath} (initialized with 'scraped' state)")
