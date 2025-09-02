@@ -181,7 +181,7 @@ const router = useRouter()
 // Store
 const projectsStore = useProjectsStore()
 
-// Props
+// Props - Vue Router automatically decodes URL parameters
 const projectId = route.params.projectId
 
 // Local state
