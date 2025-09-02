@@ -71,6 +71,8 @@ This bot helps freelancers automate the complete process of:
 
 ## Installation
 
+### Option 1: Local Development
+
 1. **Clone the repository:**
    ```bash
    git clone <repository-url>
@@ -93,6 +95,73 @@ This bot helps freelancers automate the complete process of:
     # Create data/cv.md with your CV content in markdown format
     # (A symlink cv.md is automatically created for backward compatibility)
     ```
+
+5. **Start the application:**
+   ```bash
+   # Start the backend server
+   python server_enhanced.py
+
+   # Access the application at: http://localhost:8002
+   ```
+
+### Option 2: Docker Deployment
+
+1. **Prerequisites:**
+   - Docker and Docker Compose installed
+   - API keys configured in environment variables or `.env` file
+
+2. **Quick Start:**
+   ```bash
+   cd docker
+   docker-compose up --build
+   ```
+
+3. **Access the application:**
+   - **Docker Environment**: http://localhost:8003
+   - **Local Development**: http://localhost:8002
+
+### Environment Configuration
+
+The application supports two distinct environments to prevent configuration conflicts:
+
+| Environment | Port | Backend URL | Frontend Config |
+|-------------|------|-------------|----------------|
+| **Local Development** | 8002 | `http://localhost:8002` | `frontend/.env` |
+| **Docker** | 8003 | `http://bewerbungs-bot:8002` | `docker/docker-compose.yml` |
+
+**Why Different Ports?**
+- **Fail-safe Design**: If you accidentally access the wrong URL, you'll get a connection error immediately
+- **No Conflicts**: Both environments can run simultaneously without port conflicts
+- **Clear Debugging**: Easy to identify which environment you're using
+
+**Environment Variables:**
+```bash
+# Local Development (frontend/.env)
+VITE_API_BASE_URL=http://localhost:8002
+
+# Docker (docker/docker-compose.yml)
+VITE_API_BASE_URL=http://bewerbungs-bot:8002
+```
+
+### Docker Commands
+
+```bash
+# Start Docker environment
+cd docker
+docker-compose up --build
+
+# Stop Docker environment
+docker-compose down
+
+# View logs
+docker-compose logs -f
+
+# Rebuild after code changes
+docker-compose up --build --force-recreate
+
+# Clean up
+docker-compose down -v --rmi all
+```
 
 ## Configuration
 

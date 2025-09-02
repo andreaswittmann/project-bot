@@ -1,6 +1,7 @@
 import axios from 'axios'
 
-const baseURL = 'http://localhost:8002'
+// Use environment variable with fallback for local development
+const baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8002'
 
 // Create axios instance - if baseURL is empty, axios will use relative URLs
 const apiConfig = {

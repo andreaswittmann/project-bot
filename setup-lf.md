@@ -12,9 +12,15 @@ We want to create a test directory, clone the project, and verify the basic stru
 
 ```shell
 
+
+ssh asamadhi
+bash
+
+
 # Create project directory
-mkdir -p $PROJECT_DIR
-cd ~/test-projects
+cd ~/LocalProjects/ai-bootcamp
+ls -ltr
+
 
 # Clone the bewerbungs-bot project
 git clone http://100.71.227.145:3300/anwi/bewerbungs-bot.git
@@ -44,12 +50,27 @@ cp config_template.yaml config.yaml
 # Create organized directory structure for Docker volumes
 mkdir -p docker-volumes/{data,projects,logs}
 pwd
-tree
-
+ls -la docker-volumes/
+tree docker-volumes/ 2>/dev/null || ls -la docker-volumes/*/
 
 # Create sample CV file in the volumes directory
-## Or copy your cv to the correct place 
-cp /Users/aupeksha/LocalProjects/ai-bootcamp/bewerbungs-bot/data/CV_Andreas.Wittmann_GmbH_DE_2025_04.md docker-volumes/data/cv.md
+## Or copy your cv to the correct place
+cp data/CV_Andreas.Wittmann_GmbH_DE_2025_04.md docker-volumes/data/cv.md
+
+## or scp the files from local machine
+exit
+whoami
+# Update these paths according to your local setup
+# scp ~/path/to/your/cv.md asamadhi:~/LocalProjects/ai-bootcamp/bewerbungs-bot/docker-volumes/data/cv.md
+# scp ~/path/to/your/.env asamadhi:~/LocalProjects/ai-bootcamp/bewerbungs-bot/docker/.env
+
+ssh asamadhi
+bash
+cd ~/LocalProjects/ai-bootcamp/bewerbungs-bot
+export PROJECT_DIR=$(pwd)
+echo "Project directory set to: ${PROJECT_DIR}"
+
+
 
 ls -la docker-volumes/data/
 
@@ -60,13 +81,6 @@ cat config.yaml
 cp config.yaml docker-volumes/
 ls -la docker-volumes/ 
 
-
-
-
-# Display structure
-echo "Directory structure created:"
-tree docker-volumes/ || ls -la docker-volumes/
-head -10 config.yaml
 ```
 
 The main configuration was copied from template, a organized `docker-volumes` directory was created containing all directories needed for Docker volume mounting (data, projects, logs), and configuration files were prepared for container access.
@@ -82,10 +96,11 @@ cd ${PROJECT_DIR}/docker
 pwd
 
 
-# Copy your .env file
+# Copy your .env file (update path as needed)
 pwd
-cp /Users/aupeksha/LocalProjects/ai-bootcamp/.env .
-cat .env
+# cp /path/to/your/.env .  # Update this path to your actual .env file location
+# Or create .env file manually with your API keys
+cat .env 2>/dev/null || echo "No .env file found - create one with your API keys"
 ls -la
 
 ```
@@ -117,7 +132,7 @@ docker compose logs --tail=10
 ls -la ../docker-volumes/
 ```
 
-The docker-compose.yml was updated to use the organized `docker-volumes` directory structure. The Docker image was built and the application container started with all volumes properly mounted from the centralized location.
+The docker-compose.yml was updated to use the organized `docker-volumes` directory structure and configured with project name "bot" for Docker Desktop. The Docker image was built and the application container started with all volumes properly mounted from the centralized location.
 
 ## Step 5: Verify Application and Access
 
@@ -129,19 +144,21 @@ sleep 15
 echo "Performing health checks..."
 
 # Test API endpoints
-curl -f http://localhost:8002/api/v1/health
+curl -f http://localhost:8003/api/v1/health
 echo ""
 
 # Verify web interface
-curl -I http://localhost:8002 | head -3
+curl -I http://localhost:8003 | head -3
 
 # Display access information
 echo ""
 echo "==================================="
 echo "🎉 SETUP COMPLETE! 🎉"
 echo "==================================="
-echo "Web Dashboard: http://localhost:8002"
-echo "API Endpoint:  http://localhost:8002/api/v1/"
+echo "Web Dashboard: http://localhost:8003"
+echo "API Endpoint:  http://localhost:8003/api/v1/"
+echo ""
+echo "Note: Docker environment uses port 8003 to avoid conflicts with local development (port 8002)"
 echo ""
 ```
 
@@ -179,6 +196,11 @@ docker compose exec bewerbungs-bot env | grep API_KEY
 docker compose down
 docker compose build --no-cache
 docker compose up -d
+
+# Port configuration notes:
+# - Docker environment: http://localhost:8003
+# - Local development: http://localhost:8002
+# - If you get connection errors, check which port you're using
 ```
 
 ## Complete Cleanup
@@ -187,7 +209,9 @@ When you're done testing and want to remove everything:
 
 ```shell
 # Stop and remove containers
-cd ~/test-projects/bewerbungs-bot/docker
+cd $PROJECT_DIR/docker
+pwd
+
 docker compose down
 
 # Remove Docker images
@@ -210,4 +234,6 @@ This cleanup section stops all containers, removes Docker images, deletes the en
 
 **Setup completed successfully!** 🚀
 
-Your Bewerbungs-Bot is now running at: http://localhost:8002
+Your Bewerbungs-Bot is now running at: http://localhost:8003
+
+Note: Docker uses port 8003 to avoid conflicts with local development (port 8002)
