@@ -13,6 +13,8 @@ services:
       - ANTHROPIC_API_KEY2=${ANTHROPIC_API_KEY2:-$ANTHROPIC_API_KEY}
       # Flask settings
       - FLASK_ENV=production
+      # Frontend API configuration
+      - VITE_API_BASE_URL=http://bewerbungs-bot:8002
     volumes:
       # Mount organized docker-volumes directory for persistence
       - ../docker-volumes/data:/app/data

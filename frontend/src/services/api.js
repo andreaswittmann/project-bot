@@ -1,7 +1,12 @@
 import axios from 'axios'
 
+const baseURL = import.meta.env.VITE_API_BASE_URL
+if (!baseURL) {
+  throw new Error('VITE_API_BASE_URL environment variable is required. Please set it in your .env file or Docker environment.')
+}
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://100.71.227.145:8002',
+  baseURL: baseURL,
   timeout: 30000, // Increased timeout to 30 seconds
   headers: {
     'Content-Type': 'application/json',

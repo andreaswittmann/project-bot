@@ -18,7 +18,7 @@ export default defineConfig({
     cors: true,
     proxy: {
       '/api': {
-        target: 'http://100.70.158.67:8002',
+        target: 'http://localhost:8002',
         changeOrigin: true,
         secure: false,
         ws: false
