@@ -9,6 +9,7 @@ lxml
 flask
 flask-cors
 flask-cors
+feedparser
 
 # APScheduler for job scheduling
 APScheduler==3.10.4
