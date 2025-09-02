@@ -38,29 +38,18 @@ cp config_template.yaml config.yaml
 # Create organized directory structure for Docker volumes
 mkdir -p docker-volumes/{data,projects,logs}
 
+
+
 # Create sample CV file in the volumes directory
 ## Or copy your cv to the correct place 
 cp /Users/aupeksha/LocalProjects/ai-bootcamp/bewerbungs-bot/data/CV_Andreas.Wittmann_GmbH_DE_2025_04.md docker-volumes/data/cv.md
 
+ls -la docker-volumes/data/
 
-# Create sample CV file in the volumes directory
-cat > docker-volumes/data/cv.md << 'EOF'
-# Your CV
 
-## Personal Information
-- Name: [Your Name]
-- Email: [Your Email]
-
-## Skills
-- AWS, Cloud Architecture
-- Python, AI/ML Development
-- DevOps, Infrastructure as Code
-
-## Experience
-- [Add your work experience]
-EOF
 
 # Copy config to volumes directory for mounting
+cat config.yaml
 cp config.yaml docker-volumes/
 
 # Display structure
@@ -69,7 +58,7 @@ tree docker-volumes/ || ls -la docker-volumes/
 head -10 config.yaml
 ```
 
-The main configuration was copied from template with environment variable references for API keys (${OPENAI_API_KEY}, ${ANTHROPIC_API_KEY2}), a organized `docker-volumes` directory was created containing all directories needed for Docker volume mounting (data, projects, logs), and configuration files were prepared for container access.
+The main configuration was copied from template, a organized `docker-volumes` directory was created containing all directories needed for Docker volume mounting (data, projects, logs), and configuration files were prepared for container access.
 
 ## Step 3: Configure Docker Environment and API Keys
 
@@ -88,34 +77,28 @@ echo "Edit command: nano .env"
 echo "Replace 'your_*_key_here' with actual API keys, then save and exit."
 ```
 
-The Docker environment template was created as .env file. This is the single source of truth for all API keys. You need to manually edit this file with your actual OpenAI, Anthropic, and Google API keys. The config.yaml will automatically read these values through environment variable references.
+The Docker environment template was created as .env file. You need to manually edit this file with your actual OpenAI, Anthropic, and Google API keys.
 
-## Step 4: Update Docker Compose and Start Container
+## Step 4: Build and Start Docker Container
 
-We want to update the docker-compose.yml to use our organized volume structure and start the application.
+We want to build the Docker image and start the application container using the organized volume structure.
 
 ```shell
-# Update docker-compose.yml to use our organized volumes
-sed -i.bak 's|../data:/app/data|../docker-volumes/data:/app/data|g' docker-compose.yml
-sed -i.bak 's|../projects:/app/projects|../docker-volumes/projects:/app/projects|g' docker-compose.yml
-sed -i.bak 's|../logs:/app/logs|../docker-volumes/logs:/app/logs|g' docker-compose.yml
-sed -i.bak 's|../config.yaml:/app/config.yaml|../docker-volumes/config.yaml:/app/config.yaml|g' docker-compose.yml
-
-# Build Docker image and start container
+# Build Docker image
 echo "Building Docker image..."
 docker compose build
 
-echo "Starting application container with organized volumes..."
+# Start application container
+echo "Starting application container..."
 docker compose up -d
 
 # Verify container status and volumes
 docker compose ps
 docker compose logs --tail=10
-echo "Mounted volumes:"
-ls -la ../docker-volumes/
+echo "Container started successfully with docker-volumes mounted."
 ```
 
-The docker-compose.yml was updated to use the organized `docker-volumes` directory structure. The Docker image was built and the application container started with all volumes properly mounted from the centralized location.
+The Docker image was built and the application container started successfully. The container uses the organized `docker-volumes` directory structure for all persistent data storage.
 
 ## Step 5: Verify Application and Access
 

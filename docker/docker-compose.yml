@@ -1,6 +1,7 @@
 services:
   bewerbungs-bot:
     build: ..
+    container_name: bewerbungs-bot
     ports:
       - "8002:8002"
     environment:
@@ -13,12 +14,12 @@ services:
       # Flask settings
       - FLASK_ENV=production
     volumes:
-      # Mount data directories to host for persistence (relative to docker directory)
-      - ../data:/app/data
-      - ../projects:/app/projects
-      - ../logs:/app/logs
+      # Mount organized docker-volumes directory for persistence
+      - ../docker-volumes/data:/app/data
+      - ../docker-volumes/projects:/app/projects
+      - ../docker-volumes/logs:/app/logs
       # Mount config file
-      - ../config.yaml:/app/config.yaml
+      - ../docker-volumes/config.yaml:/app/config.yaml
       # Optional: Mount additional directories if needed
       - ../applications_status.json:/app/applications_status.json
     restart: unless-stopped
