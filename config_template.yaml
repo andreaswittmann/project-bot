@@ -3,8 +3,8 @@
 
 llm:
   provider: OpenAI  # Options: OpenAI, Anthropic, Google
-  model: gpt-5-mini     # OpenAI: gpt-5-mini, gpt-4o, gpt-4-turbo | Anthropic: claude-3-sonnet-20240229 | Google: gemini-pro
-  api_key: YOUR_API_KEY_HERE  # Replace with your actual API key
+  model: gpt-4o     # OpenAI: gpt-4o, gpt-4-turbo | Anthropic: claude-3-sonnet-20240229 | Google: gemini-pro
+  api_key: ${OPENAI_API_KEY}  # Read from environment variable
 
 settings:
   acceptance_threshold: 85  # LLM evaluation threshold (0-100)
@@ -171,6 +171,22 @@ pre_evaluation:
 
   forbidden_tags:
     - betriebsleiter  # Add keywords that should automatically reject projects
+
+# Application Generator Configuration
+application_generator:
+  enabled: true
+  auto_generation_threshold: 90  # Only generate applications for projects with fit score >= 90%
+
+  # Independent LLM configuration for application generation
+  llm:
+    provider: "Anthropic"        # Can be different from main LLM
+    model: "claude-sonnet-4-20250514"
+    api_key: ${ANTHROPIC_API_KEY2}  # Read from environment variable
+
+  # German application template settings
+  template:
+    salary_expectation: "120,- € pro Stunde"
+    availability: "sofort, vollzeit, remote und vor Ort"
 
 # Configuration Notes:
 # 

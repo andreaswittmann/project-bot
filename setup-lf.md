@@ -1,0 +1,211 @@
+# Bewerbungsbot Setup (Live-Scripting)
+
+This is a Setup Script that is developed and can be used with the Live-Scripting method by Andreas Wittmann. (https://github.com/andreaswittmann/live-scripting)
+
+## Prerequisites
+
+Before starting, ensure you have Docker Desktop and Git installed.
+
+## Step 1: Setup Project Directory and Clone Repository
+
+We want to create a test directory, clone the project, and verify the basic structure.
+
+```shell
+# Create test projects directory and navigate to it
+mkdir -p ~/test-projects
+cd ~/test-projects
+
+# Clone the bewerbungs-bot project
+git clone http://100.71.227.145:3300/anwi/bewerbungs-bot.git
+cd bewerbungs-bot
+
+# Verify project structure
+pwd
+ls -la
+echo "Project cloned successfully!"
+```
+
+The project was cloned from http://100.71.227.145:3300/anwi/bewerbungs-bot into ~/test-projects/bewerbungs-bot and the directory structure was verified.
+
+## Step 2: Configure Application Settings and Docker Volumes
+
+We want to set up the main configuration file and create a organized directory structure for Docker volume mounting.
+
+```shell
+# Copy configuration template
+cp config_template.yaml config.yaml
+
+# Create organized directory structure for Docker volumes
+mkdir -p docker-volumes/{data,projects,logs}
+
+# Create sample CV file in the volumes directory
+## Or copy your cv to the correct place 
+cp /Users/aupeksha/LocalProjects/ai-bootcamp/bewerbungs-bot/data/CV_Andreas.Wittmann_GmbH_DE_2025_04.md docker-volumes/data/cv.md
+
+
+# Create sample CV file in the volumes directory
+cat > docker-volumes/data/cv.md << 'EOF'
+# Your CV
+
+## Personal Information
+- Name: [Your Name]
+- Email: [Your Email]
+
+## Skills
+- AWS, Cloud Architecture
+- Python, AI/ML Development
+- DevOps, Infrastructure as Code
+
+## Experience
+- [Add your work experience]
+EOF
+
+# Copy config to volumes directory for mounting
+cp config.yaml docker-volumes/
+
+# Display structure
+echo "Directory structure created:"
+tree docker-volumes/ || ls -la docker-volumes/
+head -10 config.yaml
+```
+
+The main configuration was copied from template with environment variable references for API keys (${OPENAI_API_KEY}, ${ANTHROPIC_API_KEY2}), a organized `docker-volumes` directory was created containing all directories needed for Docker volume mounting (data, projects, logs), and configuration files were prepared for container access.
+
+## Step 3: Configure Docker Environment and API Keys
+
+We want to set up Docker environment variables and configure API keys.
+
+```shell
+# Navigate to docker directory and setup environment
+cd docker
+cp .env.template .env
+
+# Display environment template for editing
+echo "Please edit the .env file with your actual API keys:"
+cat .env
+echo ""
+echo "Edit command: nano .env"
+echo "Replace 'your_*_key_here' with actual API keys, then save and exit."
+```
+
+The Docker environment template was created as .env file. This is the single source of truth for all API keys. You need to manually edit this file with your actual OpenAI, Anthropic, and Google API keys. The config.yaml will automatically read these values through environment variable references.
+
+## Step 4: Update Docker Compose and Start Container
+
+We want to update the docker-compose.yml to use our organized volume structure and start the application.
+
+```shell
+# Update docker-compose.yml to use our organized volumes
+sed -i.bak 's|../data:/app/data|../docker-volumes/data:/app/data|g' docker-compose.yml
+sed -i.bak 's|../projects:/app/projects|../docker-volumes/projects:/app/projects|g' docker-compose.yml
+sed -i.bak 's|../logs:/app/logs|../docker-volumes/logs:/app/logs|g' docker-compose.yml
+sed -i.bak 's|../config.yaml:/app/config.yaml|../docker-volumes/config.yaml:/app/config.yaml|g' docker-compose.yml
+
+# Build Docker image and start container
+echo "Building Docker image..."
+docker compose build
+
+echo "Starting application container with organized volumes..."
+docker compose up -d
+
+# Verify container status and volumes
+docker compose ps
+docker compose logs --tail=10
+echo "Mounted volumes:"
+ls -la ../docker-volumes/
+```
+
+The docker-compose.yml was updated to use the organized `docker-volumes` directory structure. The Docker image was built and the application container started with all volumes properly mounted from the centralized location.
+
+## Step 5: Verify Application and Access
+
+We want to perform health checks and verify the application is accessible.
+
+```shell
+# Wait for application to start and perform health checks
+sleep 15
+echo "Performing health checks..."
+
+# Test API endpoints
+curl -f http://localhost:8002/api/v1/health
+echo ""
+
+# Verify web interface
+curl -I http://localhost:8002 | head -3
+
+# Display access information
+echo ""
+echo "==================================="
+echo "🎉 SETUP COMPLETE! 🎉"
+echo "==================================="
+echo "Web Dashboard: http://localhost:8002"
+echo "API Endpoint:  http://localhost:8002/api/v1/"
+echo ""
+```
+
+Health checks confirmed the application is running correctly. The web dashboard is accessible at http://localhost:8002 and API endpoints are responding properly.
+
+## Management Commands
+
+For ongoing management, use these grouped commands:
+
+```shell
+# View application status and logs
+docker compose ps
+docker compose logs -f
+
+# Stop application
+# docker compose down
+
+# Restart application  
+# docker compose restart
+
+# Rebuild after updates
+# git pull && docker compose down && docker compose build --no-cache && docker compose up -d
+```
+
+## Troubleshooting
+
+If issues occur, use these diagnostic commands:
+
+```shell
+# Check detailed logs and environment
+docker compose logs bewerbungs-bot
+docker compose exec bewerbungs-bot env | grep API_KEY
+
+# Clean restart
+docker compose down
+docker compose build --no-cache
+docker compose up -d
+```
+
+## Complete Cleanup
+
+When you're done testing and want to remove everything:
+
+```shell
+# Stop and remove containers
+cd ~/test-projects/bewerbungs-bot/docker
+docker compose down
+
+# Remove Docker images
+docker rmi bewerbungs-bot || true
+docker image prune -f
+
+# Remove project directory (WARNING: This deletes everything!)
+cd ~/test-projects
+rm -rf bewerbungs-bot
+
+# Clean up Docker system
+docker system prune -f
+
+echo "Complete cleanup performed. All project files and Docker resources removed."
+```
+
+This cleanup section stops all containers, removes Docker images, deletes the entire project directory, and cleans up Docker system resources to return your system to its original state.
+
+---
+
+**Setup completed successfully!** 🚀
+
+Your Bewerbungs-Bot is now running at: http://localhost:8002
