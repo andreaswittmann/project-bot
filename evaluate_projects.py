@@ -362,6 +362,8 @@ def append_evaluation_results_to_markdown(project_path: str, pre_eval_score: int
 - **Rationale:** {pre_eval_rationale}
 
 ### LLM Analysis Phase
+- **LLM Provider:** {config.get('llm', {}).get('provider', 'Unknown')}
+- **LLM Model:** {config.get('llm', {}).get('model', 'Unknown')}
 - **Fit Score:** {fit_score}/100
 - **Acceptance Threshold:** {acceptance_threshold}/100
 - **Final Decision:** {'✅ ACCEPTED' if final_decision == 'accepted' else '❌ REJECTED'}

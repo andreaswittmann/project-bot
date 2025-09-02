@@ -21,7 +21,7 @@ This bot helps freelancers automate the complete process of:
 
 ### 🧠 AI-Powered Evaluation
 - **Pre-evaluation**: Fast keyword-based scoring system
-- **LLM Analysis**: Deep evaluation against your CV using configurable AI models
+- **LLM Analysis**: Deep evaluation against your CV using configurable AI models (OpenAI GPT, Anthropic Claude, or Google Gemini) to calculate fit scores
 - **Flexible Thresholds**: Customizable acceptance criteria
 
 ### 📊 Interactive Dashboard
@@ -174,6 +174,18 @@ llm:
   model: gpt-4o     # or claude-3-sonnet-20240229, gemini-pro
   api_key: your_api_key_here
 ```
+
+#### LLM-Score Calculation Configuration
+The LLM-Score calculation (fit score evaluation) uses the main `llm` configuration section above. This is separate from the application generation LLM configuration.
+
+**Supported Providers and Models:**
+- **OpenAI**: gpt-4o, gpt-4-turbo, gpt-3.5-turbo
+- **Anthropic**: claude-3-5-sonnet-20240620, claude-3-opus-20240229, claude-3-haiku-20240307, claude-3-sonnet-20240229
+- **Google**: gemini-pro, gemini-1.5-flash
+
+**Default Configuration (from config_template.yaml):**
+- Provider: OpenAI
+- Model: gpt-4o-mini
 
 ### Evaluation Settings
 Customize scoring thresholds and keyword weights:
