@@ -22,13 +22,19 @@ import enUS from '@kangc/v-md-editor/lib/lang/en-US'
 import hljs from 'highlight.js'
 import 'highlight.js/styles/github.css'
 
+console.log('🚀 Vue app initialization starting...')
+
 const app = createApp(App)
 const pinia = createPinia()
+
+console.log('📦 Pinia store created')
 
 // Configure v-md-editor (CodeMirror build) globally
 VMdEditor.Codemirror = Codemirror
 VMdEditor.use(vuepressTheme, { Hljs: hljs })
 VMdEditor.lang.use('en-US', enUS)
+
+console.log('📝 v-md-editor configured')
 
 app.use(pinia)
 app.use(router)
@@ -37,4 +43,6 @@ app.use(VMdEditor) // register <v-md-editor> globally
 // Make API service available globally
 app.config.globalProperties.$api = api
 
+console.log('🔧 Vue app configured, mounting to #app...')
 app.mount('#app')
+console.log('✅ Vue app mounted successfully!')

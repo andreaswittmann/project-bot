@@ -1,18 +1,22 @@
 import axios from 'axios'
 
 const baseURL = import.meta.env.VITE_API_BASE_URL
-if (!baseURL) {
-  throw new Error('VITE_API_BASE_URL environment variable is required. Please set it in your .env file or Docker environment.')
-}
 
-const api = axios.create({
-  baseURL: baseURL,
+// Create axios instance - if baseURL is empty, axios will use relative URLs
+const apiConfig = {
   timeout: 30000, // Increased timeout to 30 seconds
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json'
   }
-})
+}
+
+// Only set baseURL if it's not empty
+if (baseURL && baseURL.trim()) {
+  apiConfig.baseURL = baseURL
+}
+
+const api = axios.create(apiConfig)
 
 // Request interceptor
 api.interceptors.request.use(
