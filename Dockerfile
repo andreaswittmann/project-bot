@@ -5,6 +5,7 @@ WORKDIR /app/frontend
 COPY frontend/package*.json ./
 COPY frontend/vite.config.js ./
 COPY frontend/index.html ./
+COPY frontend/.env ./
 COPY frontend/src/ ./src/
 RUN npm ci
 RUN npm run build

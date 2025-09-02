@@ -17,6 +17,33 @@ from state_manager import ProjectStateManager
 LOG_DIR = 'projects_log'
 Path(LOG_DIR).mkdir(exist_ok=True)
 
+def _resolve_api_key(api_key_template: str) -> str:
+    """
+    Resolve API key from template (support environment variables).
+
+    Args:
+        api_key_template: API key template (may contain ${VAR_NAME})
+
+    Returns:
+        Resolved API key
+
+    Raises:
+        ValueError: If API key cannot be resolved
+    """
+    # Check for environment variable pattern ${VAR_NAME}
+    env_var_pattern = r'\$\{([^}]+)\}'
+    match = re.search(env_var_pattern, api_key_template)
+
+    if match:
+        env_var = match.group(1)
+        resolved_key = os.environ.get(env_var)
+        if not resolved_key:
+            raise ValueError(f"Environment variable {env_var} not found or empty")
+        return resolved_key
+
+    # Return as-is if no environment variable pattern
+    return api_key_template
+
 def setup_logging(log_file_name: str) -> Callable[[str], None]:
     """
     Sets up a log file for a specific project evaluation.
@@ -174,6 +201,9 @@ def analyze_with_llm(cv_content: str, project_offer: str, config: Dict[str, Any]
     provider = config.get('llm', {}).get('provider')
     model = config.get('llm', {}).get('model')
     api_key = config.get('llm', {}).get('api_key')
+
+    # Resolve environment variables in API key
+    api_key = _resolve_api_key(api_key)
 
     if not all([provider, model, api_key]):
         return {"fit_score": 0, "rationale": "Error: LLM provider, model, or API key is missing from the configuration."}
