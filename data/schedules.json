@@ -4,7 +4,7 @@
       "id": "69bf5e1e-8e82-4b58-bec4-e1fbb0cd3a46",
       "name": "Weekday Full Workflow",
       "description": "Run full workflow every hour between 8-23 on weekdays",
-      "enabled": true,
+      "enabled": false,
       "workflow_type": "main",
       "parameters": {
         "number": 50,
@@ -19,7 +19,7 @@
       "cron_schedule": "0 8-23 * * mon-fri",
       "timezone": "Europe/Berlin",
       "created_at": "2025-09-01T15:25:40.520354",
-      "updated_at": "2025-09-01T15:00:00.055607",
+      "updated_at": "2025-09-02T12:25:39.027943",
       "last_run": "2025-09-01T15:00:00.014398",
       "last_status": "failed",
       "execution_history": [
@@ -109,5 +109,5 @@
       "execution_history": []
     }
   ],
-  "last_updated": "2025-09-01T15:00:00.055739"
+  "last_updated": "2025-09-02T12:25:39.028455"
 }
