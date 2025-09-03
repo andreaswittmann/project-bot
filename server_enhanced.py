@@ -1521,6 +1521,8 @@ def shutdown():
         logger.error(f"Error stopping scheduler: {e}")
 
 if __name__ == '__main__':
+    import os
+    logger.info(f"🚀 Server starting with PID: {os.getpid()} at {datetime.now().isoformat()}")
     print("🚀 Starting Enhanced Flask Backend for Vue3 Frontend...")
     print("📊 API: http://0.0.0.0:8002/api/v1/")
     print("🔧 Health: http://0.0.0.0:8002/api/v1/health")
@@ -1538,5 +1540,6 @@ if __name__ == '__main__':
         debug=True,
         host='0.0.0.0',
         port=8002,
-        threaded=True
+        threaded=True,
+        use_reloader=False
     )
