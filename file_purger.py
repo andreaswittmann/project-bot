@@ -70,7 +70,7 @@ class FilePurger:
                     'logs': ['*.log', 'logs/*.log', 'projects_log/*.log'],
                     'temp_files': ['*.tmp', '*.temp', 'temp/**'],
                     'backups': ['*_backup.*', 'backups/**'],
-                    'projects': ['projects_/*.md']  # All projects in single directory
+                    'projects': ['projects/*.md']  # All projects in single directory
                 },
                 'score_thresholds': {
                     'pre_evaluation': 10,
