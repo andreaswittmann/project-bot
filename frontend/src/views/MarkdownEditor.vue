@@ -70,15 +70,20 @@
         v-model="markdownContent"
         :height="'calc(100vh - 80px)'"
         :mode="editorMode"
+        :toolbarConfig="{
+          toc: {
+            includeLevel: [1, 6],
+            open: true
+          }
+        }"
         :editorConfig="{
           lineWrapping: true,
           styleActiveLine: true,
-          // keep words intact; very long tokens still wrap nicely
           lineNumbers: false
         }"
         class="markdown-editor-component"
         @save="handleSave"
-        @ready="onEditorReady"
+        @change="onEditorChange"
       />
     </div>
 
@@ -167,7 +172,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, nextTick, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { markdownApi } from '../services/api.js'
 import { useProjectsStore } from '../stores/projects'
@@ -193,7 +198,7 @@ const isSaving = ref(false)
 const projectTitle = ref('')
 const filename = ref('')
 const lastModified = ref('')
-const editorMode = ref('split') // 'edit', 'preview', 'split'
+const editorMode = ref('edit') // 'edit', 'preview', 'split'
 const previewPosition = ref('right') // 'left', 'right'
 const currentStatus = ref('')
 const isGenerating = ref(false)
@@ -270,6 +275,8 @@ const loadMarkdownContent = async () => {
     originalContent.value = response.content
     filename.value = response.filename
     lastModified.value = response.last_modified
+
+    console.log('📄 Content loaded, length:', markdownContent.value.length, 'mode:', editorMode.value);
 
     // Extract project title from content
     const titleMatch = response.content.match(/^#\s*(.+)$/m)
@@ -423,11 +430,8 @@ const togglePreviewPosition = () => {
   previewPosition.value = previewPosition.value === 'right' ? 'left' : 'right'
 }
 
-const onEditorReady = () => {
-  // Enable TOC by default when editor is ready
-  if (editorRef.value && editorRef.value.toggleToc) {
-    editorRef.value.toggleToc()
-  }
+const onEditorChange = (value) => {
+  console.log('✏️ Editor content changed, length:', value?.length || 0);
 }
 
 // Helper functions
@@ -620,9 +624,33 @@ const handleKeyDown = (event) => {
 }
 
 // Lifecycle
-onMounted(() => {
-  loadMarkdownContent()
+onMounted(async () => {
+  console.log('🔧 MarkdownEditor component mounted');
+  await loadMarkdownContent()
   document.addEventListener('keydown', handleKeyDown)
+  
+  // Watch for editor ref and try to enable TOC
+  watch(() => editorRef.value, (newRef) => {
+    if (newRef && !loading.value) {
+      console.log('👀 Editor ref changed, attempting TOC enable:', newRef);
+      setTimeout(() => {
+        try {
+          if (newRef.toggleToc) {
+            newRef.toggleToc();
+            console.log('✅ TOC toggled via watch');
+          } else if (newRef.showToc) {
+            newRef.showToc();
+            console.log('✅ TOC shown via showToc');
+          } else {
+            console.warn('⚠️ No TOC methods available on editor ref');
+            console.log('Available methods:', Object.getOwnPropertyNames(newRef));
+          }
+        } catch (err) {
+          console.error('❌ Error enabling TOC via watch:', err);
+        }
+      }, 500); // Delay to ensure editor is fully initialized
+    }
+  }, { immediate: true });
 })
 
 // Cleanup
