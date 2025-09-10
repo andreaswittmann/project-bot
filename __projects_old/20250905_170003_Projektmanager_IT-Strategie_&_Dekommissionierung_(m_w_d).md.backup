@@ -1,0 +1,107 @@
+---
+company: Randstad Professional GmbH (vorm. GULP)
+reference_id: '2916386'
+scraped_date: '2025-09-05T17:00:03.043174'
+source_url: https://www.freelancermap.de/projekt/projektmanager-it-strategie-und-dekommissionierung-m-w-d?ref=rss
+state: applied
+state_history:
+- note: 'LLM evaluation: 85% fit score'
+  state: accepted
+  timestamp: '2025-09-05T17:03:27.667925'
+- note: Starting application generation
+  state: applied
+  timestamp: '2025-09-05T17:05:51.839552'
+title: Projektmanager IT-Strategie & Dekommissionierung (m/w/d)
+---
+
+
+
+# Projektmanager IT-Strategie & Dekommissionierung (m/w/d)
+**URL:** [https://www.freelancermap.de/projekt/projektmanager-it-strategie-und-dekommissionierung-m-w-d?ref=rss](https://www.freelancermap.de/projekt/projektmanager-it-strategie-und-dekommissionierung-m-w-d?ref=rss)
+## Details
+- **Start:** ab sofort
+- **Von:** Randstad Professional GmbH (vorm. GULP)
+- **Auslastung:** 100% (5 Tage pro Woche)
+- **Eingestellt:** 05.09.2025
+- **Ansprechpartner:** Jacqueline Oduro-Vierig
+- **Projekt-ID:** 2916386
+- **Branche:** Energiewirtschaft
+- **Vertragsart:** Freiberuflich
+- **Einsatzart:** 100
+                                                % Remote
+
+## Schlagworte
+Compliance, Infrastruktur, Projektmanagement, Stakeholder Management, System-Implementierungen, Betriebswirtschaftslehre, Kapazitätsmanagement, Change Management, Informationssicherheit, Konfliktlösung, Projektplanung, Wirtschaft, Ingenieurwesen, Technologiestrategien, It Service Management, Leistungssteigerung, PRINCE2, Schreiben von Dokumentation, Risikoanalyse, Ablaufplanung, Signavio, IT-Architektur, DSGVO, Servicenow, Kpi-Berichterstattung, IT-Projektmanagement
+
+## Beschreibung
+Leistungsbeschreibung:
+• Planung, Steuerung und Durchführung von IT-Dekommissionierungsprojekten im Rahmen der Gesamtstrategie
+• Eigenverantwortliche Übernahme von Projektmanagement-Tätigkeiten (Projektplanung, Meilensteinsteuerung, Budget- und Ressourcenmanagement)
+• Aufnahme, Analyse und Bewertung von Systemlandschaften zur Identifikation von stillzulegenden Anwendungen und Infrastrukturen
+• Erstellung von Migrations- und Abschaltkonzepten inkl. Risikoanalysen, Compliance- und Sicherheitsbetrachtungen
+• Koordination von Schnittstellen zwischen Fachbereichen, IT-Abteilungen und externen Dienstleistern
+• Sicherstellung der Dokumentation von Abhängigkeiten, Prozessen und Ergebnissen
+• Definition und Nachverfolgung relevanter KPIs zur Messung des Projekterfolges (z. B. Kostenersparnis, Risikoreduktion, Effizienzsteigerung)
+• Moderation und Durchführung von Workshops mit internen Stakeholdern zur Erarbeitung von Anforderungen und Entscheidungsgrundlagen
+• Unterstützung bei der Kommunikation und Change-Management-Maßnahmen im Rahmen von Stilllegungsprojekten
+• Beitrag zur Weiterentwicklung von Standards und Best Practices für zukünftige Dekommissionierungsprojekte
+
+Standorte:
+Ruhrgebiet (Essen, Dortmund usw.)
+
+Unsere Anforderungen
+• Abgeschlossenes Studium im Bereich (Wirtschafts-)Informatik, Ingenieurwesen, Wirtschaftswissenschaften oder vergleichbare Qualifikation
+• Langjährige Erfahrung (mind. 8–10 Jahre) im IT-Projektmanagement sowie nachweisbare Erfahrung in der Dekommissionierung von Anwendungen und Infrastrukturen
+• Zertifizierungen im Projektmanagement (z. B. PMI, PRINCE2, IPMA) wünschenswert
+• Fundierte Kenntnisse in IT-Architekturen, Migrations- und Abschaltstrategien, sowie im Umgang mit komplexen Systemlandschaften
+• Erfahrung mit ITSM-/EAM-Tools (z. B. ServiceNow, LeanIX, Signavio) von Vorteil
+• Kenntnisse in Compliance-Anforderungen, Datenschutz (z. B. DSGVO) und IT-Security im Kontext von Stilllegungen
+• Sicheres Stakeholder-Management und Moderationserfahrung
+• Ausgeprägtes analytisches Denkvermögen und strukturierte, lösungsorientierte Arbeitsweise
+• Verhandlungssichere Deutsch- und Englischkenntnisse in Wort und Schrift
+
+---
+
+## 🤖 AI Evaluation Results
+
+**Evaluation Timestamp:** 2025-09-05T17:03:27.663875
+
+### Pre-Evaluation Phase
+- **Score:** 10/100
+- **Threshold:** 10/100
+- **Result:** ✅ Passed
+- **Rationale:** Score: 10%. Found tags: ['ai', 'ml', 'architekt', 'architektur', 'security', 'compliance', 'lean', 'projektmanagement', 'workshop', 'remote', 'freelance', 'projekt', 'ant']
+
+### LLM Analysis Phase
+- **LLM Provider:** OpenAI
+- **LLM Model:** gpt-5-mini
+- **Fit Score:** 85/100
+- **Acceptance Threshold:** 85/100
+- **Final Decision:** ✅ ACCEPTED
+
+#### Detailed Rationale
+- Key requirements from the offer:
+  - Senior IT project management (8–10+ years) with end-to-end responsibility for decommissioning projects (planning, milestone, budget, resources).
+  - System-landscape analysis, creation of migration/Shutdown concepts, risk/compliance/security assessments (including DSGVO).
+  - Stakeholder management, moderation/facilitation of workshops, change management and documentation, KPI definition/tracking.
+  - Familiarity with ITSM/EAM tools (ServiceNow, LeanIX, Signavio) is desirable; project-management certification (PRINCE2/PMI) advantageous.
+
+- How the CV matches (strengths):
+  - ~30 years IT experience with many architecture, migration and platform consolidation projects (Oracle OSB, Oracle Forms, on‑prem → AWS migrations) — strong evidence of hands‑on migration and environment replacement experience that typically includes decommissioning.
+  - Repeated responsibility for end‑to‑end projects: planning, build, testing, production rollouts, documentation and handover; experience as architect/consultant/team lead — matches project management responsibility.
+  - Strong technical depth in complex system landscapes (middleware, databases, cloud/AWS, security: SSL/SAML/WS‑Security), and experience producing migration plans and risk/security analyses.
+  - Workshop and training experience (multiple explicit workshops, trainer certification) and stakeholder/operational coaching across projects — good fit for moderation/change management.
+  - Proven experience in automation, IaC and operational monitoring (Terraform, SaltStack, GitLab/Git, CI/CD, live‑scripting) — useful for reproducible migration/shutdown activities.
+  - Languages: German and English fluent — meets language requirement.
+
+- Gaps / Risks:
+  - No explicit PRINCE2/PMI/IPMA certification listed (requirement is "wünschenswert"). Project‑management methodology experience is implied but formal certification is missing.
+  - No direct mention of ServiceNow, LeanIX or Signavio usage — the CV lists Jira, Prometheus, Grafana, Ansible and general ITSM knowledge but not those specific EAM/ITSM tools.
+  - Few explicit examples labelled as "decommissioning" projects; however multiple migrations imply decommission activities but a client may expect explicit decommission governance experience.
+
+- Recommendation / conclusion:
+  - Candidate is a strong technical and senior project fit (high domain knowledge, migration experience, stakeholder and workshop skills). Main shortfalls are absence of named ITSM/EAM tool experience and a formal PM certification. For a client prioritizing technical migration and governance leadership this is a strong match; if the client mandates ServiceNow/LeanIX hands‑on experience or PRINCE2 certification the candidate would need to address those gaps (quick ramp or subcontract tooling tasks).
+
+- Final fit judgement: 85/100 — excellent technical and migration/project experience with minor gaps in specific tool exposure and formal PM certification.
+
+---

@@ -1,0 +1,109 @@
+---
+company: top itservices AG
+reference_id: '2915727'
+scraped_date: '2025-09-04T13:00:06.745848'
+source_url: https://www.freelancermap.de/projekt/devops-engineer-m-w-d-645-9352?ref=rss
+state: applied
+state_history:
+- note: 'LLM evaluation: 88% fit score'
+  state: accepted
+  timestamp: '2025-09-04T13:02:47.906574'
+- note: Starting application generation
+  state: applied
+  timestamp: '2025-09-04T13:03:18.048248'
+title: DevOps Engineer (m/w/d) 645-9352
+---
+
+
+
+# DevOps Engineer (m/w/d) 645-9352
+**URL:** [https://www.freelancermap.de/projekt/devops-engineer-m-w-d-645-9352?ref=rss](https://www.freelancermap.de/projekt/devops-engineer-m-w-d-645-9352?ref=rss)
+## Details
+- **Start:** 10/2025
+- **Von:** top itservices AG
+- **Eingestellt:** 04.09.2025
+- **Ansprechpartner:** Christina Wolff
+- **Projekt-ID:** 2915727
+- **Branche:** IT
+- **Vertragsart:** Freiberuflich
+
+## Schlagworte
+Cloud Computing, Continuous Integration, Devops, Identitätsmanagement, Schreiben von Dokumentation, Bash Shell, Datenbanken, Linux, Perl, Fehleranalyse, Integrierte Entwicklungsumgebung, Python, Windows Powershell, Versionierung, Scripting, Verwaltungstätigkeiten, Gitlab, Git, Kubernetes
+
+## Beschreibung
+Kompetent, persönlich und initiativ - das ist die top itservices AG. Wir beraten Unternehmen ganzheitlich in ihren IT-Projekten und unterstützen sie durch die professionelle Vermittlung von Fach- und Führungskräften. Für Festanstellungen, Projekte oder auf Zeit.
+Sie suchen Ihre nächste Herausforderung? Dann suchen wir Sie!
+Gemeinsam möchten wir einen signifikanten Mehrwert sowohl für Ihre individuelle Entwicklung als auch für den Erfolg unserer Kunden schaffen!
+
+Ihre Herausforderungen
+
+- Entwicklung, Wartung und Versionierung von Infrastructure-as-Code-Lösungen zur Bereitstellung und Verwaltung von Cloud- sowie Kubernetes-Komponenten
+- Erstellung und Dokumentation von Skripten und unterstützenden Tools, inklusive der kontinuierlichen Weiterentwicklung von Automatisierungsprozessen
+- Design, Einrichtung und Wartung von CI/CD-Pipelines für Build-, Test- und Release-Vorgänge in modernen Entwicklungsumgebungen
+- Umsetzung und Integration verschiedener Deployment-Strategien, z. B. Rolling Updates, Blue/Green Deployments und Canary Releases
+- Konfiguration und Einbindung cloud-nativer Dienste, darunter Datenbanken, Messaging-Systeme und Objektspeicherlösungen
+- Implementierung von Sicherheits- und Berechtigungskonzepten im Bereich Identity & Access Management
+- Monitoring, Optimierung und Störungsbehebung von Deployment-Prozessen, inklusive der Fehleranalyse und Dokumentation technischer Abläufe
+
+Erforderliche Kenntnisse
+
+- Mehrjährige berufliche Erfahrung als DevOps Engineer, u.a. mit Cloud-Konzepten und Cloud-Native Entwicklung
+- Praxis in der Konzeption und Pflege von CI/CD-Pipelines, idealerweise mit Tools wie GitLab oder Git
+- Expertise in der Implementierung von Sicherheits- und Berechtigungskonzepten
+- Fundiertes Wissen im Bereich Identity- und Access-Management
+- Routinierter Umgang im Scripting mit Shell, Bash, PowerShell, Perl und Python
+- Sehr gutes Know-how im Umfeld Linux
+- Verhandlungssichere Deutsch- und gute Englischkenntnisse in Wort und Schrift
+
+Ihre Vorteile
+
+- Vertrauensvolle & persönliche Begleitung zu jeder Zeit – Partnerschaftlichkeit ist die Basis unserer Zusammenarbeit
+- Sichere Festanstellung bei der top itservices AG als Consultant oder rechtssichere Projektdurchführung im Dienstvertrag
+- Transparenter und schneller Bewerbungsprozess mit einer verbindlichen Rückmeldung binnen 14 Tagen
+- Zugang zu einem deutschlandweiten Netzwerk und Projekteinsätze bei renommierten Kunden von KMU bis DAX-Konzern
+
+Bewerben
+
+Erkennen Sie sich wieder? Dann senden Sie Ihre Unterlagen unter Angabe der Kennziffer an Herrn Wladislaw Samakin. Erste Informationswünsche und Fragen beantwortet Ihnen Wladislaw Samakin gern telefonisch unter . Wir freuen uns bald von Ihnen zu hören!
+
+*Erfolgt im Text zugunsten einer besseren Lesbarkeit keine explizite Differenzierung zwischen der weiblichen, männlichen und weiteren Formen, so sind dennoch stets alle gemeint.
+
+Referenznummer:
+
+top itservices AG
+
+Kontaktperson:
+Herr Wladislaw Samakin
+
+Tel:
+
+E-Mail:
+
+Web: http://www.top-itservices.com/
+
+---
+
+## 🤖 AI Evaluation Results
+
+**Evaluation Timestamp:** 2025-09-04T13:02:47.897883
+
+### Pre-Evaluation Phase
+- **Score:** 19/100
+- **Threshold:** 10/100
+- **Result:** ✅ Passed
+- **Rationale:** Score: 19%. Found tags: ['ai', 'ki', 'cloud', 'kubernetes', 'monitoring', 'devops', 'ci/cd', 'pipeline', 'gitlab', 'python', 'bash', 'shell', 'scripting', 'git', 'integration', 'esb', 'continuous', 'deployment', 'linux', 'consultant', 'freelance', 'projekt', 'ant']
+
+### LLM Analysis Phase
+- **LLM Provider:** OpenAI
+- **LLM Model:** gpt-5-mini
+- **Fit Score:** 88/100
+- **Acceptance Threshold:** 85/100
+- **Final Decision:** ✅ ACCEPTED
+
+#### Detailed Rationale
+- Key project requirements: Infrastructure-as-Code and Terraform, Kubernetes (EKS), CI/CD (GitLab/Git, pipelines), scripting (Bash/Shell, PowerShell, Perl, Python), Linux, Cloud (AWS), Identity & Access Management and security, monitoring (Prometheus/Grafana), databases/messaging and troubleshooting.
+- Strong matches: AWS (Solutions Architect Pro + many AWS projects and Landing Zone experience), Terraform Certified + documented IaC work, Kubernetes KCNA and EKS/k3s experience, Docker/containers and Helm/ArgoCD, Git/GitLab CI/CD experience, extensive Linux knowledge, Python and Bash scripting proven across projects, experience with messaging/databases (Oracle, RDS, MQ), monitoring tools familiarity (Prometheus/Grafana), and solid IAM/security experience (SAML, WS-Security, AWS IAM, Vault mentioned).
+- Partial/weak matches: Perl appears in older projects (present but not current), PowerShell is not explicitly listed (Windows experience shown but no explicit PowerShell scripting evidence).
+- Assessment: Candidate is a very strong fit for the DevOps Engineer role based on certifications and hands-on cloud/DevOps projects; only notable gap is lack of explicit PowerShell evidence. Recommend interview -> likely >90% tech fit with a short ramp on PowerShell if required.
+
+---

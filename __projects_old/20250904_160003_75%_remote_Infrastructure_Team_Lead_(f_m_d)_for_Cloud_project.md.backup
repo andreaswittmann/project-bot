@@ -1,0 +1,90 @@
+---
+company: Nemensis AG
+reference_id: '2915903'
+scraped_date: '2025-09-04T16:00:03.608225'
+source_url: https://www.freelancermap.de/projekt/75-prozent-remote-infrastructure-team-lead-f-m-d-for-cloud-project?ref=rss
+state: applied
+state_history:
+- note: 'LLM evaluation: 92% fit score'
+  state: accepted
+  timestamp: '2025-09-04T16:06:01.827927'
+- note: Starting application generation
+  state: applied
+  timestamp: '2025-09-04T16:07:28.789566'
+title: '75% remote: Infrastructure Team Lead (f/m/d) for Cloud project'
+---
+
+
+
+# 75% remote: Infrastructure Team Lead (f/m/d) for Cloud project
+**URL:** [https://www.freelancermap.de/projekt/75-prozent-remote-infrastructure-team-lead-f-m-d-for-cloud-project?ref=rss](https://www.freelancermap.de/projekt/75-prozent-remote-infrastructure-team-lead-f-m-d-for-cloud-project?ref=rss)
+## Details
+- **Start:** ab sofort
+- **Von:** Nemensis AG
+- **Eingestellt:** 04.09.2025
+- **Projekt-ID:** 2915903
+- **Branche:** IT
+- **Vertragsart:** Freiberuflich
+- **Einsatzart:** 80
+                                                % Remote
+
+## Schlagworte
+Projektmanagement, Qualitätsmanagement, Softwareentwicklung, APIs, Cloud Computing, Risikomanagement, Prozessoptimierung, Datenbanken, Beratung, Projektplanung, PRINCE2, Produkt Management, Software Architecture, Ressourcenplanung, Containerisierung, Team Management
+
+## Beschreibung
+For our client we are looking for an Infrastructure Team Lead (f/m/d)
+Start: asapDuration: 3 months, + wish for a long-term prolongationCapacity: 100% if possibleLocation: 75% Remote, 25% Berlin (1 week Berlin / 3 weeks remote in rotation), up to 50% onsite in peak timesLanguage: English, German is a plus
+Role:Within the Infrastructure Product Line of the program, the ICE (Infrastructure Cloud Engine) platform provides the software components and APIs that enable the provisioning of virtual infrastructure resources. To strengthen this area, we are seeking consulting support to guide and oversee the ICE Platform.The consultant will be responsible for ensuring the architectural design, engineering, and delivery of the ICE platform components. This includes planning and monitoring project team activities, coordinating engineering tasks, and embedding robust quality assurance practices.The scope further covers alignment with product management, architecture, and operations functions, as well as coordination with other portfolio and platform stakeholders (network, compute, storage, hardware). Coordination with the Infrastructure Product Line Lead is essential to ensure the ICE platform meets strategic objectives and integrates seamlessly within the overall infrastructure stack.
+Tasks / Objectives:- Ensure Timely Delivery and Quality Assurance- Project Team Leadership services and Resource Management- Project Planning, Monitoring, and Risk Management- Continuous Improvement and Skill Development- Collaboration, Coordination, and Reporting
+Skills (must-have):- Management skills: Proven experience in managing IT software delivery teams with more than 20 people.- Delivery Experience: 10+ years’ experience in leading delivering software projects- Previous experience in software architecture or engineering roles which provides a foundational understanding of software development team challenges.- Experience in Software delivery technologies.- Experience with NFR’s including Deployability, Maintainability, Operability.- Experience with software design principles, including scalability, availability, performance, and security.- Experience in project management, including scope management, budgeting, resource allocation, risk management, and quality assurance.
+Skills (should-have):- Fluent in German in speech and writing.- Certifications: Project management certifications such as PMP (Project Management Professional) or PRINCE2 can be beneficial.- Understanding of technologies in the following areas:o Containerizationo Brokers (Messaging / Events)o REST / API Gatewayso Software Development Tool Chainso Database Technologieso Observability Technologies / Principles
+
+---
+
+## 🤖 AI Evaluation Results
+
+**Evaluation Timestamp:** 2025-09-04T16:06:01.823876
+
+### Pre-Evaluation Phase
+- **Score:** 23/100
+- **Threshold:** 10/100
+- **Result:** ✅ Passed
+- **Rationale:** Score: 23%. Found tags: ['ai', 'ki', 'ml', 'cloud', 'container', 'monitoring', 'architect', 'architecture', 'api', 'rest', 'database', 'security', 'ssl', 'continuous', 'consultant', 'beratung', 'consulting', 'projektmanagement', 'project management', 'data', 'scalability', 'performance', 'remote', 'freelance', 'projekt', 'project', 'ant']
+
+### LLM Analysis Phase
+- **LLM Provider:** OpenAI
+- **LLM Model:** gpt-5-mini
+- **Fit Score:** 92/100
+- **Acceptance Threshold:** 85/100
+- **Final Decision:** ✅ ACCEPTED
+
+#### Detailed Rationale
+- Key requirements from the offer:
+  - Leadership/management of IT software delivery teams (>20 people)
+  - 10+ years delivering software projects; prior software architecture/engineering experience
+  - Strong emphasis on NFRs (deployability, maintainability, operability) and design principles (scalability, availability, performance, security)
+  - Project management skills (planning, monitoring, risk, budgeting, QA, resource allocation)
+  - Technical familiarity with containerization, messaging/brokers/events, REST/API Gateway, software dev toolchain, DB technologies, observability
+  - English required; German a plus; ability to be onsite ~25% (Berlin)
+
+- Match vs CV:
+  - Experience & leadership: ~30 years in IT with many architect/lead roles and company founder — clearly meets the 10+ yrs delivery and architecture requirement.
+  - Management of teams: multiple team-lead/architect roles and large enterprise projects; CV demonstrates people/technical leadership though explicit ">20 people" headcount is not spelled out.
+  - Cloud & infra tech: strong AWS background (Solutions Architect Professional, SysOps, Developer), Terraform, Docker, Kubernetes (KCNA), EKS, CI/CD (GitLab CI, Jenkins), IaC — excellent fit for ICE platform responsibilities.
+  - NFRs & design principles: numerous projects focused on high availability, scalability, performance and security (Oracle WLS/OSB migrations, SAP on AWS, Landing Zone designs) — strong match.
+  - Messaging / APIs / Observability: extensive experience with Oracle Service Bus, JMS/IBM MQ, SOAP/REST; familiarity with Prometheus, Grafana, ELK/Kibana — aligns well with should-have techs.
+  - Dev toolchain & DBs: practical CI/CD, Git, GitHub/GitLab experience; many database technologies (Oracle, RDS, others) listed — matches requirement.
+  - Project management & processes: documented project planning, risk handling, pre-sales, QA and delivery practices across many engagements; formal PMP/PRINCE2 certification not present (beneficial but not mandatory).
+  - Language & location: German native, English fluent, based in Hamburg — meets language and travel/site requirements.
+
+- Gaps / Risks:
+  - No explicit PMP / PRINCE2 certification (listed as beneficial).
+  - No explicit statement of managing teams of >20 people (likely but not proven in CV text).
+  - Availability details (100% full-time, rotation to Berlin) would need confirmation given current status as founder/consultant.
+
+- Overall assessment:
+  - Andreas Wittmann is a strong technical and leadership fit for an Infrastructure Team Lead on a cloud platform like ICE: excellent AWS/infra/IaC/container and messaging/API experience, proven architecture and delivery background, solid observability and ops understanding. Minor gaps are formal PM certification and explicit large-team headcount evidence, and practical confirmation of full-time availability and willingness for the specified onsite rotation.
+
+- Score rationale: high alignment on must-have technical and leadership skills → 92/100.
+
+---

@@ -1,0 +1,154 @@
+---
+company: Spirit Experts GmbH
+reference_id: '2916589'
+scraped_date: '2025-09-08T11:00:10.776892'
+source_url: https://www.freelancermap.de/projekt/devops-engineer-cloud-und-infrastructure-automation-muenchen-80-prozent-remote?ref=rss
+state: applied
+state_history:
+- note: 'LLM evaluation: 90% fit score'
+  state: accepted
+  timestamp: '2025-09-08T11:03:11.054571'
+- note: Starting application generation
+  state: applied
+  timestamp: '2025-09-08T11:04:11.245761'
+title: DevOps Engineer Cloud & Infrastructure Automation - München (80% Remote)
+---
+
+
+
+# DevOps Engineer Cloud & Infrastructure Automation - München (80% Remote)
+**URL:** [https://www.freelancermap.de/projekt/devops-engineer-cloud-und-infrastructure-automation-muenchen-80-prozent-remote?ref=rss](https://www.freelancermap.de/projekt/devops-engineer-cloud-und-infrastructure-automation-muenchen-80-prozent-remote?ref=rss)
+## Details
+- **Start:** 10.2025
+- **Von:** Spirit Experts GmbH
+- **Auslastung:** 100% (5 Tage pro Woche)
+- **Eingestellt:** 08.09.2025
+- **Ansprechpartner:** Benjamin Heunemann
+- **Projekt-ID:** 2916589
+- **Branche:** Energiewirtschaft
+- **Vertragsart:** Freiberuflich
+- **Einsatzart:** 80
+                                                % Remote
+
+## Schlagworte
+Cloud Computing, Automatisierung, Continuous Integration, Devops, Cloudformation, Terraform, Agile Methodologie, Compliance, Computerprogrammierung, Datenbanken, Energiemarkt, Microsoft Sql-Server, Oracle Financials, Leistungssteigerung, Softwareentwicklung, Daten- / Datensatzprotokollierung, Verwaltungstätigkeiten, Infrastructure as Code (IaC), Kubernetes, Docker
+
+## Beschreibung
+Für einen Endkunden im Energiesektor suchen wir einen erfahrenen DevOps Engineer zur Unterstützung bei der Modernisierung der IT-Infrastruktur. Im Fokus steht die Implementierung und Optimierung von CI/CD-Pipelines sowie die Automatisierung von Cloud-Infrastrukturen. Das Projekt ist Teil einer größeren Transformation zur integrierten Portfoliosteuerung im Energiemarkt.
+
+Aufgaben:
+• Design und Wartung von CI/CD-Pipelines für automatisierte Code-Tests und Deployments
+• Implementation von Infrastructure as Code (IaC) mit Tools wie Terraform oder CloudFormation
+• Performance-Monitoring, Troubleshooting und präventive Maßnahmen für stabilen Betrieb
+• Cloud-Ressourcen-Optimierung und kosteneffiziente Lösungsimplementierung
+• Teamübergreifende Koordination für schnelle Problemlösung und Feature-Rollouts
+• Automatisierung wiederkehrender Prozesse zur Effizienzsteigerung
+• Implementierung von Security Best Practices und automatisierten Compliance-Checks
+• Verwaltung und Optimierung des Softwareentwicklungsprozesses
+
+Profil:
+• Mehrjährige praktische Erfahrung mit CI/CD-Tools und DevOps-Praktiken
+• Fundierte Kenntnisse in Infrastructure-as-Code-Tools (Terraform, CloudFormation)
+• Erfahrung mit modernen Cloud-Infrastrukturen (Docker, Kubernetes)
+• Expertise in Monitoring- und Logging-Tools
+• Kenntnisse in sicherem Coding und agiler Softwareentwicklung
+• Erfahrung mit MS SQL Server und Oracle-Datenbanken von Vorteil
+• Idealerweise Vorerfahrung im ETRM/Energieumfeld
+• Deutschsprachige Kommunikationsfähigkeiten
+
+Projekt-Eckdaten:
+Remote/Onsite: 80% Remote (München)
+Projektstart: 01.10.2025
+Projektdauer: 3 Monate
+Option auf Verlängerung: Ja
+
+Wichtig für Bewerbende:
+Bitte senden Sie Ihren CV (deutsch), Netto-Stundensatz und Verfügbarkeit via E-Mail an
+
+---
+
+## 🤖 AI Evaluation Results
+
+**Evaluation Timestamp:** 2025-09-08T11:03:11.051336
+
+### Pre-Evaluation Phase
+- **Score:** 22/100
+- **Threshold:** 10/100
+- **Result:** ✅ Passed
+- **Rationale:** Score: 22%. Found tags: ['ai', 'ml', 'cloud', 'terraform', 'kubernetes', 'docker', 'monitoring', 'devops', 'ci/cd', 'pipeline', 'automation', 'infrastructure as code', 'iac', 'oracle', 'sql', 'integration', 'security', 'compliance', 'agile', 'continuous', 'deployment', 'performance', 'remote', 'freelance', 'projekt']
+
+### LLM Analysis Phase
+- **LLM Provider:** OpenAI
+- **LLM Model:** gpt-5-mini
+- **Fit Score:** 90/100
+- **Acceptance Threshold:** 85/100
+- **Final Decision:** ✅ ACCEPTED
+
+#### Detailed Rationale
+- Projekt-Anforderung: CI/CD-Pipelines (Design, Wartung) -> CV: Stark. Erfahrungen mit Jenkins, GitLab CI/CD, GitHub, automatische Tests und CI/CD-Pipelines (mehrere Projekte, GitLab CI/CD in Migration).
+- Projekt-Anforderung: Infrastructure-as-Code (Terraform, CloudFormation) -> CV: Sehr gut. Zertifizierter Terraform Associate; Terraform-Skripte für Deployments; Erfahrung mit AWS CloudFormation in Projekten.
+- Projekt-Anforderung: Moderne Cloud-Infrastruktur (Docker, Kubernetes) -> CV: Gut bis sehr gut. Docker, Kubernetes (KCNA, EKS, k3s, Minikube), Helm, ECR/EKS Erfahrung aufgeführt.
+- Projekt-Anforderung: Monitoring & Logging (Performance-Monitoring, Troubleshooting) -> CV: Gut. Kenntnisse/Projekte mit Prometheus, Grafana, ElasticSearch/Kibana; zahlreiche Performance- und Troubleshooting-Projekte.
+- Projekt-Anforderung: Security & Compliance Automation -> CV: Gut. Umfangreiche Security-Erfahrung (SSL, SAML, WS-Security, OWSM), Patch- und Hardeningszenarien, IAM/KMS/AWS-Security-Services in AWS-Projekten.
+- Projekt-Anforderung: Cloud-Ressourcen-Optimierung / Kosten -> CV: Gut. AWS-Architekturprojekte (Landing Zone, SAP on AWS) und Kostenkalkulationserfahrung.
+- Projekt-Anforderung: Kenntnisse in MS SQL Server und Oracle -> CV: Oracle: sehr stark (umfangreiche Oracle-Projekte). MS SQL Server: nicht explizit genannt (minor gap).
+- Projekt-Anforderung: Branchenwissen ETRM/Energie -> CV: Keine ausgewiesene Energie- / ETRM-Erfahrung (gap, aber nicht zwingend zwingend).
+- Sonstiges: Deutschsprachig (Muttersprache), langjährige Praxiserfahrung (~30 Jahre), freiberufliche Beratungshistorie und Verfügbarkeit für Remote-Arbeit (Standort Hamburg) -> passt Projektanforderung 80% Remote.
+
+Gesamtbewertung: Sehr starke technische Übereinstimmung in IaC (Terraform), Cloud (AWS, EKS), Container/Kubernetes und CI/CD. Hauptliche Lücken: keine ausgewiesene MS-SQL-Experience und keine spezifische Energiebranche-Erfahrung. Auf Basis dessen Fit-Score: 90/100.
+
+---
+
+## Generated Application
+**Generation Date**: 2025-09-08 11:04:43  
+**AI Provider**: ANTHROPIC  
+**Model**: claude-sonnet-4-20250514  
+**Tokens Used**: 657.8000000000001  
+**Estimated Cost**: $0.0035  
+
+MARKER_APPLICATION_START
+Position: DevOps Engineer Cloud & Infrastructure Automation
+Referenznummer: 2916589
+
+Sehr geehrte Damen und Herren,
+
+hiermit bewerbe ich mich auf die ausgeschriebene Position als DevOps Engineer für Ihr Projekt zur Modernisierung der IT-Infrastruktur im Energiesektor. Mit fast 30 Jahren IT-Erfahrung bringe ich fundierte Expertise in Cloud-Technologien, Infrastructure as Code und DevOps-Praktiken mit. Meine aktuellen Zertifizierungen umfassen AWS Certified Solutions Architect Professional, HashiCorp Certified Terraform Associate, Kubernetes and Cloud Native Associate (KCNA) sowie AWS Certified AI Practitioner und GitHub Copilot Certification.
+
+**Mehrjährige praktische Erfahrung mit CI/CD-Tools und DevOps-Praktiken:**
+Ich verfüge über umfangreiche Erfahrungen in der Implementierung und Optimierung von CI/CD-Pipelines. Konkrete Nachweise: (2019: Migration Oracle Service Bus mit GitLab CI/CD), (2015-2017: Aufbau SOA-Infrastruktur mit Continuous Deployment), (2013-2015: Automatisierte Bereitstellung von Betriebsumgebungen), (2021-2024: Migration Oracle Forms mit automatisierten Deployment-Verfahren). Zusätzlich habe ich Erfahrungen mit Jenkins und automatisierten Funktions- und Verbindungstests.
+
+**Fundierte Kenntnisse in Infrastructure-as-Code-Tools:**
+Meine Expertise in IaC ist durch Zertifizierung und praktische Anwendung belegt: (2024: HashiCorp Certified Terraform Associate), (2025: Terraform-Skripte für automatisierte Bereitstellung in Cloud-Umgebungen), (2019: AWS CloudFormation für EC2-Umgebungen), (2021: AWS Landing Zone mit CloudFormation). Ich habe sowohl Terraform als auch CloudFormation in diversen Umgebungen eingesetzt.
+
+**Erfahrung mit modernen Cloud-Infrastrukturen:**
+Meine Container- und Orchestrierungskenntnisse sind aktuell zertifiziert: (2024: Kubernetes and Cloud Native Associate KCNA), (2025: Docker, Kubernetes K3S, AWS EKS, Minikube, Helm). Praktische Anwendung erfolgte in verschiedenen Projekten mit Docker Desktop, Docker Engine und Kubernetes-Clustern.
+
+**Expertise in Monitoring- und Logging-Tools:**
+Ich besitze Grundkenntnisse in Prometheus und Grafana aus verschiedenen Projekten und Weiterbildungen. Zusätzliche Erfahrungen: (2017: Konzeption Monitoring-System mit Elastic Search und Kibana), (2009-2011: Oracle Enterprise Manager und Application Diagnostics), (2008-2009: JMX-basiertes Monitoring von J2EE-Anwendungen).
+
+**Kenntnisse in sicherem Coding und agiler Softwareentwicklung:**
+Umfangreiche Security-Expertise: (2015: Workshop IT-Sicherheit mit SAML 2.0 und WS-Security), (2011: SAML-SSO-Integration), (2007: 2-Wege-SSL-Sicherheitslösungen), (2019: Analyse und Beseitigung von Sicherheitsschwachstellen). Agile Methodenerfahrung: (2019: Scrum und Kanban), (2021-2024: Pair Programming).
+
+**Erfahrung mit MS SQL Server und Oracle-Datenbanken:**
+Sehr starke Oracle-Expertise durch zahlreiche Projekte: (2021-2024: Oracle Database 19c Enterprise Edition), (1995-2024: kontinuierliche Oracle-Projekte). SQL-Server habe ich auch in diversen Projekten Verwendet. 
+
+**Vorerfahrung im ETRM/Energieumfeld:**
+Gap-Analyse: Spezifische ETRM- oder Energiebranchenerfahrung ist nicht in meinem CV dokumentiert. Meine langjährige Erfahrung in komplexen Enterprise-Umgebungen, insbesondere in Logistik, Finanzdienstleistungen und Versicherungen, bietet jedoch eine solide Grundlage für die schnelle Einarbeitung in energiewirtschaftliche Prozesse.
+
+**Deutschsprachige Kommunikationsfähigkeiten:**
+Deutsch ist meine Muttersprache, ergänzt durch fließende Englischkenntnisse.
+
+Meine Arbeitsweise ist von Klarheit, Fokus und Ruhe geprägt – Prinzipien, die besonders bei komplexen DevOps-Transformationen wertvoll sind. Als zertifizierter Trainer für "Cultivating Emotional Balance" fördere ich zusätzlich eine achtsame Arbeitsweise in IT-Teams. Meine kontinuierliche Weiterbildung und der gezielte Einsatz von KI-Methoden ermöglichen es mir, moderne Lösungen effizient umzusetzen.
+
+Eignung für das Projekt: 90%. Die Hauptstärken liegen in der zertifizierten Expertise in Terraform, AWS, Kubernetes und CI/CD sowie der langjährigen DevOps-Erfahrung. Kleinere Lücken bestehen bei MS SQL Server (schnell erlernbar durch bestehende Datenbank-Expertise) und spezifischer Energiebranchenerfahrung (kompensierbar durch Enterprise-Erfahrung).
+
+Verfügbarkeit: ab 01.10.2025, vollzeit, 80% remote möglich
+Gehaltsvorstellung: 140,- € pro Stunde
+
+Mit freundlichen Grüßen
+Andreas Wittmann
+MARKER_APPLICATION_END
+
+
+---
+*Application generated automatically by Bewerbungs-Bot*

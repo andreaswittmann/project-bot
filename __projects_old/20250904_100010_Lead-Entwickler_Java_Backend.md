@@ -1,0 +1,194 @@
+---
+company: Kinteo GmbH
+reference_id: '2915630'
+scraped_date: '2025-09-04T10:00:10.042551'
+source_url: https://www.freelancermap.de/projekt/lead-entwickler-java-backend-2915630?ref=rss
+state: sent
+state_history:
+- note: 'LLM evaluation: 85% fit score'
+  state: accepted
+  timestamp: '2025-09-04T10:01:50.120599'
+- note: Starting application generation
+  state: applied
+  timestamp: '2025-09-04T10:05:43.030770'
+- note: Sent from editor
+  state: sent
+  timestamp: '2025-09-04T12:55:01.671712'
+- note: asdf
+  override: true
+  state: accepted
+  timestamp: '2025-09-04T12:56:32.094728'
+- note: Heute beworben, Interface ist abgerochen, manuelle status change
+  override: true
+  state: sent
+  timestamp: '2025-09-04T13:00:16.733479'
+title: Lead-Entwickler Java Backend
+---
+
+
+
+
+
+
+# Lead-Entwickler Java Backend
+**URL:** [https://www.freelancermap.de/projekt/lead-entwickler-java-backend-2915630?ref=rss](https://www.freelancermap.de/projekt/lead-entwickler-java-backend-2915630?ref=rss)
+## Details
+- **Start:** 10.2025
+- **Von:** Kinteo GmbH
+- **Auslastung:** 100% (5 Tage pro Woche)
+- **Eingestellt:** 04.09.2025
+- **Ansprechpartner:** Nataliia Tsiruk
+- **Projekt-ID:** 2915630
+- **Branche:** Hochschulen und Behörden und Verbände
+- **Vertragsart:** Freiberuflich
+- **Einsatzart:** 80
+                                                % Remote
+
+## Schlagworte
+Kubernetes, Java, Architektur, Confluence, Jira, Automatisierung, Datenspeicher, Linux, Github, Json, Python, Postgresql, Prozessentwicklung, Ansible, Schreiben von Dokumentation, SUSE Linux Enterprise Server, YAML, ReactJS, Backend, Git, Hashicorp, Bitbucket, Cisco, Docker, Golang, Vmware, Microservices
+
+## Beschreibung
+Aufgaben:
+• Erstellen, integrieren und Ergänzen der Automatisierungsarchitektur
+• Konzeption von Automatisierungslösungen im Netzwerk - & Security Umfeld
+• Definition von Entwicklungsprozessen
+• Abgleich mit Entwicklungsstandards des IT-Systemhauses
+• Sicherstellen des aktuellen Standes der Technik in Bezug auf die Automatisierungslösung
+• Wissenstransfer zu technischen, internen Spezialisten und Betriebspersonal
+• Dokumentation und Abnahme von Automatisierungsdokumenten, -Lösungen
+• Die ausgewählten Softwareprodukte installieren und für den Einsatz passend konfigurieren
+• Erstellen der benötigten Konfigurationen, damit der automatisierte Prozess passgenau abläuft
+• Durchführen der Erstinbetriebnahme und Definition der Regeltätigkeiten für den laufenden Betrieb
+
+Anforderungen:
+Erfahrung bei öffentlicher Verwaltung ist bevorzugt
+(Spezialisten Niveau) - Programmiersprache Python, - Formate und Standards: YAML, JSON, - Git, Bitbucket, Gitea, Github
+Je einmal: - Erfahrung mit der Konzeption von RestAPIs sowie PostgreSQL, React, Golang, Microservices - K8s, argoCD, RKE2, Hashicorp Vault oder ähnlichen Systemen
+
+Wünschenswerte Anforderungen - Ansible/AWX, - ACI (Cisco) und angrenzende Netzwerkprodukte, - Network Management Datastore Architecture (RFC 8342), - IETF-Interfaces (RFC 8343), - JIRA, Confluence, - Docker, - Linux (SUSE Linux Enterprise Server), - Kubernetes, - VMware Aria Automation (vRA) und Orchestrator (vRO)
+
+---
+
+## 🤖 AI Evaluation Results
+
+**Evaluation Timestamp:** 2025-09-04T10:01:50.116740
+
+### Pre-Evaluation Phase
+- **Score:** 25/100
+- **Threshold:** 10/100
+- **Result:** ✅ Passed
+- **Rationale:** Score: 25%. Found tags: ['ai', 'ki', 'ml', 'kubernetes', 'k8s', 'docker', 'argo', 'architect', 'architekt', 'architecture', 'architektur', 'automation', 'ansible', 'python', 'git', 'github', 'api', 'rest', 'json', 'sql', 'enterprise', 'security', 'linux', 'data', 'remote', 'freelance', 'projekt', 'jira', 'confluence', 'yaml']
+
+### LLM Analysis Phase
+- **LLM Provider:** OpenAI
+- **LLM Model:** gpt-5-mini
+- **Fit Score:** 85/100
+- **Acceptance Threshold:** 85/100
+- **Final Decision:** ✅ ACCEPTED
+
+#### Detailed Rationale
+- Key requirements from the project offer:
+  - Automation architecture and orchestration in a network & security context
+  - Specialist-level Python; YAML/JSON formats
+  - Git ecosystem (Git, Bitbucket, GitHub, Gitea)
+  - Kubernetes (K8s), ArgoCD, RKE2 (or comparable K8s stacks)
+  - HashiCorp Vault (or similar secrets management) and Terraform/HashiCorp ecosystem
+  - REST API design, PostgreSQL, Microservices
+  - Ansible/AWX, Docker, Linux (SUSE Linux Enterprise Server)
+  - Optional/desired: Golang, React, Cisco ACI / network RFCs, VMware Aria (vRA/vRO), Jira/Confluence
+  - Preferably experience with public administration
+
+- Strong matches in the CV:
+  - Long-standing architecture and lead experience; many roles as architect/consultant (fits lead role and process definition)
+  - Python and bash experience listed in multiple projects
+  - YAML/JSON implicitly covered via K8s/automation work and CI/CD configurations
+  - Strong Git experience (Git, GitHub, GitLab, SVN) and CI/CD (GitLab CI/CD, Jenkins, ArgoCD present in training/project list)
+  - Kubernetes experience and KCNA certification; hands-on with K3s, EKS, Minikube, Argo CD noted
+  - HashiCorp ecosystem: Terraform Certified and used; Vault explicitly listed in training (Vault 1.17.4)
+  - Docker, Helm and container tooling listed
+  - Linux experience including SUSE Linux Enterprise Server in projects
+  - Proven experience in automation, Infrastructure-as-Code, automated deployments and operational runbooks
+  - Public sector / administration experience is present (public administration in Liechtenstein, städtische Verwaltung)
+
+- Partial matches / reasonable assumptions:
+  - PostgreSQL not explicitly named but wide DB experience (Oracle, RDS, Aurora) and cloud DB work implies strong DB skills; likely able to pick up Postgres quickly
+  - Microservices: historical J2EE and modern cloud architectures + container/K8s experience suggest capability to work with microservices
+  - Jira and Confluence familiarity is stated in "Weitere Kenntnisse"
+
+- Gaps / risks:
+  - No explicit Golang or React experience in CV
+  - No mention of Cisco ACI, Network Management Datastore (RFC 8342) or IETF-specific interfaces (RFC 8343)
+  - No explicit VMware Aria Automation (vRA) / vRO experience
+  - Ansible: only basic knowledge / training-level (he notes basic knowledge of Ansible)
+
+- Concise assessment / rationale:
+  - Candidate strongly covers the core automation, cloud, container orchestration, HashiCorp and scripting demands (Python, Terraform, Vault, K8s, ArgoCD, Docker, Git).
+  - He brings leadership/architectural experience and public-sector exposure which fit the 'lead' and domain preference.
+  - Missing pecialist items (Golangs, React, Cisco ACI, vRA/vRO, advanced Ansible/AWX) are desirable but not central blockers for delivering the automation architecture and process-definition responsibilities; they could be mitigated by short ramp-up or collaboration with network specialists.
+
+- Verdict: Good to very good fit for the role overall, with a few niche network/automation-tool gaps to be addressed on project start.
+
+---
+
+## Generated Application
+**Generation Date**: 2025-09-04 10:06:14  
+**AI Provider**: ANTHROPIC  
+**Model**: claude-sonnet-4-20250514  
+**Tokens Used**: 716.3000000000001  
+**Estimated Cost**: $0.0039  
+
+MARKER_APPLICATION_START
+Position: Lead-Entwickler Java Backend
+Referenznummer: 2915630
+
+Sehr geehrte Damen und Herren,
+
+mit großem Interesse bewerbe ich mich auf die ausgeschriebene Position als Lead-Entwickler Java Backend. Mit fast 30 Jahren IT-Erfahrung bringe ich fundierte Expertise in der Konzeption, Architektur und Umsetzung komplexer IT-Lösungen mit. Meine aktuellen Zertifizierungen umfassen AWS Certified Solutions Architect Professional, HashiCorp Certified Terraform Associate, Kubernetes and Cloud Native Associate (KCNA) sowie AWS Certified AI Practitioner und GitHub Copilot Certification.
+
+**Programmiersprache Python und Formate YAML/JSON:**
+Ich verfüge über umfangreiche Python-Erfahrung aus verschiedenen Projekten und nutze regelmäßig YAML- und JSON-Formate in der Automatisierung. Nachweise: (2019: Migration Oracle Service Bus von OnPremise nach AWS Cloud), (2018: Weiterentwicklung der Infrastruktur für den Betrieb von Oracle Service Bus und Oracle Weblogic), (2021-2024: Migration und Upgrade einer Oracle Forms und Reports Installation).
+
+**Git-Ecosystem (Git, Bitbucket, Gitea, Github):**
+Ich arbeite seit Jahren mit verschiedenen Git-Plattformen und habe umfangreiche Erfahrung mit CI/CD-Pipelines. Nachweise: (2019: GitLab CI/CD), (2021/2022: SVN, Git), (2025: GitHub Copilot Certification), (2025: GitHub-basierte Projekte mit privater KI-Wissensumgebung).
+
+**Kubernetes, ArgoCD, RKE2 und Container-Orchestrierung:**
+Durch meine KCNA-Zertifizierung und praktische Erfahrung mit verschiedenen Kubernetes-Distributionen bringe ich fundierte Container-Orchestrierung-Kenntnisse mit. Nachweise: (2024: Kubernetes and Cloud Native Associate KCNA), (2024: Kubernetes K3S, AWS EKS, Minikube, Argo CD v2.12.3, Docker).
+
+**HashiCorp Vault und Terraform:**
+Ich bin zertifizierter Terraform Associate und habe praktische Erfahrung mit HashiCorp-Produkten. Nachweise: (2024: HashiCorp Certified Terraform Associate), (2024: Vault 1.17.4), (2025: Terraform-Einsatz in KI-Chat-Lösungen).
+
+**REST API-Konzeption und Microservices:**
+Meine langjährige Erfahrung mit Enterprise-Architekturen und modernen Cloud-Technologien umfasst die Konzeption von APIs und serviceorientierten Architekturen. Nachweise: (2019: SOAP/REST), (2021/2022: SOAP/REST), (2015-2017: SOAP/REST).
+
+**PostgreSQL-Erfahrung:**
+Gap-Analyse: Während ich keine direkte PostgreSQL-Erfahrung vorweise, verfüge ich über umfangreiche Datenbank-Expertise mit Oracle Database, Amazon RDS und Aurora. Diese Erfahrung ermöglicht mir eine schnelle Einarbeitung in PostgreSQL-spezifische Besonderheiten.
+
+**Ansible/AWX:**
+Ich verfüge über Grundkenntnisse mit Ansible aus verschiedenen Projekten und Weiterbildungen. Nachweis: (Grundkenntnisse im Umgang mit Ansible aus Projekten und Weiterbildung).
+
+**Docker und Linux (SUSE Linux Enterprise Server):**
+Umfangreiche Container- und Linux-Erfahrung, einschließlich spezifischer SUSE-Kenntnisse. Nachweise: (2024: Docker Desktop, Docker Engine), (2021-2024: RHEL, SUSE Linux Enterprise Server), (2019: SUSE Linux Enterprise Server 11).
+
+**Jira und Confluence:**
+Praktische Erfahrung mit beiden Tools in verschiedenen Projekten. Nachweis: (Jira-Einsatz als Tool zum agilen Projektmanagement für Scrum und Kanban).
+
+**Erfahrung mit öffentlicher Verwaltung:**
+Ich habe bereits erfolgreich Projekte im öffentlichen Sektor durchgeführt. Nachweise: (2021/2022: Öffentliche Verwaltung in Liechtenstein), (2012: IT-Dienstleister der städtischen Verwaltung, Berlin).
+
+**Gap-Analyse für fehlende Anforderungen:**
+Golang und React: Keine direkte Erfahrung vorhanden. Durch meine Programmiererfahrung in Java, Python und anderen Sprachen kann ich mich schnell in Golang einarbeiten. Cisco ACI und VMware Aria: Keine spezifische Erfahrung, jedoch umfangreiche Netzwerk- und Virtualisierungserfahrung aus Enterprise-Projekten als Grundlage.
+
+Meine Arbeitsweise ist von Klarheit, Fokus und Ruhe geprägt – Prinzipien, die besonders bei der Führung von Entwicklungsteams und der Definition von Entwicklungsprozessen wertvoll sind. Als zertifizierter Trainer für "Cultivating Emotional Balance" fördere ich eine achtsame Arbeitsweise in IT-Umgebungen. Meine umfangreiche Erfahrung als Architekt und Berater in verschiedenen Branchen, kombiniert mit aktuellen Cloud- und Container-Zertifizierungen, macht mich zu einem geeigneten Kandidaten für diese Lead-Position.
+
+Eignung für das Projekt: 85% - Die Kernkompetenzen in Automatisierung, Kubernetes, Python, HashiCorp-Tools und öffentlicher Verwaltung sind stark abgedeckt. Lücken bestehen bei Golang, React und spezifischen Netzwerk-Tools, die jedoch durch meine Lernfähigkeit und breite technische Basis kompensiert werden können.
+
+Verfügbarkeit: ab Januar 2025, vollzeit, 80% remote möglich
+Gehaltsvorstellung: 130,- € pro Stunde
+
+Mit freundlichen Grüßen
+Andreas Wittmann
+MARKER_APPLICATION_END
+
+
+---
+*Application generated automatically by Bewerbungs-Bot*

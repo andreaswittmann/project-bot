@@ -81,6 +81,7 @@
         v-if="selectedProjectForTransition"
         :project="selectedProjectForTransition"
         @status-changed="handleStatusChanged"
+        @transition-project="handleProjectActionsTransition"
       />
     </main>
   </div>
@@ -177,8 +178,14 @@ const handleReevaluateProject = async (projectId) => {
 }
 
 const handleTransitionProject = (project) => {
-  console.log('Transition project:', project)
+  console.log('Transition project from details:', project)
   selectedProjectForTransition.value = project
+}
+
+const handleProjectActionsTransition = () => {
+  console.log('Transition requested from ProjectActions component')
+  // The ProjectActions component manages its own transition modal
+  // This handler can be used for additional coordination if needed
 }
 
 const handleStatusChanged = async (data) => {

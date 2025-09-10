@@ -1,0 +1,199 @@
+---
+company: Circle8 Deutschland
+reference_id: '2916626'
+scraped_date: '2025-09-08T12:00:12.613846'
+source_url: https://www.freelancermap.de/projekt/it-analyst-m-w-d-technical-lead?ref=rss
+state: open
+state_history:
+- note: 'LLM evaluation: 88% fit score'
+  state: accepted
+  timestamp: '2025-09-08T12:03:11.097748'
+- note: Starting application generation
+  state: applied
+  timestamp: '2025-09-08T12:05:29.985040'
+- note: Sent from editor
+  state: sent
+  timestamp: '2025-09-08T13:26:36.426857'
+- note: 'Kundengespräch
+
+    '
+  state: open
+  timestamp: '2025-09-08T13:50:20.846013'
+title: IT-Analyst (m/w/d) Technical Lead
+---
+
+
+
+
+
+# IT-Analyst (m/w/d) Technical Lead
+**URL:** [https://www.freelancermap.de/projekt/it-analyst-m-w-d-technical-lead?ref=rss](https://www.freelancermap.de/projekt/it-analyst-m-w-d-technical-lead?ref=rss)
+## Details
+- **Start:** keine Angabe
+- **Von:** Circle8 Deutschland
+- **Eingestellt:** 08.09.2025
+- **Ansprechpartner:** Marco Weis
+- **Projekt-ID:** 2916626
+- **Branche:** IT
+- **Vertragsart:** Arbeitnehmerüberlassung
+
+## Schlagworte
+Scrum, Abstraktionen, APIs, Agile Methodologie, Amazon Web Services, Architektur, Automatisierung, Cloud Computing, Continuous Integration, Devops, Web Entwicklung, Software Architecture, Softwareentwicklung, Technische Schulden, Kanban, Front End, Microservices
+
+## Beschreibung
+Leistungsbeschreibung
+
+Das erwartet dich
+
+- Du bist zentrale*r technische*r Ansprechpartner*in im Rahmen unseres agilen Entwicklungsprozesses und berätst Fachseite und Product Owner*in bei der technischen Umsetzung fachlicher Fragestellungen
+- Du unterstützt unseren Enterprise-Architekten bei der Konzeption und Umsetzung konkreter Architektur-Fragestellungen
+- Du begeisterst unsere Entwicklungsteams dafür, hochwertige Software auf aktuellem technischem Stand zu liefern, technische Schulden abzubauen und dabei unsere Standards einzuhalten. Gemeinsam mit den Expert*innen aus den Teams erarbeitest du tragfähige technische Lösungen
+- Scrum und Agilität gehören für dich nicht nur in den Methoden-Werkzeugkasten, sondern du lebst agile Werte und Prinzipien selber aktiv vor
+- Du organisierst und unterstützt den Austausch mit der Fachseite, innerhalb Deines Entwicklungsteams, über die Teamgrenzen hinweg und förderst den Informations-fluss im Verbund mit der gesamten IT.
+Anforderungen
+
+- Mehrjährige Erfahrungen in verschiedenen Softwareentwicklungsprojekten, vorzugsweise in der Webentwicklung
+- Erfahrungen im Bereich der Software-Architektur von Microservices, APIs und Web-Frontends
+- Gutes Verständnis CI/CD, Automatisierung, Betrieb, Cloud/AWS/DevOps, Security
+- Technisches Abstraktionsvermögen und analytischen Fähigkeiten helfen dir Irrwege zu erkennen, neue Lösungswege zu finden
+- Agile Methoden und Vorgehensweisen (Kanban, Scrum) hast du bereits über mehrere Jahre praktiziert und beherrschst sie in Theorie und Praxis auf hohem Niveau
+- Du schaffst es zwischen unterschiedlichen Charakteren und Sichten zu vermitteln und verstehst es auch komplexe technische Themen einfach & verständlich darzustellen
+Über den Auftraggeber
+
+Start: ASAP
+
+Ende: 30.04.2026 + Option auf Verlängerung
+
+Leistungsort: Köln
+
+Vorort: min. 30%, Remote: max. 70%
+
+Vertragsart: ANÜ
+
+---
+
+## 🤖 AI Evaluation Results
+
+**Evaluation Timestamp:** 2025-09-08T12:03:11.095184
+
+### Pre-Evaluation Phase
+- **Score:** 21/100
+- **Threshold:** 10/100
+- **Result:** ✅ Passed
+- **Rationale:** Score: 21%. Found tags: ['aws', 'amazon', 'ai', 'cloud', 'architect', 'architekt', 'architecture', 'architektur', 'devops', 'ci/cd', 'api', 'enterprise', 'integration', 'security', 'agile', 'scrum', 'kanban', 'continuous', 'remote', 'freelance', 'projekt']
+
+### LLM Analysis Phase
+- **LLM Provider:** OpenAI
+- **LLM Model:** gpt-5-mini
+- **Fit Score:** 88/100
+- **Acceptance Threshold:** 85/100
+- **Final Decision:** ✅ ACCEPTED
+
+#### Detailed Rationale
+- Key requirements from the offer:
+  - Technical lead / central technical contact in an agile development organization (Scrum/Kanban)  
+  - Software architecture for microservices, APIs and web frontends  
+  - Good understanding of CI/CD, automation, operations, Cloud/AWS/DevOps and security  
+  - Ability to reduce technical debt, enforce standards and coach teams  
+  - Strong analytical / abstraction skills and stakeholder mediation  
+  - Several years of hands-on software development experience (preferably web)
+
+- Match with CV (evidence):
+  - Long track record (≈30 years) as architect/technical lead/consultant and mentor — strong leadership and mediation experience.  
+  - Strong cloud + DevOps skills: multiple AWS certificates (incl. Solutions Architect Professional, SysOps, Developer, AI Practitioner), Terraform Associate, KCNA (Kubernetes), Docker, EKS, Terraform and IaC projects (Landing Zone, multi-account, automated deployments).  
+  - CI/CD and automation experience: Jenkins, GitLab CI/CD, GitHub, AWS Code* tooling, automated tests and deployment pipelines described across projects.  
+  - Security and integration experience: WS-Security, SAML, AD integration, SSL, security workshops and vulnerability remediation.  
+  - Architecture for distributed systems: many enterprise integration/ESB and migration projects, OSB/WebLogic, high-availability designs and cloud migrations — relevant architectural depth for microservices/APIs even if mostly enterprise/J2EE pedigree.  
+  - Agile experience: multiple projects mention Scrum and Kanban; has coaching and pair programming experience.
+
+- Gaps / risks:
+  - Frontend: the CV shows strong backend/enterprise/cloud expertise but little evidence of modern frontend frameworks (React/Angular/Vue) or hands-on UI development.  
+  - Explicit microservices stacks: while architectural experience for distributed systems and container/Kubernetes is present, explicit use of modern microservice frameworks (e.g. Spring Boot microservices, gRPC, service mesh patterns) is less highlighted.  
+  - Contract/placement model & locality: role is ANÜ (employee leasing) and requires ~30% presence in Cologne; candidate is an owner/consultant based in Hamburg — may require agreement on employment model and travel/onsite arrangement.
+
+- Overall assessment and scoring rationale:
+  - The candidate is a very strong technical architect/lead with outstanding AWS, IaC and DevOps credentials, strong experience coaching teams and enforcing quality and security—these are core requirements for the role.  
+  - Minor deductions for limited explicit modern frontend experience and somewhat less explicit mention of current microservice-framework implementations and the potential contractual/onsite logistics.  
+  - Resulting fit score: 88/100 (high probability of success if candidate is willing to accept the ANÜ model and can cover the required onsite presence).
+
+---
+
+## Generated Application
+**Generation Date**: 2025-09-08 12:06:01  
+**AI Provider**: ANTHROPIC  
+**Model**: claude-sonnet-4-20250514  
+**Tokens Used**: 741.0  
+**Estimated Cost**: $0.0040  
+
+MARKER_APPLICATION_START
+Position: IT-Analyst (m/w/d) Technical Lead
+Referenznummer: 2916626
+
+Sehr geehrter Herr Weis,
+
+mit großem Interesse bewerbe ich mich auf die ausgeschriebene Position als IT-Analyst Technical Lead. Mit fast 30 Jahren IT-Erfahrung bringe ich fundierte Expertise in der technischen Führung, Architektur und Umsetzung komplexer IT-Lösungen mit. Meine aktuellen Zertifizierungen umfassen AWS Certified Solutions Architect Professional, AWS Certified AI Practitioner, HashiCorp Certified Terraform Associate sowie Kubernetes and Cloud Native Associate (KCNA).
+
+**Mehrjährige Erfahrungen in verschiedenen Softwareentwicklungsprojekten, vorzugsweise in der Webentwicklung:**
+
+Ich verfüge über umfangreiche Erfahrungen in der Softwareentwicklung mit Schwerpunkt auf Enterprise-Anwendungen und webbasierten Systemen. Meine Expertise umfasst die Entwicklung und Architektur von J2EE-Anwendungen, Web-Services und modernen Cloud-Anwendungen (2007: J2EE-Applikation zur Unterstützung des Vertriebs bei Mobilfunkverträgen; 2019: Migration Oracle Service Bus von OnPremise nach AWS Cloud; 2025: Aufbau einer privaten KI-Wissensumgebung basierend auf LibreChat).
+
+**Erfahrungen im Bereich der Software-Architektur von Microservices, APIs und Web-Frontends:**
+
+Meine Architekturerfahrung erstreckt sich über verteilte Systeme, Service-orientierte Architekturen und API-Design. Ich habe umfangreiche Erfahrungen mit Enterprise Service Bus Implementierungen, SOAP/REST-Services und hochverfügbaren Systemarchitekturen (2013-2015: Migration einer bestehenden Kundenlösung in eine hochverfügbare Enterprise Service Bus Plattform; 2021/2022: Planung, Aufbau und Konfiguration von Oracle Service Bus Umgebungen). Während meine Expertise primär im Backend-Bereich liegt, kann ich auf meine Erfahrungen mit modernen Container-Technologien und Cloud-nativen Architekturen aufbauen, um Microservices-Patterns zu implementieren.
+
+**Gutes Verständnis CI/CD, Automatisierung, Betrieb, Cloud/AWS/DevOps, Security:**
+
+Ich besitze fundierte DevOps-Kenntnisse mit praktischer Erfahrung in CI/CD-Pipelines, Infrastructure as Code und Cloud-Automatisierung. Meine AWS-Zertifizierungen belegen tiefgreifende Cloud-Expertise (2024: AWS Certified Solutions Architect Professional, Developer, SysOps Administrator; 2019: Migration Oracle Service Bus von OnPremise nach AWS Cloud mit GitLab CI/CD; 2021: Konzeption einer SAP BW/4HANA Cloud-Infrastruktur auf AWS). Im Sicherheitsbereich habe ich Erfahrungen mit SSL, SAML, WS-Security und Vulnerability-Management (2015: Workshop zu IT-Sicherheit; 2018: Analyse und Beseitigung von Sicherheitsschwachstellen).
+
+**Technisches Abstraktionsvermögen und analytische Fähigkeiten:**
+
+Durch meine langjährige Tätigkeit als Architekt und Berater habe ich ausgeprägte analytische Fähigkeiten entwickelt. Ich führe regelmäßig Architektur-Reviews durch, analysiere komplexe Systemprobleme und entwickle tragfähige Lösungskonzepte (2009: Review diverser Anwendungsplattformen, Problemanalyse und Empfehlungen; 2021: Konzeption einer SAP BW/4HANA Cloud-Infrastruktur auf AWS).
+
+**Agile Methoden und Vorgehensweisen (Kanban, Scrum):**
+
+Ich habe praktische Erfahrungen mit agilen Methoden in verschiedenen Projekten gesammelt und setze Scrum und Kanban erfolgreich ein (2019: Migration Oracle Service Bus - Einsatz von Scrum und Kanban; 2021-2024: Migration und Upgrade einer Oracle Forms und Reports Installation - Pair Programming). Zusätzlich verfüge ich über Grundkenntnisse mit Jira als Tool für agiles Projektmanagement.
+
+**Vermittlung zwischen unterschiedlichen Charakteren und verständliche Darstellung komplexer technischer Themen:**
+
+Als zertifizierter Trainer für "Cultivating Emotional Balance" bringe ich besondere Kompetenzen in der zwischenmenschlichen Kommunikation mit. Meine Erfahrung als Berater, Trainer und Teamleiter hat meine Fähigkeiten in der Stakeholder-Kommunikation und im Wissenstransfer gestärkt (2017: Ausbildung zum Trainer für Cultivating Emotional Balance; 1998-2005: Business Consultant Principal bei BEA Systems mit Schulungen und Kundenberatung).
+
+Meine Arbeitsweise ist von Klarheit, Fokus und Ruhe geprägt, was mir hilft, auch bei komplexen Herausforderungen den Überblick zu bewahren und Teams zu führen. Durch meine Erfahrung als Unternehmer und langjähriger Berater bringe ich ausgeprägte Kommunikationsfähigkeiten und die Fähigkeit zur Vermittlung zwischen verschiedenen Stakeholdern mit.
+
+Ich schätze meine Eignung für dieses Projekt auf 85% ein. Während ich über starke Expertise in Backend-Architekturen, Cloud-Technologien und DevOps verfüge, liegt eine kleinere Lücke im Bereich moderner Frontend-Frameworks. Diese kann ich durch meine schnelle Auffassungsgabe und kontinuierliche Weiterbildung schließen, aufbauend auf meinen soliden Grundlagen in Webtechnologien.
+
+Verfügbarkeit: sofort, vollzeit, remote und vor Ort (30% Präsenz in Köln ist möglich)
+Gehaltsvorstellung: 130,- € pro Stunde
+
+Mit freundlichen Grüßen
+Andreas Wittmann
+MARKER_APPLICATION_END
+
+
+---
+*Application generated automatically by Bewerbungs-Bot*
+
+## Rückruf 
+Herr Marco Weiss
+
+Kunde ist Congstar in Köln. Es geht um eine ANÜ 9000,- pro Monat
+Das setzt sich so zusammen:
+	750,- Tagessatz zu denen sie Verkaufen 
+	52,- Stunden satz für mich, (9000,-)
+	Das ergibt für Circle8
+	73,- Euro Kalkulatorisch 
+	85,- Euro mit Marge 
+
+- Der Vertrag geht über 7 Monate mit Verlängerungsoption.
+- Es wird wahrscheinlich eine wöchentliche Reisetätigkeit geben, Kunde ist aber direkt am Köllner Hbf.
+- Er hat zuvor noch ein Kundengepräch und ruf zurück um. 16-17:30
+
+## Rückruf 2
+Herr Weiss nimmt mein Profil als Erstatz, wenn er kein besseres mehr findet.
+Er möchte mein CV anpassen, würde mich aber vorher fragen ob es ok ist, wenn er es weiterleitet.
+Es entscheidedt sich noch diese Woche ob ich im Spiel bleibe.
+
+
+
+
+
+

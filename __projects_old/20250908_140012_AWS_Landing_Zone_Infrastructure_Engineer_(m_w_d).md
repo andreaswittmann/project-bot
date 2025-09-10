@@ -1,0 +1,199 @@
+---
+company: Randstad Professional GmbH (vorm. GULP)
+reference_id: '2916687'
+scraped_date: '2025-09-08T14:00:12.492599'
+source_url: https://www.freelancermap.de/projekt/aws-landing-zone-infrastructure-engineer-m-w-d?ref=rss
+state: rejected
+state_history:
+- note: 'LLM evaluation: 92% fit score'
+  state: accepted
+  timestamp: '2025-09-08T14:01:21.012795'
+- note: Starting application generation
+  state: applied
+  timestamp: '2025-09-08T14:02:25.513115'
+- note: Sent from editor
+  state: sent
+  timestamp: '2025-09-08T17:46:00.567699'
+- note: Rückruf von Recruter
+  state: open
+  timestamp: '2025-09-09T14:11:25.564498'
+- note: 'UI state change: open → rejected'
+  override: true
+  state: rejected
+  timestamp: '2025-09-10T15:18:44.994732'
+  ui_context: true
+title: AWS Landing Zone Infrastructure Engineer (m/w/d)
+---
+
+
+
+
+
+
+# AWS Landing Zone Infrastructure Engineer (m/w/d)
+**URL:** [https://www.freelancermap.de/projekt/aws-landing-zone-infrastructure-engineer-m-w-d?ref=rss](https://www.freelancermap.de/projekt/aws-landing-zone-infrastructure-engineer-m-w-d?ref=rss)
+## Details
+- **Start:** 10.2025
+- **Von:** Randstad Professional GmbH (vorm. GULP)
+- **Auslastung:** 100% (5 Tage pro Woche)
+- **Eingestellt:** 08.09.2025
+- **Ansprechpartner:** Karl Schmidt
+- **Projekt-ID:** 2916687
+- **Branche:** Finanzen
+- **Vertragsart:** Freiberuflich
+- **Einsatzart:** 80
+                                                % Remote
+
+## Schlagworte
+Amazon Web Services, Architektur, Cloud Computing, Identitätsmanagement, Infrastruktur, Aws VPC, Terraform, Amazon S3, Automatisierung, Compliance, Informationssicherheit, Continuous Integration, Direct Connect, Finanzen, Steuerung, VPN, ISO / IEC 27001, Netzwerkarchitektur, Peering, Technische Dokumentation, AWS Cdk, Daten- / Datensatzprotokollierung, Ablaufplanung, Cloudformation, DSGVO
+
+## Beschreibung
+Für ein anspruchsvolles Projekt bei einem renommierten Unternehmen der Finanzdienstleistungsbranche suchen wir einen erfahrenen AWS Landing Zone Infrastructure Engineer (m/w/d) zur Unterstützung des Projektteams.
+
+Aufgaben:
+Konzeption und Weiterentwicklung einer skalierbaren und sicheren AWS Landing Zone Architektur nach Best Practices (z.B. AWS Well-Architected Framework).
+Aufbau und Konfiguration der AWS-Infrastruktur mittels Infrastructure as Code (vorrangig Terraform, alternativ AWS CDK oder CloudFormation).
+Implementierung und Optimierung zentraler Services für Logging, Monitoring und Security (z.B. AWS CloudTrail, Config, GuardDuty, Security Hub).
+Sicherstellung der Security und Compliance (z.B. nach ISO 27001, DSGVO) durch die Umsetzung von IAM-Strategien und Service Control Policies (SCPs).
+Planung und Umsetzung der zentralen Netzwerkinfrastruktur (z.B. mit Transit Gateway, VPC Peering) und der Anbindung von On-Premises-Umgebungen (VPN, AWS Direct Connect).
+Erstellung der technischen Dokumentation und Unterstützung beim Wissenstransfer an interne Teams.
+
+Rahmendaten:
+Startzeitpunkt: 01.10.2025
+Aktuell angesetzte Projektdauer: 6 Monate (bis 31.03.2026)
+Auslastung: Vollzeit (ca. 1000 Stunden im Projektzeitraum)
+Remote möglich: Ja, mit der Möglichkeit zu gelegentlichen Einsätzen vor Ort in Wiesbaden oder Hamburg.
+
+Anforderungen:
+Fundierte Projekterfahrung in der Konzeption und Implementierung von AWS Landing Zones.
+Tiefgreifende Kenntnisse in relevanten AWS-Services (insb. IAM, Control Tower, Organizations, SCPs, VPC, CloudTrail, Config, S3, KMS, Security Hub).
+Sehr gute Kenntnisse in Infrastructure as Code, vorzugsweise mit Terraform.
+Erfahrung in der Automatisierung von Infrastruktur-Deployments mittels CI/CD-Pipelines.
+Gutes Verständnis für IT-Security und Governance in Cloud-Umgebungen.
+Fließende Deutsch- und gute Englischkenntnisse.
+Idealerweise bringen Sie Erfahrung mit hybriden Cloud-Architekturen oder relevante AWS-Zertifizierungen mit.
+
+---
+
+## 🤖 AI Evaluation Results
+
+**Evaluation Timestamp:** 2025-09-08T14:01:21.010404
+
+### Pre-Evaluation Phase
+- **Score:** 24/100
+- **Threshold:** 15/100
+- **Result:** ✅ Passed
+- **Rationale:** Score: 24%. Found tags: ['aws', 'amazon', 'ai', 'ki', 'cloud', 'terraform', 'monitoring', 'architect', 'architekt', 'architektur', 'ci/cd', 'pipeline', 'infrastructure as code', 'integration', 'esb', 'security', 'iam', 'compliance', 'continuous', 'deployment', 'remote', 'hybrid', 'freelance', 'projekt', 'ant']
+
+### LLM Analysis Phase
+- **LLM Provider:** OpenAI
+- **LLM Model:** gpt-5-mini
+- **Fit Score:** 92/100
+- **Acceptance Threshold:** 89/100
+- **Final Decision:** ✅ ACCEPTED
+
+#### Detailed Rationale
+- Key requirements from the project offer:
+  - AWS Landing Zone / Well-Architected (Control Tower, Organizations, SCPs)
+  - Infrastructure-as-Code (preferably Terraform; alternatives CDK/CloudFormation)
+  - Central logging/monitoring/security (CloudTrail, Config, GuardDuty, Security Hub)
+  - IAM, governance and compliance (ISO/IEC 27001, DSGVO)
+  - Network design and hybrid connectivity (Transit Gateway, VPC Peering, VPN, Direct Connect)
+  - CI/CD automation for infra, technical documentation, knowledge transfer
+  - German (fluent) + English
+
+- Match vs. CV (Andreas Wittmann):
+  - Landing Zone: strong — explicit Landing Zone / Control Tower projects (2021) and multi-account architectures for SAP (2021).
+  - Terraform / IaC: strong — HashiCorp Certified: Terraform Associate (2024) and Terraform scripts used for 2025 private-AI deployments.
+  - Logging/Monitoring/Security: solid — CloudTrail, Config, CloudWatch and security tooling listed across projects; security analyses and workshops documented.
+  - IAM & governance: good — AWS IAM, Organizations and Control Tower experience; identity management background (SAML/SSO, Oracle IAM) supports governance tasks; SCPs not called out explicitly but implied by Control Tower work.
+  - Networking & hybrid connectivity: good — Transit Gateway mentioned in SAP Landing Zone design; VPN/On-prem integrations and hybrid migrations described; Direct Connect not highlighted in hands-on project detail but included in services knowledge.
+  - CI/CD / Automation: good — hands-on with GitLab CI/CD, Jenkins, GitHub, AWS Code* services and automation for deployments and patching.
+  - Compliance / DSGVO: good — repeated focus on data protection and secure deployments (also private-AI GDPR-aware offering); ISO27001 not explicitly shown as implemented but security/compliance is a recurring theme.
+  - Language / sector fit: excellent — German native, English fluent; has consulting experience in finance/insurance and regulated environments.
+
+- Gaps / Risks:
+  - No explicit project that documents hands‑on implementation of GuardDuty/Security Hub or Service Control Policies step-by-step (though services are listed).
+  - Direct Connect and ISO27001 implementation experience are not clearly demonstrated with concrete project deliverables.
+  - Availability for the exact start date should be confirmed (consultant runs own GmbH but location and remote match are favorable).
+
+- Overall assessment: Very strong match. Core requirements (Landing Zone design, Terraform, AWS security & governance, networking and automation) are covered with certifications and relevant project experience. Minor gaps are documentation/detail-level around specific services (GuardDuty/Security Hub, Direct Connect, ISO27001) rather than fundamental capability.
+
+- Recommendation: Strongly recommend progressing to interview or technical screen to confirm recent hands‑on examples for SCPs, Security Hub/GuardDuty and Direct Connect.
+
+- Fit summary: 92/100
+
+---
+
+## Generated Application
+**Generation Date**: 2025-09-08 14:02:53  
+**AI Provider**: ANTHROPIC  
+**Model**: claude-sonnet-4-20250514  
+**Tokens Used**: 668.2  
+**Estimated Cost**: $0.0036  
+
+MARKER_APPLICATION_START
+Position: AWS Landing Zone Infrastructure Engineer (m/w/d)
+Referenznummer: 2916687
+
+Sehr geehrte Damen und Herren,
+
+mit großem Interesse bewerbe ich mich auf die ausgeschriebene Position als AWS Landing Zone Infrastructure Engineer. Als erfahrener IT-Berater mit fast 30 Jahren Expertise in der Konzeption und Umsetzung komplexer IT-Lösungen bringe ich fundierte Kenntnisse in Cloud-Architekturen und AWS-Services mit. Meine aktuellen AWS-Zertifizierungen umfassen AWS Certified Solutions Architect Professional, AWS Certified AI Practitioner sowie HashiCorp Certified Terraform Associate und Kubernetes and Cloud Native Associate (KCNA).
+
+**Fundierte Projekterfahrung in der Konzeption und Implementierung von AWS Landing Zones:**
+Ich verfüge über direkte Erfahrung im Aufbau von AWS Landing Zones und Multi-Account-Architekturen. (2021: Landing Zone für AWS - Schnell-Start - Beratung und Implementierung, 2021: Konzeption einer SAP BW/4HANA Cloud-Infrastruktur auf AWS). In diesen Projekten habe ich AWS Control Tower, AWS Organizations und Multi-Account-Strategien mit zentralem Netzwerk-Management konzipiert und implementiert.
+
+**Tiefgreifende Kenntnisse in relevanten AWS-Services:**
+Durch meine AWS-Zertifizierungen und praktische Projekterfahrung beherrsche ich die geforderten Services umfassend. (2024: AWS Certified Solutions Architect Professional, 2019-2024: Migration Oracle Service Bus von OnPremise nach AWS Cloud). Meine Expertise umfasst IAM, Control Tower, Organizations, VPC, CloudTrail, Config, S3, KMS sowie Security Hub aus verschiedenen Migrationsprojekten und Cloud-Infrastruktur-Aufbauten.
+
+**Sehr gute Kenntnisse in Infrastructure as Code mit Terraform:**
+Ich bin HashiCorp Certified Terraform Associate und setze Terraform aktiv in aktuellen Projekten ein. (2024: HashiCorp Certified Terraform Associate, 2025: Aufbau einer privaten KI-Wissensumgebung mit Terraform-Skripten für automatisierte Cloud-Bereitstellung). Diese praktische Erfahrung ergänzt meine Kenntnisse in AWS CloudFormation aus früheren Projekten.
+
+**Erfahrung in der Automatisierung von Infrastruktur-Deployments mittels CI/CD-Pipelines:**
+Ich habe umfangreiche Erfahrung mit CI/CD-Automatisierung in verschiedenen Umgebungen gesammelt. (2019: Migration Oracle Service Bus mit GitLab CI/CD, 2021/2022: Jenkins Continuous Integration Server für OSB-Projekte). Meine Expertise umfasst GitLab CI/CD, Jenkins und AWS CodePipeline für automatisierte Deployments.
+
+**Gutes Verständnis für IT-Security und Governance in Cloud-Umgebungen:**
+Sicherheit und Compliance sind zentrale Aspekte meiner Arbeit. (2018: Analyse und Beseitigung von Sicherheitsschwachstellen für diverse Weblogic und Oracle Service Bus Umgebungen, 2015: Workshop zu IT-Sicherheit mit SAML 2.0 und WS-Security). Ich habe praktische Erfahrung mit Identity Management, SAML, SSL-Konfigurationen und Sicherheitsanalysen.
+
+**Fließende Deutsch- und gute Englischkenntnisse:**
+Als deutscher Muttersprachler mit fließenden Englischkenntnissen erfülle ich die sprachlichen Anforderungen vollständig.
+
+**Erfahrung mit hybriden Cloud-Architekturen und relevante AWS-Zertifizierungen:**
+Meine Projekterfahrung umfasst hybride Architekturen und On-Premises-Integrationen. (2019: Migration von OnPremise nach AWS Cloud, 2021: SAP BW/4HANA Cloud-Infrastruktur mit hybrider Anbindung). Meine AWS-Zertifizierungen auf Professional-Level unterstreichen meine fachliche Qualifikation.
+
+Meine Arbeitsweise ist von Klarheit, Fokus und Ruhe geprägt – Prinzipien, die besonders bei komplexen Cloud-Infrastruktur-Projekten von Vorteil sind. Als zertifizierter Trainer für achtsame Arbeitsweisen bringe ich zusätzlich Kompetenzen für effektive Teamarbeit und Wissenstransfer mit. Durch kontinuierliche Weiterbildung und den gezielten Einsatz moderner Technologien entwickle ich stets Lösungen auf dem neuesten Stand der Technik.
+
+Meine Eignung für dieses Projekt bewerte ich mit 92%. Die geringfügigen Lücken betreffen spezifische Hands-on-Erfahrungen mit GuardDuty/Security Hub und AWS Direct Connect, die ich durch meine fundierte AWS-Expertise und Lernbereitschaft schnell schließen kann. Meine umfassende Erfahrung in Cloud-Migrationen, Sicherheitsanalysen und Infrastructure-as-Code bildet eine solide Basis für diese Anforderungen.
+
+Verfügbarkeit: ab 01.10.2025, vollzeit, 80% remote mit gelegentlichen Einsätzen vor Ort
+Gehaltsvorstellung: 130,- € pro Stunde
+
+Mit freundlichen Grüßen
+Andreas Wittmann
+MARKER_APPLICATION_END
+
+
+---
+*Application generated automatically by Bewerbungs-Bot*
+
+
+
+## Rückruf
+Telefonkontakt: Harald Schmidt
+
+Kunde: Schufa
+6 Monate Freigabe des Kunden, aber wird wahrscheinlich verländert
+95% Remote, 1x im Quartal in Hamburg, für 2-3 Tage.
+115,- pro Stunde als Mischkalkulation (On-Site Tage sind in HH, bei mir fallen keine Reisekosten an)
+Er wird mein Profil vorstellen.
+Feedback bis Anfang nächster Woche. 
+Interviews dann wahrscheinlich auch nächste Woche
+
+
+
+
+
+
+
+
+

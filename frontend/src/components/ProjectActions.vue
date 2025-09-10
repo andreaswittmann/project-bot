@@ -92,52 +92,38 @@
                 :key="transition.to"
                 @click="performTransition(transition)"
                 class="transition-btn"
-                :class="{ 'override': transition.isOverride }"
-                :disabled="transition.disabled"
-                :title="transition.disabled ? transition.reason : (transition.isOverride ? `Manual Override: ${transition.overrideWarning}` : `Change to ${transition.to}`)"
+                :title="`Change to ${transition.to}`"
               >
                 <span class="transition-icon">{{ transition.icon }}</span>
                 <span class="transition-text">{{ transition.label }}</span>
-                <span v-if="transition.disabled" class="transition-disabled">🚫</span>
               </button>
             </div>
           </div>
 
           <div v-if="selectedTransition" class="transition-confirm">
-            <h4>Confirm Status Change</h4>
+            <h4>Change Status</h4>
             <p>
               Change project status from
               <strong>{{ project.status }}</strong> to
               <strong>{{ selectedTransition.to }}</strong>?
             </p>
-
-            <!-- Override Warning -->
-            <div v-if="selectedTransition.isOverride" class="override-warning">
-              <div class="warning-icon">⚠️</div>
-              <div class="warning-text">
-                <strong>Manual Override:</strong> This transition is not normally allowed.
-                <br>
-                <small>{{ selectedTransition.overrideWarning }}</small>
-              </div>
-            </div>
-
+            
             <div class="note-section">
               <label for="transition-note" class="note-label">
-                {{ selectedTransition.isOverride ? 'Required Note:' : 'Optional Note:' }}
+                Optional Note
               </label>
               <textarea
                 id="transition-note"
                 v-model="transitionNote"
-                :placeholder="selectedTransition.isOverride ? 'Please explain why you are making this manual override...' : 'Add a note about this status change...'"
+                placeholder="Add a note about this status change (optional)..."
                 class="note-input"
-                :class="{ 'required': selectedTransition.isOverride }"
                 rows="3"
               ></textarea>
             </div>
-
+            
             <div class="confirm-buttons">
-              <button @click="confirmTransition" class="confirm-btn" :disabled="isTransitioning || (selectedTransition.isOverride && !transitionNote.trim())">
-                {{ isTransitioning ? 'Changing...' : (selectedTransition.isOverride ? 'Force Change' : 'Confirm Change') }}
+              <button @click="confirmTransition" class="confirm-btn" :disabled="isTransitioning">
+                {{ isTransitioning ? 'Changing...' : 'Confirm Change' }}
               </button>
               <button @click="cancelTransition" class="cancel-btn" :disabled="isTransitioning">
                 Cancel
@@ -151,7 +137,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useProjectsStore } from '../stores/projects'
 
 // Props
@@ -197,24 +183,13 @@ const canTransition = computed(() => {
 const availableTransitions = computed(() => {
   const currentStatus = props.project.status
   const allStates = ['scraped', 'accepted', 'rejected', 'applied', 'sent', 'open', 'archived']
-  const validTransitions = {
-    'scraped': ['accepted', 'rejected'],
-    'accepted': ['applied', 'rejected'],
-    'applied': ['sent', 'archived'],
-    'sent': ['open', 'archived'],
-    'open': ['archived'],
-    'rejected': ['accepted', 'archived'],
-    'archived': ['scraped']
-  }
-
+  
   const transitions = []
-
+  
   // Add all possible states
   allStates.forEach(state => {
     if (state === currentStatus) return // Skip current state
-
-    const isValidTransition = validTransitions[currentStatus]?.includes(state) || false
-
+    
     let label, icon
     switch (state) {
       case 'scraped': label = 'Reset to Scraped'; icon = '🔄'; break
@@ -226,17 +201,14 @@ const availableTransitions = computed(() => {
       case 'archived': label = 'Archive'; icon = '📦'; break
       default: label = state; icon = '❓'
     }
-
+    
     transitions.push({
       to: state,
       label: label,
-      icon: icon,
-      disabled: false,
-      isOverride: !isValidTransition,
-      overrideWarning: isValidTransition ? null : `Manual override: ${currentStatus} → ${state}`
+      icon: icon
     })
   })
-
+  
   return transitions
 })
 
@@ -284,38 +256,34 @@ const deleteProject = () => {
 
 const performTransition = (transition) => {
   selectedTransition.value = transition
-  emit('transition-project', props.project)
 }
 
 const confirmTransition = async () => {
   if (!selectedTransition.value) return
-
+  
   isTransitioning.value = true
   console.log('Confirming transition:', {
     projectId: props.project.id,
     fromState: props.project.status,
     toState: selectedTransition.value.to,
-    note: transitionNote.value,
-    isOverride: selectedTransition.value.isOverride
+    note: transitionNote.value
   })
-
+  
   try {
     await projectsStore.updateProjectState(
       props.project.id,
       props.project.status,
       selectedTransition.value.to,
-      transitionNote.value,
-      selectedTransition.value.isOverride
+      transitionNote.value
     )
-
+    
     emit('status-changed', {
       projectId: props.project.id,
       oldStatus: props.project.status,
       newStatus: selectedTransition.value.to,
-      note: transitionNote.value,
-      isOverride: selectedTransition.value.isOverride
+      note: transitionNote.value
     })
-
+    
     closeModal()
   } catch (error) {
     console.error('Failed to transition project status:', error)
@@ -335,6 +303,19 @@ const closeModal = () => {
   selectedTransition.value = null
   transitionNote.value = ''
 }
+
+// Watch for project prop changes to auto-open transition modal
+watch(() => props.project, (newProject) => {
+  console.log('🔍 ProjectActions prop changed:', newProject ? newProject.id : 'null')
+  
+  if (newProject && !showTransitionModal.value) {
+    console.log('🎯 Auto-opening transition modal for project:', newProject.id)
+    showTransitionModal.value = true
+  } else if (!newProject && showTransitionModal.value) {
+    console.log('🔒 Closing transition modal - no project')
+    closeModal()
+  }
+})
 </script>
 
 <style scoped>
@@ -531,17 +512,6 @@ const closeModal = () => {
   background: #f3f4f6;
 }
 
-.transition-btn.override {
-  border-color: #f59e0b;
-  background: #fef3c7;
-  color: #92400e;
-}
-
-.transition-btn.override:hover:not(:disabled) {
-  border-color: #d97706;
-  background: #fde68a;
-}
-
 .transition-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
@@ -603,13 +573,10 @@ const closeModal = () => {
   box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
 }
 
-.note-input.required {
-  border-color: #f59e0b;
-}
-
-.note-input.required:focus {
-  border-color: #f59e0b;
-  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+.note-input:focus {
+  outline: none;
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
 }
 
 .confirm-buttons {
@@ -661,38 +628,10 @@ const closeModal = () => {
   cursor: not-allowed;
 }
 
-/* Override Warning Styles */
-.override-warning {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
-  padding: 1rem;
-  background: #fef3c7;
-  border: 1px solid #f59e0b;
-  border-radius: 0.375rem;
-  margin-bottom: 1rem;
-}
-
-.warning-icon {
-  font-size: 1.25rem;
-  flex-shrink: 0;
-  margin-top: 0.125rem;
-}
-
-.warning-text {
-  font-size: 0.875rem;
-  color: #92400e;
-}
-
-.warning-text strong {
-  color: #78350f;
-}
-
-.warning-text small {
-  display: block;
-  margin-top: 0.25rem;
-  color: #a16207;
-  font-style: italic;
+.note-input:focus {
+  outline: none;
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
 }
 
 /* Responsive design */

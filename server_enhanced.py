@@ -75,6 +75,7 @@ class ProjectStateUpdateRequest(BaseModel):
     to_state: str
     note: Optional[str] = None
     force: bool = False
+    ui_context: bool = True  # Default to True for UI calls
 
 class ProjectResponse(BaseModel):
     id: str
@@ -592,14 +593,14 @@ def update_project_state(project_id: str):
     data = request.get_json()
     if not data:
         raise ValidationError("No JSON data provided")
-
+    
     logger.info(f"Transition request for {project_id}: {data}")
     update_request = ProjectStateUpdateRequest(**data)
-    logger.info(f"Parsed request: force={update_request.force}, from={update_request.from_state}, to={update_request.to_state}")
-
+    logger.info(f"Parsed request: force={update_request.force}, ui_context={update_request.ui_context}, from={update_request.from_state}, to={update_request.to_state}")
+    
     projects_dir = Path("projects")
     project_file = projects_dir / f"{project_id}.md"
-
+    
     if not project_file.exists():
         return jsonify(APIErrorResponse(
             error="NotFound",
@@ -607,27 +608,34 @@ def update_project_state(project_id: str):
             code=404,
             timestamp=datetime.now().isoformat()
         ).dict()), 404
-
-    # Update state using state manager
+    
+    # Update state using state manager with UI context for relaxed validation
     success = state_manager.update_state(
         str(project_file),
         update_request.to_state,
         update_request.note,
-        update_request.force
+        update_request.force,
+        update_request.ui_context  # Pass UI context for relaxed validation
     )
-
+    
     if not success:
         return jsonify(APIErrorResponse(
             error="StateTransitionError",
             message=f"Failed to transition from {update_request.from_state} to {update_request.to_state}",
             code=400,
+            details={
+                "force": update_request.force,
+                "ui_context": update_request.ui_context
+            },
             timestamp=datetime.now().isoformat()
         ).dict()), 400
-
+    
     # Return updated project data
     project_data = parse_project_file(str(project_file))
     response = ProjectResponse(**project_data)
-
+    
+    logger.info(f"✅ State transition successful: {update_request.from_state} → {update_request.to_state} (force={update_request.force}, ui_context={update_request.ui_context})")
+    
     return jsonify({
         "success": True,
         "message": f"Project state updated to {update_request.to_state}",

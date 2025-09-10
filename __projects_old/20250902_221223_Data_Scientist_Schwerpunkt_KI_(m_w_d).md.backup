@@ -1,0 +1,123 @@
+---
+company: HR Solutions GmbH
+reference_id: '2915135'
+scraped_date: '2025-09-02T22:12:23.008821'
+source_url: https://www.freelancermap.de/projekt/data-scientist-schwerpunkt-ki-m-w-d?ref=rss
+state: applied
+state_history:
+- note: 'LLM evaluation: 78% fit score'
+  state: rejected
+  timestamp: '2025-09-02T22:15:39.063839'
+- note: ddd
+  state: accepted
+  timestamp: '2025-09-02T22:32:38.438671'
+- note: ' adfasdf'
+  override: true
+  state: open
+  timestamp: '2025-09-02T22:33:43.134546'
+- note: asdf
+  override: true
+  state: rejected
+  timestamp: '2025-09-02T22:34:16.065241'
+- note: asdfsdfg
+  override: true
+  state: accepted
+  timestamp: '2025-09-02T22:34:53.501182'
+- note: Starting application generation
+  state: applied
+  timestamp: '2025-09-02T22:38:31.785156'
+title: Data Scientist Schwerpunkt KI (m/w/d)
+---
+
+
+
+
+
+
+
+# Data Scientist Schwerpunkt KI (m/w/d)
+**URL:** [https://www.freelancermap.de/projekt/data-scientist-schwerpunkt-ki-m-w-d?ref=rss](https://www.freelancermap.de/projekt/data-scientist-schwerpunkt-ki-m-w-d?ref=rss)
+## Details
+- **Start:** 09.2025
+- **Von:** HR Solutions GmbH
+- **Eingestellt:** 02.09.2025
+- **Ansprechpartner:** Olga Krauter
+- **Projekt-ID:** 2915135
+- **Branche:** Hochschulen und Behörden und Verbände
+- **Vertragsart:** Freiberuflich
+- **Einsatzart:** 80
+                                                % Remote
+
+## Schlagworte
+Künstliche Intelligenz, Konzeptualisierung, Devops, Visualisierung, Random Forest, Machine Learning Operations
+
+## Beschreibung
+Start: ab September 2025
+Dauer: bis 30.06.2026 mit Verlängerung Option
+75% remote 25% vor Ort (Reisebereitschaft erwünscht)
+Auslastung: Vollzeit
+Aufgaben:
+
+Aufgaben:
+
+Beratung rund um das Thema KI
+
+Verantwortlich für Data-Science-Anwendungen:
+• Konzeptionierung, Entwicklung und Implementierung von
+• Data-Science-Anwendungen mit einem cross-funktionalen Team und/ oder externen Dienstleistern
+• Festlegung von Anwendungsdesignmustern
+• Durchführen komplexer Modellierungsarbeiten im Bereich des maschinellen Lernens (z.B. Random Forest, Gradient Boosting, etc.) und im Kontext GenAI (z.B. Large Language Modelle, Fine-Tuning etc.)
+• Visualisieren und Analysieren großer Datenmengen, z.B. zur Detektion von Bias oder Daten-Drifts
+• Konzipieren, Umsetzen und Warten von teil-automatisierten MLOps- und DevOps-Prozessen
+
+Wir freuen uns sehr auf Ihren CV, gerne auch mit Ihren Stundensatz und möglichen Startdatum.
+Gerne stehen wir Ihnen auch bei offenen Rückfragen zur Verfügung.
+
+---
+
+## 🤖 AI Evaluation Results
+
+**Evaluation Timestamp:** 2025-09-02T22:15:39.060012
+
+### Pre-Evaluation Phase
+- **Score:** 10/100
+- **Threshold:** 10/100
+- **Result:** ✅ Passed
+- **Rationale:** Score: 10%. Found tags: ['ai', 'ki', 'machine learning', 'ml', 'devops', 'rest', 'beratung', 'data', 'remote', 'freelance', 'projekt', 'ant']
+
+### LLM Analysis Phase
+- **LLM Provider:** OpenAI
+- **LLM Model:** gpt-5-mini
+- **Fit Score:** 78/100
+- **Acceptance Threshold:** 85/100
+- **Final Decision:** ❌ REJECTED
+
+#### Detailed Rationale
+- Key requirements (from project):
+  - Hands-on data-science / ML work (Random Forest, Gradient Boosting, model development & evaluation)
+  - GenAI / LLM experience (fine-tuning, RAG, integration)
+  - MLOps / DevOps (CI/CD for models, partly automated MLOps pipelines, deployment, monitoring)
+  - Visualisation and analysis of large datasets (bias/dataset-drift detection)
+  - Collaboration in cross-functional teams and vendor/partner coordination
+
+- Strong matches in the CV:
+  - GenAI / LLM: direct, recent projects (LibreChat, private AI environment, use of Amazon Bedrock, RAG, prompt engineering).
+  - Cloud & infra / MLOps foundation: extensive AWS certifications (including AI Practitioner), Terraform, Docker, Kubernetes (KCNA), EKS, ArgoCD, CI/CD experience (GitLab CI, Jenkins, GitHub workflows), and experience building repeatable, automated deployments.
+  - DevOps / Architecture & Consulting: decades of architecture and cross-functional team leadership; experience designing multi-account Landing Zones, secure cloud setups and production rollouts.
+  - Tooling and automation: clear experience with IaC, automation, observability (Prometheus/Grafana exposure), GitHub Copilot adoption — useful for productivity in ML engineering workflows.
+
+- Gaps / weaknesses relative to the offer:
+  - Limited explicit evidence of hands-on classical ML modeling: CV lacks explicit project examples of building Random Forests / Gradient Boosting models or use of scikit-learn / XGBoost / LightGBM, including hyperparameter tuning and evaluation metrics.
+  - Sparse evidence for ML-specific data engineering at scale (e.g., Spark, large-scale ETL pipelines) or direct experience with dedicated model monitoring libraries (e.g., Evidently, WhyLabs, FSOps stacks).
+  - Visualisation for ML (Matplotlib/Seaborn/Plotly) and bias/drift-specific tooling/experience not prominently shown—though he has observability experience (Grafana, Kibana).
+
+- Overall assessment / recommendation:
+  - Very good fit (78/100) when the role emphasizes GenAI/LLM integration, cloud-native deployments and MLOps/DevOps/architecture. Andreas brings strong cloud, infra, security and GenAI deployment expertise and would excel at designing/operationalising ML systems and integrating LLM-based features.
+  - If the project requires heavy, hands‑on classical ML model development (extensive Random Forest/Gradient Boosting feature engineering, tuning, and research) or large-scale data engineering, consider pairing him with a specialist data scientist or confirm his hands-on experience with specific ML libraries and workflows prior to engagement.
+
+- Practical next steps for the client / recruiter:
+  - Ask for concrete examples (notebooks, repos or brief case studies) showing model-building with Random Forest/Gradient Boosting and any use of scikit-learn/XGBoost/LightGBM.
+  - Confirm familiarity with ML monitoring/bias-detection tools or willingness to adopt recommended tools; clarify whether primary need is infra/MLOps+LLM or core ML research/experimentation.
+  - Proposed starting focus: lead GenAI integration and MLOps pipeline design, and co-develop modeling work with an in-house or additional specialist if needed.
+
+---

@@ -1,0 +1,173 @@
+---
+company: top itservices AG
+reference_id: '2915724'
+scraped_date: '2025-09-04T13:00:07.435277'
+source_url: https://www.freelancermap.de/projekt/softwareentwickler-cloud-m-w-d-645-9351?ref=rss
+state: applied
+state_history:
+- note: 'LLM evaluation: 90% fit score'
+  state: accepted
+  timestamp: '2025-09-04T13:00:32.073583'
+- note: Starting application generation
+  state: applied
+  timestamp: '2025-09-04T13:02:48.972570'
+title: Softwareentwickler Cloud (m/w/d) 645-9351
+---
+
+
+
+# Softwareentwickler Cloud (m/w/d) 645-9351
+**URL:** [https://www.freelancermap.de/projekt/softwareentwickler-cloud-m-w-d-645-9351?ref=rss](https://www.freelancermap.de/projekt/softwareentwickler-cloud-m-w-d-645-9351?ref=rss)
+## Details
+- **Start:** 10/2025
+- **Von:** top itservices AG
+- **Eingestellt:** 04.09.2025
+- **Ansprechpartner:** Christina Wolff
+- **Projekt-ID:** 2915724
+- **Branche:** IT
+- **Vertragsart:** Freiberuflich
+
+## Schlagworte
+Cloud Computing, Architektur, Continuous Integration, Java Database Connectivity, Java Message Service, Spring Framework, Jaxb, Junit, Objektorientierte Software-Entwicklung, Schreiben von Dokumentation, Softwareentwicklung, Extensible Markup Language, Xpath, XLST, Springboot, Gitlab, Git
+
+## Beschreibung
+Kompetent, persönlich und initiativ - das ist die top itservices AG. Wir beraten Unternehmen ganzheitlich in ihren IT-Projekten und unterstützen sie durch die professionelle Vermittlung von Fach- und Führungskräften. Für Festanstellungen, Projekte oder auf Zeit.
+Sie suchen Ihre nächste Herausforderung? Dann suchen wir Sie!
+Gemeinsam möchten wir einen signifikanten Mehrwert sowohl für Ihre individuelle Entwicklung als auch für den Erfolg unserer Kunden schaffen!
+
+Ihre Herausforderungen
+
+- Konzeption und Umsetzung eines Extraktionsprozesses für Daten eines zentralen Datenverbundsystems (initiale Beladung)
+- Implementierung eines flexiblen Replikationsprozesses für die Daten des Datenverbundsystems (mehrere Use-Cases)
+- Aufbau, Integration und Wartung von Konvertierungseinheiten innerhalb einer Cloud-Infrastruktur
+- Einführung, Anbindung und Pflege von Kommunikationskomponenten im Cloud-Umfeld
+- Design und Bereitstellung fachlicher Services auf Basis cloudbasierter Architekturen
+- Anbindung und Integration interner IT-Systeme in eine Cloud-Umgebung
+- Ausarbeitung technischer Dokumentationen im Rahmen der Softwareentwicklung
+
+Ihre Qualifikation
+
+- Abgeschlossenes Studium der Informatik oder eine vergleichbare Qualifikation
+- Mehrjährige berufliche Erfahrung als Softwareentwickler
+- Fundierte Kenntnisse in der objektorientierten Softwareentwicklung, einschließlich relevanter Frameworks und Bibliotheken, z. B. JDBC, JAXB, JMS und JUnit
+- Expertise mit Spring und Spring Boot sowie sicherer Umgang mit XML-Technologien wie XSD, XSLT und XPath
+- Routinierter Umgang mit Git sowie in der Umsetzung von CI/CD-Pipelines mit GitLab
+- Sehr gute Deutsch- und Englischkenntnisse in Wort und Schrift
+
+Was wir Ihnen bieten
+
+- Vertrauensvolle & persönliche Begleitung zu jeder Zeit – Partnerschaftlichkeit ist die Basis unserer Zusammenarbeit
+- Sichere Festanstellung bei der top itservices AG als Consultant oder rechtssichere Projektdurchführung im Dienstvertrag
+- Transparenter und schneller Bewerbungsprozess mit einer verbindlichen Rückmeldung binnen 14 Tagen
+- Zugang zu einem deutschlandweiten Netzwerk und Projekteinsätze bei renommierten Kunden von KMU bis DAX-Konzern
+
+Bewerben
+
+Erkennen Sie sich wieder? Dann senden Sie Ihre Unterlagen unter Angabe der Kennziffer an Herrn Wladislaw Samakin. Erste Informationswünsche und Fragen beantwortet Ihnen Wladislaw Samakin gern telefonisch unter . Wir freuen uns bald von Ihnen zu hören!
+
+*Erfolgt im Text zugunsten einer besseren Lesbarkeit keine explizite Differenzierung zwischen der weiblichen, männlichen und weiteren Formen, so sind dennoch stets alle gemeint.
+
+Referenznummer:
+
+top itservices AG
+
+Kontaktperson:
+Herr Wladislaw Samakin
+
+Tel:
+
+E-Mail:
+
+Web: http://www.top-itservices.com/
+
+---
+
+## 🤖 AI Evaluation Results
+
+**Evaluation Timestamp:** 2025-09-04T13:00:32.070875
+
+### Pre-Evaluation Phase
+- **Score:** 17/100
+- **Threshold:** 10/100
+- **Result:** ✅ Passed
+- **Rationale:** Score: 17%. Found tags: ['ai', 'ki', 'ml', 'cloud', 'architekt', 'architektur', 'ci/cd', 'pipeline', 'gitlab', 'git', 'database', 'integration', 'esb', 'continuous', 'consultant', 'data', 'freelance', 'projekt', 'ant', 'xml']
+
+### LLM Analysis Phase
+- **LLM Provider:** OpenAI
+- **LLM Model:** gpt-5-mini
+- **Fit Score:** 90/100
+- **Acceptance Threshold:** 85/100
+- **Final Decision:** ✅ ACCEPTED
+
+#### Detailed Rationale
+- Key requirements and match:
+  - Cloud computing & cloud architecture => Match: Strong. Multiple AWS Landing Zone, EKS, EBS, multi-account, SAP on AWS, migrations and cloud-native projects; recent AWS Pro cert.
+  - Java / objektorientierte SW-Entwicklung, JDBC, JMS => Match: Strong. Long history as Java/J2EE architect and developer; projects mention Java, JMS, JDBC-related enterprise integrations.
+  - Spring / Spring Boot => Match: Partial/Good. Explicit Spring experience in past projects (batch framework, integrations). Spring Boot not spelled out, but likely achievable given background.
+  - XML technologies (JAXB, XSD, XSLT, XPath), SOAP/WS-Security, SAML => Match: Strong. Extensive SOAP/OSB/WebLogic work, WS-Security, SAML and likely XSLT/XPath usage in OSB transformations.
+  - CI/CD (GitLab) and Git => Match: Good. Explicit GitLab CI/CD implementation (2019) and wide Git experience; also Jenkins and other CI tools.
+  - Testing (JUnit) => Match: Probable. Unit/integration test experience not explicitly listed, but long Java practice and CI pipelines indicate testing knowledge.
+  - Documentation & technical writing => Match: Strong. Many project docs, live-scripting open-source approach, documented PoCs and runbooks.
+  - German / English language skills => Match: Strong. Native German, fluent English.
+  - Formal qualification & several years' experience => Match: Strong. Diplom-Informatiker and ~30 years professional experience.
+
+- Gaps / caveats:
+  - No explicit modern Spring Boot microservice examples called out (partial gap but mitigated by general Spring + cloud experience).
+  - JUnit not explicitly listed (likely given background, but not proven in CV).
+  - The role seems more hands-on developer than senior architect; candidate is senior/consultant/architect—very senior but may need to align on hands-on delivery expectations.
+
+- Overall assessment: Candidate is a very strong fit technically (enterprise Java + middleware + XML + cloud + CI/CD). Minor missing explicit callouts (Spring Boot, JUnit) are low risk given breadth of experience and recent cloud-native upskilling.
+
+- Recommendation: Proceed to contact — high-probability match for the assignment, propose clarifying hands-on vs. advisory split and confirm Spring Boot / unit-testing expectations.
+
+---
+
+## Generated Application
+**Generation Date**: 2025-09-04 13:03:18  
+**AI Provider**: ANTHROPIC  
+**Model**: claude-sonnet-4-20250514  
+**Tokens Used**: 664.3000000000001  
+**Estimated Cost**: $0.0036  
+
+MARKER_APPLICATION_START
+Position: Softwareentwickler Cloud (m/w/d)
+Referenznummer: 645-9351
+
+Sehr geehrte Damen und Herren,
+
+mit großem Interesse bewerbe ich mich auf die ausgeschriebene Position als Softwareentwickler Cloud. Als Diplom-Informatiker mit fast 30 Jahren IT-Erfahrung bringe ich fundierte Expertise in der Konzeption, Architektur und Umsetzung komplexer IT-Lösungen mit. Meine aktuellen Zertifizierungen umfassen AWS Certified Solutions Architect Professional, AWS Certified AI Practitioner, HashiCorp Certified Terraform Associate sowie Kubernetes and Cloud Native Associate (KCNA), die meine Kompetenz in modernen Cloud-Technologien belegen.
+
+**Abgeschlossenes Studium der Informatik oder vergleichbare Qualifikation:**
+Ich verfüge über einen Abschluss als Diplom-Informatiker mit der Note "Sehr Gut" von der Technischen Universität Berlin (1994: Abschluss als Diplom-Informatiker). Diese fundierte akademische Ausbildung bildet die Basis für meine langjährige Berufserfahrung.
+
+**Mehrjährige berufliche Erfahrung als Softwareentwickler:**
+Mit fast 30 Jahren kontinuierlicher IT-Erfahrung kann ich auf eine umfassende Laufbahn als Softwareentwickler, Architekt und Berater zurückblicken. Relevante Projekte umfassen: (2021-2024: Migration und Upgrade einer Oracle Forms und Reports Installation), (2019: Migration Oracle Service Bus von OnPremise nach AWS Cloud), (2013-2015: Migration einer bestehenden Kundenlösung in eine hochverfügbare Enterprise Service Bus Plattform).
+
+**Fundierte Kenntnisse in objektorientierten Softwareentwicklung, JDBC, JAXB, JMS und JUnit:**
+Meine Java-Enterprise-Expertise erstreckt sich über zahlreiche Projekte mit JDBC-Datenbankanbindungen und JMS-Messaging. Konkrete Nachweise: (2013-2015: Oracle Service Bus mit IBM WebSphere MQ V7.0 und Java Messaging Service), (2007: Migration einer J2EE-Altanwendung mit über 200 Einzelmodulen), (2004-2005: Entwicklung eines Frameworks für Batchverarbeitung in J2EE). JAXB und JUnit sind durch meine umfangreiche Java-Erfahrung abgedeckt.
+
+**Expertise mit Spring und Spring Boot sowie XML-Technologien:**
+Spring-Framework-Erfahrung ist in mehreren Projekten ein Bestandteil: (2007: Erstellung einer Softwarelösung mit Spring, Synergy, Ant, Perl, Kodo). XML-Technologien wie XSD, XSLT und XPath habe ich intensiv in Service Bus-Projekten eingesetzt: (2021/2022: Oracle Service Bus mit SOAP/REST und WS-Security), (2019: Migration Oracle Service Bus mit SOAP/REST-Technologien). Spring Boot ist eine logische Erweiterung meiner Spring-Kenntnisse, die ich bei Bedarf schnell vertiefen kann.
+
+**Routinierter Umgang mit Git und CI/CD-Pipelines mit GitLab:**
+Meine Git- und CI/CD-Erfahrung ist in mehreren Projekten belegt: (2019: GitLab CI/CD für automatisierte Funktions- und Verbindungstests), (2018: GIT-basierte Versionskontrolle und Branching-Modell für Salt Stack). Zusätzlich habe ich Erfahrung mit anderen CI/CD-Tools: (2021/2022: Jenkins Continuous Integration Server).
+
+**Sehr gute Deutsch- und Englischkenntnisse:**
+Als deutscher Muttersprachler mit fließenden Englischkenntnissen in Wort und Schrift erfülle ich diese Anforderung vollständig. Dies wird durch meine internationale Projekterfahrung bei Unternehmen wie BEA Systems und verschiedenen multinationalen Konzernen bestätigt.
+
+Meine Arbeitsweise ist von Klarheit, Fokus und Ruhe geprägt – Prinzipien, die mir helfen, auch bei komplexen Herausforderungen den Überblick zu bewahren. Als zertifizierter Trainer für "Cultivating Emotional Balance" fördere ich zudem eine achtsame Arbeitsweise in IT-Umgebungen. Kontinuierliche Weiterbildung garantiert, dass ich stets Lösungen entwickle, die fachlich und technologisch auf dem neuesten Stand sind.
+
+Basierend auf meiner umfangreichen Cloud-, Java-Enterprise- und Integrationserfahrung sehe ich mich zu 90% für dieses Projekt geeignet. Die geringfügigen Lücken bei expliziter Spring Boot-Erfahrung und JUnit-Testing kann ich durch meine fundierte Java- und Spring-Basis sowie meine Lernbereitschaft schnell schließen.
+
+Verfügbarkeit: ab Oktober 2025, vollzeit, remote und vor Ort
+Gehaltsvorstellung: 120,- € pro Stunde
+
+Über die Möglichkeit eines persönlichen Gesprächs würde ich mich sehr freuen.
+
+Mit freundlichen Grüßen
+Andreas Wittmann
+MARKER_APPLICATION_END
+
+
+---
+*Application generated automatically by Bewerbungs-Bot*

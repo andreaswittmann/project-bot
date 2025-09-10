@@ -1,0 +1,99 @@
+---
+company: HR Solutions GmbH
+reference_id: '2915779'
+scraped_date: '2025-09-04T15:00:12.531417'
+source_url: https://www.freelancermap.de/projekt/backend-entwickler-m-w-d-2915779?ref=rss
+state: applied
+state_history:
+- note: 'LLM evaluation: 85% fit score'
+  state: accepted
+  timestamp: '2025-09-04T15:04:42.137900'
+- note: Starting application generation
+  state: applied
+  timestamp: '2025-09-04T15:05:22.961721'
+title: Backend Entwickler m/w/d
+---
+
+
+
+# Backend Entwickler m/w/d
+**URL:** [https://www.freelancermap.de/projekt/backend-entwickler-m-w-d-2915779?ref=rss](https://www.freelancermap.de/projekt/backend-entwickler-m-w-d-2915779?ref=rss)
+## Details
+- **Start:** 10.2025
+- **Von:** HR Solutions GmbH
+- **Eingestellt:** 04.09.2025
+- **Ansprechpartner:** Olga Krauter
+- **Projekt-ID:** 2915779
+- **Branche:** Hochschulen und Behörden und Verbände
+- **Vertragsart:** Freiberuflich
+- **Einsatzart:** 80
+                                                % Remote
+
+## Schlagworte
+Backend, Java, Architektur, Continuous Integration, Relationale Datenbanken, Eclipse, J2EE, Postgresql, Oracle Financials, Scrum, Scaled Agile Framework, Kubernetes, Jenkins, Microservices
+
+## Beschreibung
+Für unseren Kunden im Öffentlichen Sektor (Hauptsitz Berlin) sind wir aktuell sind auf der Suche nach einem Backend Entwickler (m/w/d)
+
+Start: Ende September / Anfang Oktober
+Dauer: bis 31.12.2026 mit Verlängerung Option
+75% remote 25% vor Ort (Reisebereitschaft erwünscht)
+Auslastung: Vollzeit
+
+Aufgaben:
+
+• Modernisierung und Weiterentwicklung der bestehenden monolithen Systemen.
+
+Fachliche Kenntnisse und Erfahrungen:
+• Kenntnisse in modernen Java Frameworks, zB. JEE, Eclipse Microprofile, Quarkus
+• Kenntnisse in relationalen sowie nicht-relationalen Datenbanken (zB. PostgreSQL, Oracle) und Datenbankmodellierung
+• Kenntnisse im Aufbau von CI/CD-Pipelines, zum Beispiel durch Kenntnisse im Einsatz von Tools wie Tekton, ArgoCD, Jenkins
+• Erfahrung mit den agilen Vorgehensweisen, Scrum und SAFe
+• Erfahrung in cloudnativer Entwicklung (Containertechnologien, Microservices, Kubernetes)
+• Erfahrung mit Produkt-orientierten Architekturen, zB REST-Schnittstellen
+
+Wir freuen uns sehr auf Ihren CV, gerne auch mit Ihren Stundensatz und möglichen Startdatum.
+Gerne stehen wir Ihnen auch bei offenen Rückfragen zur Verfügung.
+
+---
+
+## 🤖 AI Evaluation Results
+
+**Evaluation Timestamp:** 2025-09-04T15:04:42.134290
+
+### Pre-Evaluation Phase
+- **Score:** 19/100
+- **Threshold:** 10/100
+- **Result:** ✅ Passed
+- **Rationale:** Score: 19%. Found tags: ['ai', 'ki', 'cloud', 'kubernetes', 'container', 'argo', 'architekt', 'architektur', 'ci/cd', 'pipeline', 'jenkins', 'rest', 'oracle', 'sql', 'integration', 'agile', 'scrum', 'continuous', 'remote', 'freelance', 'projekt', 'eclipse']
+
+### LLM Analysis Phase
+- **LLM Provider:** OpenAI
+- **LLM Model:** gpt-5-mini
+- **Fit Score:** 85/100
+- **Acceptance Threshold:** 85/100
+- **Final Decision:** ✅ ACCEPTED
+
+#### Detailed Rationale
+- Key project requirements (summary): modern Java backend (JEE, MicroProfile, Quarkus), relational + non-relational DBs (PostgreSQL, Oracle), CI/CD (Tekton/ArgoCD/Jenkins), cloud-native (containers, microservices, Kubernetes), REST/product-oriented architectures, agile (Scrum/SAFe), modernization of monoliths.
+
+- Strong matches:
+  - Java / JEE / Enterprise: very strong. ~30 years Java/J2EE, extensive WebLogic, middleware and enterprise-architecture experience.
+  - Cloud & Kubernetes: strong. AWS Solution Architect (Pro), Terraform, EKS, Docker, KCNA (Kubernetes) and explicit use of EKS/K3s/Minikube/Helm.
+  - CI/CD & DevOps: good. Hands-on with Jenkins, GitLab CI/CD, AWS CodePipeline; Terraform/IaC experience; Argo CD appears in tooling list (KCNA training). Live-scripting / automation experience demonstrated.
+  - Databases: strong Oracle experience (Forms/Reports, 19c, migrations). Broad DB exposure in AWS context (RDS, Aurora, DynamoDB, OpenSearch) indicating ability to work with relational and non-relational stores.
+  - Modernization & architecture: proven track record migrating and modernizing legacy/monolithic systems and designing Landing Zones and multi-account AWS architectures.
+  - Agile: repeated use of Scrum and Kanban in projects; experience in large-scale enterprise settings (implies ability to work in scaled contexts).
+  - REST / product-oriented APIs: experience with REST and service-oriented architectures (OSB/ESB → implies strong integration skills).
+
+- Gaps / minor concerns:
+  - No explicit Quarkus or Eclipse MicroProfile projects listed (modern MicroProfile/Quarkus experience not explicit).
+  - PostgreSQL not called out explicitly (though broad RDS/DB experience suggests easy ramp-up).
+  - Tekton not mentioned; ArgoCD is present but Tekton is a gap.
+  - SAFe is not explicitly stated (but experience in large enterprise projects and Scrum/kanban is extensive).
+
+- Availability / logistics: many recent and ongoing 2025 activities but as a consultant/owner he appears able to start/commit; frequent on-site client work historically indicates travel readiness for the 25% on-site requirement.
+
+- Score rationale: strong alignment on core technical pillars (Java enterprise, cloud-native, Kubernetes, CI/CD, modernization, Oracle/RDBMS), with only a few missing explicit items (Quarkus/MicroProfile, Tekton, explicit PostgreSQL). Given the high overlap on the mission-critical skills, I rate the fit at 85/100.
+
+---

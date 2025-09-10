@@ -141,7 +141,7 @@ const canGenerateApplication = computed(() => {
 })
 
 const canTransition = computed(() => {
-  return project.value && project.value.status !== 'archived'
+  return project.value !== null  // Always show for any project
 })
 
 // Methods
@@ -182,6 +182,10 @@ const generateApplication = async () => {
 
 const openTransitionModal = () => {
   if (!project.value) return
+  
+  console.log('🔄 Opening transition modal for project:', project.value.id, 'status:', project.value.status)
+  
+  // Emit to parent and close modal
   emit('transition-project', project.value)
   close()
 }

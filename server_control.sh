@@ -12,15 +12,18 @@ NC='\033[0m' # No Color
 
 # Function to check if Python server is running
 check_python_server() {
-    if pgrep -f "python.*server_enhanced.py" > /dev/null; then
-        echo -e "${GREEN}✓ Python server (server_enhanced.py) is running${NC}"
+    if lsof -i :8002 > /dev/null 2>&1; then
+        echo -e "${GREEN}✓ Python server is running on port 8002${NC}"
         echo -e "  ${BLUE}📊 API:${NC} http://localhost:8002/api/v1/"
         echo -e "  ${BLUE}🔧 Health:${NC} http://localhost:8002/api/v1/health"
         echo -e "  ${BLUE}🌐 Frontend:${NC} http://localhost:8002/ (when built)"
         return 0
     else
-        echo -e "${RED}✗ Python server (server_enhanced.py) is not running${NC}"
+        echo -e "${RED}✗ Python server is not running on port 8002${NC}"
         echo -e "  ${YELLOW}📊 API:${NC} http://localhost:8002/api/v1/ (when started)"
+        if [ -f "server.log" ]; then
+            echo -e "  ${YELLOW}🔍 Check logs:${NC} tail -n 20 server.log"
+        fi
         return 1
     fi
 }
@@ -42,12 +45,49 @@ check_frontend_server() {
 # Function to start Python server
 start_python_server() {
     echo -e "${BLUE}Starting Python server...${NC}"
-    nohup python server_enhanced.py > server.log 2>&1 &
-    sleep 2
-    if check_python_server > /dev/null; then
-        echo -e "${GREEN}Python server started successfully${NC}"
+    
+    # Debug: Check which python is being used
+    echo "$(date '+%Y-%m-%d %H:%M:%S') - Debug: Using python from: $(which python 2>/dev/null || echo 'python not found')" >> server.log
+    echo "$(date '+%Y-%m-%d %H:%M:%S') - Debug: Using python3 from: $(which python3 2>/dev/null || echo 'python3 not found')" >> server.log
+    python3 --version >> server.log 2>&1 || echo "python3 version check failed" >> server.log
+    
+    # Try to use venv python if available, fallback to python3
+    if [ -f "venv/bin/python" ]; then
+        PYTHON_CMD="venv/bin/python"
+        echo "$(date '+%Y-%m-%d %H:%M:%S') - Debug: Using venv python at $PYTHON_CMD" >> server.log
+    elif command -v python3 >/dev/null 2>&1; then
+        PYTHON_CMD="python3"
+        echo "$(date '+%Y-%m-%d %H:%M:%S') - Debug: Using system python3" >> server.log
     else
-        echo -e "${RED}Failed to start Python server${NC}"
+        PYTHON_CMD="python"
+        echo "$(date '+%Y-%m-%d %H:%M:%S') - Debug: Using system python" >> server.log
+    fi
+    
+    echo "$(date '+%Y-%m-%d %H:%M:%S') - Attempting to start: $PYTHON_CMD server_enhanced.py" >> server.log
+    
+    # Start with detailed logging
+    nohup $PYTHON_CMD server_enhanced.py >> server.log 2>&1 &
+    PYTHON_PID=$!
+    echo "$(date '+%Y-%m-%d %H:%M:%S') - Started Python server with PID: $PYTHON_PID" >> server.log
+    
+    sleep 3
+    
+    # Check if process is still running
+    if ps -p $PYTHON_PID > /dev/null 2>&1; then
+        echo -e "${GREEN}Python server process started (PID: $PYTHON_PID)${NC}"
+        # Check if port is bound
+        if lsof -i :8002 > /dev/null 2>&1; then
+            echo -e "${GREEN}✓ Python server started successfully and listening on port 8002${NC}"
+            echo "$(date '+%Y-%m-%d %H:%M:%S') - Python server is listening on port 8002" >> server.log
+        else
+            echo -e "${YELLOW}⚠ Python server process running but not listening on port 8002. Check server.log${NC}"
+            echo "$(date '+%Y-%m-%d %H:%M:%S') - Warning: Process running but port 8002 not bound. Check logs." >> server.log
+        fi
+    else
+        echo -e "${RED}✗ Python server process failed to start${NC}"
+        echo "$(date '+%Y-%m-%d %H:%M:%S') - Error: Python process (PID $PYTHON_PID) no longer running" >> server.log
+        tail -n 20 server.log
+        return 1
     fi
 }
 
@@ -117,6 +157,15 @@ main() {
     echo -e "${BLUE}=== Server Status Check ===${NC}"
     check_python_server
     check_frontend_server
+    echo
+    
+    # Show recent log entries if Python server is not running
+    if ! lsof -i :8002 > /dev/null 2>&1 && [ -f "server.log" ]; then
+        echo -e "${YELLOW}=== Recent Python Server Logs ===${NC}"
+        echo "----------------------------------------"
+        tail -n 10 server.log 2>/dev/null || echo "No log entries found"
+        echo "----------------------------------------"
+    fi
     echo
 
     echo -e "${BLUE}=== Available Commands ===${NC}"

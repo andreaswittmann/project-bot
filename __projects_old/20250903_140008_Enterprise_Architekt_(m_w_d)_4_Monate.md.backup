@@ -1,0 +1,184 @@
+---
+company: SINC GmbH
+reference_id: '2915330'
+scraped_date: '2025-09-03T14:00:08.537431'
+source_url: https://www.freelancermap.de/projekt/enterprise-architekt-m-w-d-4-monate?ref=rss
+state: applied
+state_history:
+- note: 'LLM evaluation: 85% fit score'
+  state: accepted
+  timestamp: '2025-09-03T14:04:02.989929'
+- note: Starting application generation
+  state: applied
+  timestamp: '2025-09-03T14:05:35.460062'
+title: Enterprise Architekt (m/w/d) // 4 Monate //
+---
+
+
+
+# Enterprise Architekt (m/w/d) // 4 Monate //
+**URL:** [https://www.freelancermap.de/projekt/enterprise-architekt-m-w-d-4-monate?ref=rss](https://www.freelancermap.de/projekt/enterprise-architekt-m-w-d-4-monate?ref=rss)
+## Details
+- **Start:** 09.2025
+- **Von:** SINC GmbH
+- **Eingestellt:** 03.09.2025
+- **Ansprechpartner:** Mohammed Zahir
+- **Projekt-ID:** 2915330
+- **Branche:** Hochschulen und Behörden und Verbände
+- **Vertragsart:** Freiberuflich
+- **Einsatzart:** 100
+                                                % Remote
+
+## Schlagworte
+Automatisierung, Enterprise Javabeans, Oracle Financials, Software Architecture, Systemarchitektur, Netzwerktechnik, Java, Javascript, Agile Methodologie, Künstliche Intelligenz, Data Analysis, Anwendungsserver, Architektur, Jira, Unit Testing, Oracle Weblogic Server, Business Intelligence, Business Process Model And Notation, Geschäftsprozesse, UNIX, Cloud Computing, Configuration Management, Beratung, Relationale Datenbanken, Linux, Dokumentenmanagement, Distributed Computing, Eclipse, Middleware, J2EE, ITIL, Servlet, Jdeveloper, Javaserver Faces, Junit, Lokale Netzwerke, Apache Maven, Microsoft Sql-Server, Nosql, Objektorientierte Software-Entwicklung, Open Source, Vorgehensmodell, Scrum, SAP Applications, Subversion, TCP / IP, UML, Wans, Web Application Framework, Web Services, Betriebsmodellen, Data Science, Firewalls, Git, Hudson Software, Betriebssysteme, Jenkins, Microservices
+
+## Beschreibung
+Wir sind ein IT-Dienstleistungs- und Beratungsunternehmen mit Fokus auf Microsoft-Technologien, das 1999 gegründet wurde. Heute beschäftigen wir 400 Mitarbeiter, die vielseitige und anspruchsvolle Projekte öffentlicher und privater Auftraggeber von der Konzeption bis zur Realisierung betreuen.
+
+Für ein Projekt bei einem öffentlichen Auftraggeber suchen wir eine/n Enterprise Architekt (m/w/d) // 4 Monate //
+
+Rahmenbedingungen des Einsatzes:
+Beginn: bis 31.01.2026 (mit Option auf Verlängerung)
+Einsatzort: Remote 90 % und Onsite in Nürnberg 10 % / 510 Stunden remote und 50 Stunden onsite
+
+Aufgaben:
+- Identifikation für die Kunden-IT potentiell geeigneter OS-Virtualisierungsplattformen
+- Design der Virtualisierungsplattform unter Betrachtung sicherer Systemarchitekturen und Softwarearchitekturen im Sinne der Automatisierung
+- Bewerten der in Frage kommenden Tools (Toolsuite) anhand der abgestimmten Tool-Bewertungsmatrix
+- Design einer NON-Prod-Umgebung zur Durchführung von PoCs der ausgewählten Tools
+- Alternativenbetrachtungen zu möglichen Betriebsmodellen unter Berücksichtigung von Hochverfügbarkeitskonzepten
+
+Anforderungen:
+Der fachliche Fokus ist auf Cloud Architektur mit Open Source sowie Erfahrungen in Migration und Projektumsetzung
+u.a. soll ein Migrationskonzept erstellt werden. (Mindestens 10 Jahre Berufserfahrung)
+
+- JavaEE / EJB/ Servlets
+- Mehrschicht-Anwendungen
+- Design & Modellierung von SW (OOA/OOD, UML)
+- Portalarchitekturen
+- Oracle Middleware (WCS, UCM, ELM)
+- EJB-Container, Applikationsserver (Oracle WebLogic, Payara)
+- Web Frameworks (z.B. JSF)
+- gängige Java Tools (Eclipse, JDeveloper, Ant, Maven, JUnit, Hudson/Jenkins)
+- Java Script Frameworks
+- RDBMS (Oracle, MS-SQL-Server) und nosql-DBs; Replikationstechnologien
+- Test-Konzeption (Unit-Test, Performance-Test, Geschäftsprozess Tests)
+- Versions-/ Konfigurationsmanagement (Git, Subversion, Jira)),
+- mehrere Betriebssysteme (UNIX, Linux, Windows)
+- Anwendungsintegration
+- Kenntnisse sicherer Software-Architekturen:
+· Kenntnisse potentieller Sicherheitsrisiken
+· Secure Design Principle & Pattern
+- Systemarchitekturen, insbesondere verteilte Systeme, Microservice- und Containerarchitekturen
+- Hochverfügbarkeitskonzepte
+- Integrationsarchitekturen (ESB, Webservices, REST, Messaging)
+- Netzwerktechnologien (TCP/IP, LAN, WAN, Firewall)
+- ITIL
+- Speichernetzwerke (SAN)
+- Agile Methoden (z. B. Scrum)
+- Prozessmodellierung (BPMN, DMN)
+- Kenntnis von EAM-Frameworks
+- Business Intelligence
+- SAP
+- Data Science (KI, Advanced Analytics)
+- Dokumentenmanagement (OCR, eAKTE, etc.)
+- Automatisierungstechnologien (NoCode, LowCode, RPA; BPE, BOT-Technologien, visuelle Entwicklungstools))
+
+Wir freuen uns, wenn Sie an einer Zusammenarbeit interessiert sind. Bitte senden Sie uns bei Interesse Ihr aktuelles Profil, relevante Referenzprojekte sowie Ihre Stundensatzvorstellung für diese Aufgabe zu.
+
+---
+
+## 🤖 AI Evaluation Results
+
+**Evaluation Timestamp:** 2025-09-03T14:04:02.986691
+
+### Pre-Evaluation Phase
+- **Score:** 29/100
+- **Threshold:** 10/100
+- **Result:** ✅ Passed
+- **Rationale:** Score: 29%. Found tags: ['ai', 'ki', 'ml', 'cloud', 'container', 'architect', 'architekt', 'systemarchitekt', 'architecture', 'architektur', 'jenkins', 'git', 'rest', 'oracle', 'weblogic', 'sql', 'enterprise', 'middleware', 'integration', 'esb', 'agile', 'scrum', 'linux', 'unix', 'beratung', 'data', 'analytics', 'hochverfügbarkeit', 'performance', 'remote', 'freelance', 'projekt', 'jira', 'eclipse', 'maven', 'ant']
+
+### LLM Analysis Phase
+- **LLM Provider:** OpenAI
+- **LLM Model:** gpt-5-mini
+- **Fit Score:** 85/100
+- **Acceptance Threshold:** 85/100
+- **Final Decision:** ✅ ACCEPTED
+
+#### Detailed Rationale
+- Key requirements (summary):
+  - Enterprise / system / cloud architecture, migration concepts, 10+ years experience
+  - JavaEE / EJB / Servlets / multi-tier apps, WebLogic and Oracle middleware
+  - Design/modeling (OOA/OOD, UML), portal architectures, JSF and web frameworks
+  - Container / microservice architectures, virtualization platforms, HA concepts
+  - Integrations (ESB, Webservices, REST, messaging), RDBMS (Oracle, MS-SQL), NoSQL
+  - Automation / IaC / CI‑CD (Terraform, Ansible, Jenkins/GitLab, config management)
+  - Security (secure design patterns, WS-Security, SAML), networks (TCP/IP, LAN/WAN)
+  - BPMN/DMN, EAM frameworks, BI, SAP, Data Science / AI, document management / OCR
+  - Tool evaluation, PoC NON‑Prod design, operator-run models and alternatives
+
+- Strong matches from CV:
+  - ~30 years in enterprise middleware and architecture; well beyond 10-year requirement.
+  - Deep JavaEE/J2EE background (including EJB, servlets, early EJB pilot, many J2EE projects).
+  - Extensive Oracle middleware experience (WebLogic, Oracle Service Bus, SOA, Forms/Reports).
+  - Cloud & migration expertise: many AWS projects, Landing Zone, migrations to AWS, SAP on AWS POC.
+  - IaC/automation: Terraform (certified), SaltStack, GitLab CI/CD, Jenkins, Git, Docker, Kubernetes (KCNA), EKS.
+  - Security experience: SAML, WS‑Security, security workshops, vulnerability analysis and mitigation.
+  - Integration experience: ESB/OSB, SOAP/REST, messaging; strong scripting (Python, bash) for automation.
+  - Monitoring/ops familiarity: Prometheus, Grafana, CloudWatch, logging — and HA architectures.
+  - AI / Data Science exposure: AWS AI certificates and recent private AI / LibreChat projects.
+  - Experience producing PoCs, NON‑Prod environments, and tool evaluation documentation (live-scripting).
+
+- Partial / weaker matches / gaps:
+  - Specific Oracle products listed in the brief (WCS, UCM, ELM) are not explicitly named in CV — strong Oracle middleware background suggests quick ramp-up but explicit product experience unclear.
+  - Payara application server not mentioned (but strong WebLogic expertise and general app-server experience exist).
+  - Explicit experience with OS virtualization platforms (e.g., VMware/vSphere, KVM) for evaluation is not prominent — most virtualization/cloud work is AWS-focused.
+  - SAN / storage-network specifics and dedicated SAN admin experience are not highlighted (though AWS storage services are well covered).
+  - EAM-frameworks, NoCode/LowCode/RPA and detailed OCR/eAkten/document-management implementations are not clearly present (some imaging and document-related work historically, but not explicit modern eAKTE/OCR projects).
+  - JavaScript frameworks and front-end JS experience are not detailed (backend/middleware focus dominates).
+
+- Overall assessment / recommendation:
+  - The candidate is a very strong match for enterprise/cloud-architecture, JavaEE/middleware, migration and automation tasks, and for running PoCs and designing NON‑Prod environments. Gaps are mostly in a few specific vendor tools (WCS/UCM/ELM, Payara) and some niche areas (RPA/NoCode, SAN, modern JS frameworks, explicit EAM frameworks). These are either bridgeable quickly given the candidate's depth, or can be covered by short ramp-up or pairing with specialists.
+
+- Final fit judgment: 85/100 — strong fit with minor product/area-specific gaps to clarify before engagement.
+
+---
+
+
+---
+
+## 🤖 AI Evaluation Results
+
+**Evaluation Timestamp:** 2025-09-03T14:06:18.256650
+
+### Pre-Evaluation Phase
+- **Score:** 51/100
+- **Threshold:** 10/100
+- **Result:** ✅ Passed
+- **Rationale:** Score: 51%. Found tags: ['aws', 'ai', 'ki', 'llm', 'openai', 'ml', 'cloud', 'terraform', 'kubernetes', 'docker', 'container', 'prometheus', 'grafana', 'monitoring', 'architect', 'architekt', 'cloud architect', 'systemarchitekt', 'architecture', 'architektur', 'ci/cd', 'jenkins', 'gitlab', 'automation', 'iac', 'ansible', 'saltstack', 'python', 'bash', 'scripting', 'git', 'rest', 'soap', 'oracle', 'weblogic', 'sql', 'enterprise', 'middleware', 'integration', 'esb', 'service bus', 'security', 'saml', 'agile', 'scrum', 'linux', 'unix', 'beratung', 'workshop', 'data', 'analytics', 'hochverfügbarkeit', 'performance', 'remote', 'freelance', 'projekt', 'project', 'jira', 'eclipse', 'maven', 'ant']
+
+### LLM Analysis Phase
+- **LLM Provider:** OpenAI
+- **LLM Model:** gpt-5-mini
+- **Fit Score:** 86/100
+- **Acceptance Threshold:** 85/100
+- **Final Decision:** ✅ ACCEPTED
+
+#### Detailed Rationale
+- Summary: Strong fit for the role (architecture, migrations, middleware, cloud). Candidate brings ~30 years enterprise experience and recent cloud/AI/IaC certifications. 
+
+- Core architecture & cloud (MATCH): Extensive enterprise/system architecture and migration experience; proven AWS work (Landing Zone, multi-account, EKS), Terraform certification, Docker/Kubernetes (KCNA). Well suited to design virtualization/container platforms, NON‑Prod PoCs and HA concepts. 
+
+- JavaEE / Middleware / App-Servers (MATCH): Deep J2EE background (EJB, Servlets, multi-tier apps), long history with Oracle WebLogic and Oracle Service Bus, many migration and high-availability projects. 
+
+- Integration, Security & Operations (MATCH): Strong SOAP/REST/ESB/messaging experience, SAML and WS-Security, automation (SaltStack, GitLab CI/CD, Jenkins), monitoring basics (Prometheus/Grafana) and scripting (Python, bash). 
+
+- Automation, Testing & Tooling (MATCH): IaC and automation (Terraform, SaltStack), CI/CD pipeline experience, versioning (Git, SVN), test-concept experience (unit, perf, functional/PoC). 
+
+- Data/AI, SAP & PoC experience (MATCH): AWS AI certs and private AI projects (LibreChat), SAP BW/4HANA on AWS PoC — addresses BI/SAP/Data-Science expectations. 
+
+- Partial / weaker evidence (GAPS): Specific Oracle products listed in brief (WCS, UCM, ELM) and Payara not explicitly shown; modern JavaScript frameworks and explicit front-end JS work are not detailed; OS virtualization platform experience (vSphere/KVM) and SAN/storage administration are not prominent; EAM-frameworks, NoCode/LowCode/RPA and modern document-management/OCR (eAkte) implementations are not clearly documented. 
+
+- Logistics & recommendation: Remote/onsite split is feasible (Hamburg base); candidate is recommended for engagement. Clarify expectations on WCS/UCM/ELM, virtualization/SAN, RPA/NoCode and any required front-end framework skills; these are rapidly bridgeable given the candidate's depth.
+
+---

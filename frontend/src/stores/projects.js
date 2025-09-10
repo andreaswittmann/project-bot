@@ -99,25 +99,26 @@ export const useProjectsStore = defineStore('projects', {
       }
     },
 
-    async updateProjectState(id, fromState, toState, note = null, force = false) {
+    async updateProjectState(id, fromState, toState, note = null) {
       const requestData = {
         from_state: fromState,
         to_state: toState,
         note: note,
-        force: force
+        force: true,  // Always force for UI calls
+        ui_context: true  // Indicate this is a UI-initiated change
       }
-      console.log('Sending transition request:', requestData)
-
+      console.log('Sending UI transition request:', requestData)
+      
       try {
         const response = await api.post(`/api/v1/projects/${id}/transition`, requestData)
-
+        
         // Update the project in the local state
         const projectIndex = this.projects.findIndex(p => p.id === id)
         if (projectIndex !== -1) {
           this.projects[projectIndex] = response.data.project
         }
-
-        console.log(`Project ${id} state updated: ${fromState} → ${toState}${force ? ' (manual override)' : ''}`)
+        
+        console.log(`Project ${id} state updated: ${fromState} → ${toState} (UI context)`)
         return response.data
       } catch (error) {
         console.error('Error updating project state:', error)

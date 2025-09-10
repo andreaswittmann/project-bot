@@ -34,6 +34,15 @@ echo "Project directory set to: ${PROJECT_DIR}"
 pwd
 ls -la
 echo "Project cloned successfully!"
+
+# Get latest changes from remote
+## revert first the file frontend/.env
+git checkout -- frontend/.env
+git pull
+git status
+git log -1
+
+
 ```
 
 The project was cloned from http://100.71.227.145:3300/anwi/bewerbungs-bot into ~/test-projects/bewerbungs-bot and the directory structure was verified.
@@ -57,19 +66,21 @@ tree docker-volumes/ 2>/dev/null || ls -la docker-volumes/*/
 ## Or copy your cv to the correct place
 cp data/CV_Andreas.Wittmann_GmbH_DE_2025_04.md docker-volumes/data/cv.md
 
-## or scp the files from local machine
+######## or scp the files from local machine
 exit
 whoami
+
 # Update these paths according to your local setup
-# scp ~/path/to/your/cv.md asamadhi:~/LocalProjects/ai-bootcamp/bewerbungs-bot/docker-volumes/data/cv.md
-# scp ~/path/to/your/.env asamadhi:~/LocalProjects/ai-bootcamp/bewerbungs-bot/docker/.env
+scp ~/LocalProjects/ai-bootcamp/bewerbungs-bot/data/CV_Andreas.Wittmann_GmbH_DE_2025_04.md asamadhi:~/LocalProjects/ai-bootcamp/bewerbungs-bot/docker-volumes/data/cv.md
+
+scp ~/LocalProjects/ai-bootcamp/.env asamadhi:~/LocalProjects/ai-bootcamp/bewerbungs-bot/docker/.env
 
 ssh asamadhi
 bash
 cd ~/LocalProjects/ai-bootcamp/bewerbungs-bot
 export PROJECT_DIR=$(pwd)
 echo "Project directory set to: ${PROJECT_DIR}"
-
+########### End of scp section
 
 
 ls -la docker-volumes/data/
@@ -103,6 +114,23 @@ pwd
 cat .env 2>/dev/null || echo "No .env file found - create one with your API keys"
 ls -la
 
+## Now we need to eidt the frontend/.env file to add the correct VITE_API_BASE_URL
+cd ${PROJECT_DIR}
+cat frontend/.env
+#get currnt tailscale ip
+ifconfig | awk '/inet / && $2 ~ /^100\./ {print $2}'
+export TAILSCALE_IP=$(ifconfig | awk '/inet / && $2 ~ /^100\./ {print $2}')
+echo $TAILSCALE_IP
+
+## Here document to update the VITE_API_BASE_URL in frontend/.env
+cat <<EOF > frontend/.env
+VITE_API_BASE_URL=http://${TAILSCALE_IP}:8003
+EOF
+cat frontend/.env
+
+
+
+
 ```
 
 The Docker environment template was created as .env file. You need to manually edit this file with your actual OpenAI, Anthropic, and Google API keys.
@@ -112,7 +140,7 @@ The Docker environment template was created as .env file. You need to manually e
 We want to update the docker-compose.yml to use our organized volume structure and start the application.
 
 ```shell
-
+cd ${PROJECT_DIR}/docker
 cat docker-compose.yml
 
 # Build Docker image and start container
@@ -122,6 +150,7 @@ cat docker-compose.yml
 docker compose build --no-cache
 
 # Starting application container with organized volumes...
+docker compose down
 docker compose up -d
 
 # Verify container status and volumes
@@ -130,6 +159,20 @@ docker compose ps
 docker compose logs --tail=10
 # "Mounted volumes:"
 ls -la ../docker-volumes/
+
+# Log into the container to verify running process
+docker compose exec bewerbungs-bot bash -c "ps aux | grep python"
+Docker compose exec bewerbungs-bot bash -c "ls -la /app/data/"
+docker compose exec bewerbungs-bot bash -c "cat /app/config.yaml"
+docker compose exec bewerbungs-bot bash -c "env | grep API_KEY"
+docker compose exec bewerbungs-bot bash -c "env | grep OPENAI"
+docker compose exec bewerbungs-bot bash 
+ls
+
+
+
+
+
 ```
 
 The docker-compose.yml was updated to use the organized `docker-volumes` directory structure and configured with project name "bot" for Docker Desktop. The Docker image was built and the application container started with all volumes properly mounted from the centralized location.
@@ -219,7 +262,9 @@ docker rmi bewerbungs-bot || true
 docker image prune -f
 
 # Remove project directory (WARNING: This deletes everything!)
-cd ~/test-projects
+cd $PROJECT_DIR/..
+pwd
+
 rm -rf bewerbungs-bot
 
 # Clean up Docker system

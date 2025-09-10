@@ -28,12 +28,12 @@ class ProjectStateManager:
 
     VALID_TRANSITIONS = {
         'scraped': ['rejected', 'accepted'],  # Direct evaluation result
-        'rejected': ['accepted', 'archived'],  # Manual override allowed
-        'accepted': ['applied'],
-        'applied': ['sent', 'archived'],  # Can archive if not sent
-        'sent': ['open'],
-        'open': ['archived'],
-        'archived': []  # Final state
+        'rejected': ['accepted', 'applied', 'archived'],  # Allow re-application
+        'accepted': ['applied', 'rejected'],  # Can still reject
+        'applied': ['sent', 'archived', 'open'],  # More flexible
+        'sent': ['open', 'archived'],
+        'open': ['archived', 'applied'],  # Can re-apply
+        'archived': ['scraped', 'accepted', 'rejected']  # Allow reopening
     }
 
     def __init__(self, projects_dir: str = "projects"):
@@ -173,50 +173,67 @@ class ProjectStateManager:
 
         return new_state in self.VALID_TRANSITIONS[current_state]
 
-    def update_state(self, project_path: str, new_state: str, note: Optional[str] = None, force: bool = False) -> bool:
+    def update_state(self, project_path: str, new_state: str, note: Optional[str] = None, force: bool = False, ui_context: bool = False) -> bool:
         """
-        Update project state with optional validation bypass for manual overrides.
-
+        Update project state with relaxed validation for UI interactions.
+        
         Args:
             project_path: Path to project file
             new_state: New state to set
             note: Optional note for the state change
             force: If True, bypass validation for manual state changes
-
+            ui_context: If True, allow all transitions for UI with logging
+            
         Returns:
             True if successful, False otherwise
         """
         frontmatter, body = self.read_project(project_path)
-
+        
         current_state = frontmatter.get('state')
-
-        # Validate transition (unless forced)
-        if not force and current_state and not self.validate_transition(current_state, new_state):
+        
+        # Determine if this is an override (either forced or UI context)
+        is_override = force or ui_context
+        is_valid_transition = not current_state or self.validate_transition(current_state, new_state)
+        
+        # For UI context, always allow but log as override if invalid
+        if ui_context and current_state and not is_valid_transition:
+            print(f"UI override transition: {current_state} -> {new_state}")
+            is_override = True
+        
+        # For non-UI calls, maintain strict validation unless forced
+        elif not is_override and current_state and not is_valid_transition:
             print(f"Invalid state transition: {current_state} -> {new_state}")
             return False
-
+        
         # Update state
         frontmatter['state'] = new_state
-
+        
         # Update state history
         if 'state_history' not in frontmatter:
             frontmatter['state_history'] = []
-
+        
         history_entry = {
             'state': new_state,
             'timestamp': datetime.now().isoformat()
         }
-        if note:
-            history_entry['note'] = note
-
-        # Add override flag for manual changes
-        if force:
+        
+        # Handle notes - always optional, auto-generate for overrides if empty
+        if note and note.strip():
+            history_entry['note'] = note.strip()
+        elif is_override:
+            auto_note = f"UI state change: {current_state or 'none'} → {new_state}"
+            if force:
+                auto_note = f"Manual override: {current_state or 'none'} → {new_state}"
+            history_entry['note'] = auto_note
+        
+        # Add override flag
+        if is_override:
             history_entry['override'] = True
-            if not note:
-                history_entry['note'] = f"Manual override: {current_state or 'none'} → {new_state}"
-
+            if ui_context:
+                history_entry['ui_context'] = True
+        
         frontmatter['state_history'].append(history_entry)
-
+        
         # Write back to file
         return self.write_project(project_path, frontmatter, body)
 
