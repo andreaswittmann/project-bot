@@ -15,12 +15,12 @@ export const useProjectsStore = defineStore('projects', {
       llm_score_min: null,
       llm_score_max: null,
       page: 1,
-      page_size: 50
+      page_size: 300
     },
     pagination: {
       total: 0,
       page: 1,
-      page_size: 50,
+      page_size: 300,
       has_next: false,
       has_prev: false
     },
@@ -62,7 +62,7 @@ export const useProjectsStore = defineStore('projects', {
         if (this.filters.llm_score_min !== null) params.append('llm_score_min', this.filters.llm_score_min)
         if (this.filters.llm_score_max !== null) params.append('llm_score_max', this.filters.llm_score_max)
         if (this.filters.page !== 1) params.append('page', this.filters.page)
-        if (this.filters.page_size !== 50) params.append('page_size', this.filters.page_size)
+        if (this.filters.page_size !== 300) params.append('page_size', this.filters.page_size)
 
         const response = await api.get(`/api/v1/projects?${params.toString()}`)
         console.log('📦 Raw API response:', response.data)
@@ -73,7 +73,7 @@ export const useProjectsStore = defineStore('projects', {
         this.pagination = {
           total: response.data.total || 0,
           page: response.data.page || 1,
-          page_size: response.data.page_size || 50,
+          page_size: response.data.page_size || 300,
           has_next: response.data.has_next || false,
           has_prev: response.data.has_prev || false
         }
@@ -202,7 +202,7 @@ export const useProjectsStore = defineStore('projects', {
         llm_score_min: null,
         llm_score_max: null,
         page: 1,
-        page_size: 50
+        page_size: 300
       }
     },
 

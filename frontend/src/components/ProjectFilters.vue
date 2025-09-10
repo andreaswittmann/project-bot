@@ -170,6 +170,7 @@
           <option :value="25">25</option>
           <option :value="50">50</option>
           <option :value="100">100</option>
+          <option :value="300">300</option>
           <option :value="500">500</option>
           <option :value="0">All</option>
         </select>
@@ -275,7 +276,7 @@ const localFilters = ref({
   llm_score_min: null,
   llm_score_max: null,
   page: 1,
-  page_size: 50
+  page_size: 300
 })
 
 const selectedQuickDateRange = ref('')
@@ -331,7 +332,7 @@ const resetFilters = () => {
     llm_score_min: null,
     llm_score_max: null,
     page: 1,
-    page_size: 50
+    page_size: 300
   }
   selectedQuickDateRange.value = ''
   applyFilters()

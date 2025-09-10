@@ -166,7 +166,7 @@ const props = defineProps({
     default: () => ({
       total: 0,
       page: 1,
-      page_size: 50,
+      page_size: 300,
       has_next: false,
       has_prev: false
     })
