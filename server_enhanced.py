@@ -15,7 +15,7 @@ import json
 import logging
 import re
 from datetime import datetime
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional, Any, Tuple
 from pydantic import BaseModel, ValidationError
 from functools import wraps
 import uuid
@@ -261,6 +261,60 @@ def save_quick_filters(filters: QuickFilterList):
 
 # Utility functions
 
+def extract_latest_scores(content: str) -> Tuple[Optional[int], Optional[int]]:
+    """
+    Extract the latest pre-evaluation and LLM scores from markdown content.
+    Handles multiple evaluation sections by finding the most recent one based on timestamp.
+
+    Args:
+        content: The markdown content to parse
+
+    Returns:
+        Tuple of (pre_eval_score, llm_score) - both can be None if not found
+    """
+    # Find all evaluation sections with their timestamps
+    evaluation_pattern = r'## 🤖 AI Evaluation Results\s*\n\s*\*\*Evaluation Timestamp:\*\*\s*([^\n]+)(.*?)(?=## 🤖 AI Evaluation Results|$)'
+    evaluations = re.findall(evaluation_pattern, content, re.DOTALL)
+
+    if not evaluations:
+        # Fallback to old method for backward compatibility
+        pre_eval_match = re.search(r"- \*\*Score:\*\*\s*(\d+)/100", content)
+        llm_match = re.search(r"- \*\*Fit Score:\*\*\s*(\d+)/100", content)
+
+        pre_eval_score = int(pre_eval_match.group(1)) if pre_eval_match else None
+        llm_score = int(llm_match.group(1)) if llm_match else None
+        return pre_eval_score, llm_score
+
+    # Parse each evaluation and find the latest one
+    latest_timestamp = None
+    latest_pre_eval = None
+    latest_llm = None
+
+    for timestamp_str, section_content in evaluations:
+        try:
+            # Parse timestamp
+            current_timestamp = datetime.fromisoformat(timestamp_str.strip())
+
+            # Extract scores from this section
+            pre_eval_match = re.search(r"- \*\*Score:\*\*\s*(\d+)/100", section_content)
+            llm_match = re.search(r"- \*\*Fit Score:\*\*\s*(\d+)/100", section_content)
+
+            current_pre_eval = int(pre_eval_match.group(1)) if pre_eval_match else None
+            current_llm = int(llm_match.group(1)) if llm_match else None
+
+            # Update latest if this is newer or first one
+            if latest_timestamp is None or current_timestamp > latest_timestamp:
+                latest_timestamp = current_timestamp
+                latest_pre_eval = current_pre_eval
+                latest_llm = current_llm
+
+        except (ValueError, AttributeError) as e:
+            # Skip invalid timestamps or parsing errors
+            logger.warning(f"Failed to parse evaluation timestamp '{timestamp_str}': {e}")
+            continue
+
+    return latest_pre_eval, latest_llm
+
 def parse_project_file(file_path: str) -> Dict[str, Any]:
     """Parse project file and extract metadata"""
     try:
@@ -316,14 +370,8 @@ def parse_project_file(file_path: str) -> Dict[str, Any]:
         if posted_match:
             metadata["posted_date"] = posted_match.group(1).strip()
 
-        # Extract scores from content
-        pre_eval_match = re.search(r"- \*\*Score:\*\*\s*(\d+)/100", content)
-        if pre_eval_match:
-            metadata["pre_eval_score"] = int(pre_eval_match.group(1))
-
-        llm_match = re.search(r"- \*\*Fit Score:\*\*\s*(\d+)/100", content)
-        if llm_match:
-            metadata["llm_score"] = int(llm_match.group(1))
+        # Extract latest scores from content (handle multiple evaluations)
+        metadata["pre_eval_score"], metadata["llm_score"] = extract_latest_scores(content)
 
         return metadata
 
