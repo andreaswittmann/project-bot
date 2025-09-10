@@ -22,7 +22,7 @@
           <div class="stat-number">{{ totalProjects }}</div>
           <div class="stat-label">Total Projects</div>
         </div>
-        <div v-for="(count, status) in statsByStatus" :key="status" class="stat-card" :class="`stat-${status}`">
+        <div v-for="(count, status) in statsByStatus" :key="status" class="stat-card clickable" :class="`stat-${status}`" @click="filterByStatus(status)">
           <div class="stat-number">{{ count }}</div>
           <div class="stat-label">{{ status }}</div>
         </div>
@@ -223,6 +223,21 @@ const handleDeleteProject = async (projectId) => {
     // so no need to refetch projects here.
   } catch (error) {
     console.error('Failed to delete project:', error);
+  }
+};
+
+const filterByStatus = async (status) => {
+  console.log('Filtering by status:', status);
+  try {
+    // Set filter to only show projects with this status
+    projectsStore.setFilters({
+      statuses: [status],
+      page: 1 // Reset to first page when filtering
+    });
+    // Fetch projects with the new filter
+    await projectsStore.fetchProjects();
+  } catch (error) {
+    console.error('Failed to filter by status:', error);
   }
 };
 
@@ -432,6 +447,21 @@ onMounted(() => {
 .stat-card:hover {
   transform: translateY(-1px);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.stat-card.clickable {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.stat-card.clickable:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.stat-card.clickable:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .stat-number {
