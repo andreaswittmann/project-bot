@@ -225,7 +225,7 @@ const availableTransitions = computed(() => {
   if (!project.value) return []
 
   const currentStatus = project.value.status
-  const allStates = ['scraped', 'accepted', 'rejected', 'applied', 'sent', 'open', 'archived']
+  const allStates = ['scraped', 'accepted', 'rejected', 'applied', 'sent', 'open', 'archived', 'empty']
   const validTransitions = {
     'scraped': ['accepted', 'rejected'],
     'accepted': ['applied', 'rejected'],
@@ -233,7 +233,8 @@ const availableTransitions = computed(() => {
     'sent': ['open', 'archived'],
     'open': ['archived'],
     'rejected': ['accepted', 'archived'],
-    'archived': ['scraped']
+    'archived': ['scraped'],
+    'empty': ['scraped', 'archived']  // Manual projects can be evaluated or archived
   }
 
   const transitions = []
@@ -253,6 +254,7 @@ const availableTransitions = computed(() => {
       case 'sent': label = 'Mark as Sent'; icon = '📤'; break
       case 'open': label = 'Mark as Open'; icon = '📂'; break
       case 'archived': label = 'Archive'; icon = '📦'; break
+      case 'empty': label = 'Start Evaluation'; icon = '🚀'; break
       default: label = state; icon = '❓'
     }
 
@@ -951,6 +953,7 @@ defineExpose({ onUnmounted })
 }
 
 .status-scraped { background: #fef3c7; color: #92400e; border-color: #f59e0b; }
+.status-empty { background: #f9fafb; color: #6b7280; border-color: #d1d5db; }
 .status-accepted { background: #dcfce7; color: #166534; border-color: #10b981; }
 .status-rejected { background: #fef2f2; color: #991b1b; border-color: #ef4444; }
 .status-applied { background: #dbeafe; color: #1e40af; border-color: #3b82f6; }
@@ -1285,6 +1288,7 @@ defineExpose({ onUnmounted })
 .status-open { background: #e0f2fe; color: #0c4a6e; }
 .status-archived { background: #f3f4f6; color: #374151; }
 .status-scraped { background: #fef3c7; color: #92400e; }
+.status-empty { background: #f9fafb; color: #6b7280; }
 
 .transition-options h4 {
   margin: 0 0 1rem 0;

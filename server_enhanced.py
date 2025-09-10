@@ -121,6 +121,11 @@ class MarkdownContentResponse(BaseModel):
 class MarkdownUpdateRequest(BaseModel):
     content: str
 
+class CreateManualProjectRequest(BaseModel):
+    title: str
+    company: Optional[str] = None
+    description: Optional[str] = None
+
 # Pydantic Models for Scheduling API
 
 class ScheduleCreateRequest(BaseModel):
@@ -479,6 +484,76 @@ def handle_relative_dates(filters: ProjectFilters) -> ProjectFilters:
             filters.date_to = today.strftime('%Y-%m-%d')
 
     return filters
+
+def generate_manual_project_template(project_id: str, title: str, company: Optional[str] = None,
+                                   description: Optional[str] = None, scraped_date: str = None) -> str:
+    """Generate template content for manual project creation"""
+    if not scraped_date:
+        scraped_date = datetime.now().isoformat()
+
+    # Clean title for filename compatibility
+    clean_title = re.sub(r'[^\w\s-]', '', title).strip().replace(' ', '_')
+
+    template = f"""---
+company: {company or 'Your Company Name'}
+reference_id: '{project_id}'
+scraped_date: '{scraped_date}'
+source_url: https://manual-entry.com/project/{project_id}
+state: empty
+state_history:
+- note: 'Manual project created'
+  state: empty
+  timestamp: '{scraped_date}'
+title: {title}
+---
+
+# {title}
+
+**URL:** [Manual Entry](https://manual-entry.com/project/{project_id})
+## Details
+- **Start:** To be determined
+- **Von:** {company or 'Your Company Name'}
+- **Eingestellt:** {datetime.now().strftime('%d.%m.%Y')}
+- **Ansprechpartner:** To be determined
+- **Projekt-ID:** {project_id}
+- **Branche:** To be determined
+- **Vertragsart:** To be determined
+- **Einsatzart:** To be determined
+                                                % Remote
+
+## Schlagworte
+To be determined, manual, project
+
+## Beschreibung
+{description or 'Please provide a detailed project description here. Include requirements, responsibilities, skills needed, and any other relevant information.'}
+
+---
+
+## 🤖 AI Evaluation Results
+
+**Evaluation Timestamp:** {scraped_date}
+
+### Pre-Evaluation Phase
+- **Score:** 0/100
+- **Threshold:** 10/100
+- **Result:** ⏳ PENDING
+- **Rationale:** Manual project - evaluation pending
+
+### LLM Analysis Phase
+- **Fit Score:** 0/100
+- **Acceptance Threshold:** 85/100
+- **Final Decision:** ⏳ PENDING
+
+#### Detailed Rationale
+- **Skills and Technologies Required**: To be determined
+- **Skills and Technologies Matched**: To be evaluated
+- **Key Gaps**: To be determined
+- **Next Steps**: Please fill out the project details and run evaluation
+
+---
+"""
+
+    return template
 
 # API Endpoints
 
@@ -910,6 +985,65 @@ def update_project_markdown(project_id: str):
         return jsonify(APIErrorResponse(
             error="WriteError",
             message=f"Failed to update markdown file: {str(e)}",
+            code=500,
+            timestamp=datetime.now().isoformat()
+        ).dict()), 500
+
+@app.route('/api/v1/projects', methods=['POST'])
+@handle_api_errors
+def create_manual_project():
+    """Create a new manual project with template"""
+    data = request.get_json()
+    if not data:
+        raise ValidationError("No JSON data provided")
+
+    create_request = CreateManualProjectRequest(**data)
+
+    try:
+        # Ensure projects directory exists
+        projects_dir = Path("projects")
+        projects_dir.mkdir(exist_ok=True)
+
+        # Generate timestamp-based filename
+        now = datetime.now()
+        timestamp = now.strftime("%Y%m%d_%H%M%S")
+        project_id = f"{timestamp}_manual_project"
+
+        # Create project file
+        project_file = projects_dir / f"{project_id}.md"
+
+        # Generate template content
+        template_content = generate_manual_project_template(
+            project_id=project_id,
+            title=create_request.title,
+            company=create_request.company,
+            description=create_request.description,
+            scraped_date=now.isoformat()
+        )
+
+        # Write the template to file
+        with open(project_file, 'w', encoding='utf-8') as f:
+            f.write(template_content)
+
+        # Parse the created project to return its data
+        project_data = parse_project_file(str(project_file))
+        response = ProjectResponse(**project_data)
+
+        logger.info(f"✅ Manual project created: {project_id}")
+
+        return jsonify({
+            "success": True,
+            "message": f"Manual project '{create_request.title}' created successfully",
+            "project": response.dict(),
+            "project_id": project_id,
+            "timestamp": datetime.now().isoformat()
+        }), 201
+
+    except Exception as e:
+        logger.error(f"Error creating manual project: {e}")
+        return jsonify(APIErrorResponse(
+            error="CreationError",
+            message=f"Failed to create manual project: {str(e)}",
             code=500,
             timestamp=datetime.now().isoformat()
         ).dict()), 500

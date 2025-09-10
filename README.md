@@ -19,6 +19,13 @@ This bot helps freelancers automate the complete process of:
 - Parses project details from HTML pages
 - Prevents duplicate processing with automatic logging
 
+### ➕ Manual Project Creation
+- **Dashboard Integration**: Create custom projects directly from the web interface
+- **Template Generation**: Automatic markdown template with all required fields
+- **State Management**: Starts in "empty" state, ready for manual editing
+- **Workflow Integration**: Seamlessly integrates with existing evaluation and application generation
+- **Flexible Input**: Simple prompts for title, company, and description
+
 ### 🧠 AI-Powered Evaluation
 - **Pre-evaluation**: Fast keyword-based scoring system
 - **LLM Analysis**: Deep evaluation against your CV using configurable AI models (OpenAI GPT, Anthropic Claude, or Google Gemini) to calculate fit scores
@@ -360,6 +367,34 @@ python main.py --state-list --state accepted applied sent open
 python main.py --state-list --state sent
 ```
 
+### Manual Project Creation
+
+#### Dashboard-Based Creation
+```bash
+# Start the server
+python server_enhanced.py
+
+# Access dashboard at: http://localhost:8002
+# Click "➕ Create Manual" button in the header
+# Fill in project details when prompted
+# Project is automatically created and opened in editor
+```
+
+**Manual Project Workflow:**
+1. **Create**: Click "➕ Create Manual" in dashboard header
+2. **Fill Details**: Enter title, company (optional), description (optional)
+3. **Edit**: Project opens in MarkdownEditor with template
+4. **Evaluate**: Click "Re-evaluate" to run AI analysis
+5. **Apply**: Generate application if fit score is high enough
+6. **Submit**: Update state to "sent" when application is submitted
+
+**Manual Project Template Features:**
+- YAML frontmatter with all required fields
+- State set to "empty" (ready for editing)
+- Current timestamp for `scraped_date`
+- Placeholder URL and dummy content
+- Ready for immediate evaluation
+
 ### Individual Components
 
 #### Evaluation Only
@@ -455,20 +490,29 @@ bewerbungs-bot/
 │   ├── dashboard.html        # Interactive dashboard with state filtering
 │   └── generate_dashboard_data.py  # Data extraction with state parsing
 ├── projects/                 # All projects in single directory (state-managed)
-│   ├── project_001.md        # state: "accepted"
-│   ├── project_002.md        # state: "sent"
-│   └── project_003.md        # state: "archived"
+│   ├── project_001.md        # state: "accepted" (scraped project)
+│   ├── project_002.md        # state: "sent" (scraped project)
+│   ├── project_003.md        # state: "archived" (scraped project)
+│   └── manual_project.md     # state: "empty" (manually created)
 ├── projects_log/             # Evaluation logs
 └── applications_status.json  # Application tracking
 ```
 
 ## Workflow
 
+### Option 1: Automated Scraping (Recommended)
 1. **Scraping Phase:**
     - Bot fetches latest projects from RSS feeds
     - Parses project details and saves as markdown files with YAML frontmatter
     - Initializes project state as `scraped` with timestamp and metadata
     - Logs processed URLs to prevent duplicates
+
+### Option 2: Manual Project Creation
+1. **Manual Creation Phase:**
+    - Click "➕ Create Manual" in dashboard header
+    - Enter project title, company (optional), description (optional)
+    - Project created with template and state set to `empty`
+    - Automatically opens in MarkdownEditor for editing
 
 2. **Evaluation Phase:**
     - Pre-evaluation scores projects using keyword matching
@@ -539,6 +583,65 @@ application_generator:
 - Uses professional German templates (tested and proven)
 - Independent LLM configuration prevents cost conflicts
 - Automatic cost tracking and token usage monitoring
+
+### Manual Project Creation System
+Create custom projects directly from the web interface with full workflow integration:
+
+**Key Features:**
+- **Dashboard Integration**: One-click creation from the main dashboard
+- **Template Generation**: Automatic markdown template with all required fields
+- **State Management**: Starts in "empty" state, ready for manual editing
+- **Workflow Integration**: Seamlessly integrates with existing evaluation and application generation
+- **Flexible Input**: Simple prompts for essential project information
+
+**Usage:**
+```bash
+# Start the server
+python server_enhanced.py
+
+# Access dashboard at: http://localhost:8002
+# Click "➕ Create Manual" button
+# Fill in: title (required), company (optional), description (optional)
+```
+
+**Template Structure:**
+```markdown
+---
+title: "Your Project Title"
+company: "Company Name"
+reference_id: "20250910_170604_manual_project"
+scraped_date: "2025-09-10T17:06:04.856861"
+source_url: "https://manual-entry.com/project/project_id"
+state: "empty"
+---
+
+# Your Project Title
+
+**URL:** [Manual Entry](https://manual-entry.com/project/project_id)
+## Details
+- **Start:** To be determined
+- **Von:** Company Name
+- **Eingestellt:** To be determined
+- **Ansprechpartner:** To be determined
+- **Projekt-ID:** project_id
+- **Branche:** To be determined
+- **Vertragsart:** To be determined
+- **Einsatzart:** To be determined
+
+## Schlagworte
+To be determined, manual, project
+
+## Beschreibung
+[Your project description here]
+```
+
+**Workflow Integration:**
+1. **Create**: Project created with template and "empty" state
+2. **Edit**: Use MarkdownEditor to fill in project details
+3. **Evaluate**: Click "Re-evaluate" to run AI analysis
+4. **Apply**: Generate application if fit score meets threshold
+5. **Submit**: Update state to "sent" when application is submitted
+6. **Track**: Use full state management like scraped projects
 
 ### Custom Keyword Scoring
 Fine-tune the pre-evaluation by adjusting keyword weights in `config.yaml`:

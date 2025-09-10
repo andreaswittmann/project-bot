@@ -6,6 +6,9 @@
         <p>Vue3 Frontend - Connected to Flask API</p>
       </div>
       <nav class="header-nav">
+        <button @click="createManualProject" class="nav-link create-btn" :disabled="loading">
+          ➕ Create Manual
+        </button>
         <button @click="refreshData" class="nav-link refresh-btn" :disabled="loading">
           🔄 Refresh
         </button>
@@ -89,11 +92,15 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { useProjectsStore } from '../stores/projects'
 import ProjectFilters from '../components/ProjectFilters.vue'
 import ProjectTable from '../components/ProjectTable.vue'
 import ProjectDetailsModal from '../components/ProjectDetailsModal.vue'
 import ProjectActions from '../components/ProjectActions.vue'
+
+// Router
+const router = useRouter()
 
 // Store
 const projectsStore = useProjectsStore()
@@ -240,6 +247,42 @@ const filterByStatus = async (status) => {
     await projectsStore.fetchProjects();
   } catch (error) {
     console.error('Failed to filter by status:', error);
+  }
+};
+
+const createManualProject = async () => {
+  console.log('Creating manual project...');
+
+  // Simple prompt for project details
+  const title = prompt('Enter project title:');
+  if (!title || !title.trim()) {
+    alert('Project title is required');
+    return;
+  }
+
+  const company = prompt('Enter company name (optional):') || '';
+  const description = prompt('Enter project description (optional):') || '';
+
+  try {
+    const result = await projectsStore.createManualProject({
+      title: title.trim(),
+      company: company.trim() || null,
+      description: description.trim() || null
+    });
+
+    console.log('Manual project created successfully:', result);
+
+    // Navigate to the editor for the new project
+    if (result.project_id) {
+      router.push(`/editor/${result.project_id}`);
+    }
+
+    // Refresh stats to show the new project
+    await projectsStore.fetchStats();
+
+  } catch (error) {
+    console.error('Failed to create manual project:', error);
+    alert('Failed to create manual project: ' + (error.response?.data?.message || error.message));
   }
 };
 
@@ -420,6 +463,20 @@ onMounted(() => {
   transform: none;
 }
 
+.create-btn {
+  background: #10b981;
+  color: white;
+}
+
+.create-btn:hover:not(:disabled) {
+  background: #059669;
+}
+
+.create-btn:disabled {
+  background: #6b7280;
+  cursor: not-allowed;
+}
+
 .main-content {
   width: 100%;
   max-width: 1800px;
@@ -526,6 +583,11 @@ onMounted(() => {
   border-color: #6b7280;
 }
 
+.stat-empty {
+  background: #f9fafb;
+  border-color: #d1d5db;
+}
+
 .activity-section {
   background: white;
   border-radius: 8px;
@@ -573,6 +635,7 @@ onMounted(() => {
 .status-open { color: #0c4a6e; font-weight: 600; }
 .status-archived { color: #374151; font-weight: 600; }
 .status-scraped { color: #92400e; font-weight: 600; }
+.status-empty { color: #6b7280; font-weight: 600; }
 
 .activity-time {
   font-size: 0.75rem;

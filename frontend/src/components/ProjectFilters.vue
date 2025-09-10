@@ -246,7 +246,7 @@ import CompanyMultiSelect from './CompanyMultiSelect.vue'
 const props = defineProps({
   availableStatuses: {
     type: Array,
-    default: () => ['scraped', 'accepted', 'rejected', 'applied', 'sent', 'open', 'archived']
+    default: () => ['scraped', 'accepted', 'rejected', 'applied', 'sent', 'open', 'archived', 'empty']
   },
   availableCompanies: {
     type: Array,

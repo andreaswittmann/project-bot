@@ -456,6 +456,7 @@ const retry = () => {
 .status-open { background: #e0f2fe; color: #0c4a6e; }
 .status-archived { background: #f3f4f6; color: #374151; }
 .status-scraped { background: #fef3c7; color: #92400e; }
+.status-empty { background: #f9fafb; color: #6b7280; }
 
 .actions {
   display: flex;

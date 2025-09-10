@@ -263,5 +263,23 @@ export const useProjectsStore = defineStore('projects', {
         throw error;
       }
     },
+
+    async createManualProject(projectData) {
+      try {
+        const response = await api.post('/api/v1/projects', projectData);
+        console.log('Manual project created:', response.data);
+
+        // Add the new project to the local state
+        if (response.data.project) {
+          this.projects.unshift(response.data.project);
+          this.pagination.total += 1;
+        }
+
+        return response.data;
+      } catch (error) {
+        console.error('Error creating manual project:', error);
+        throw error;
+      }
+    },
   }
 })
