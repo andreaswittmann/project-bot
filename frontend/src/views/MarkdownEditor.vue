@@ -76,7 +76,9 @@
         :toolbarConfig="{
           toc: {
             includeLevel: [1, 6],
-            open: true
+            open: true,
+            listType: 'ol',
+            showLevel: true
           }
         }"
         :editorConfig="{
@@ -202,7 +204,7 @@ const projectTitle = ref('')
 const filename = ref('')
 const lastModified = ref('')
 const editorMode = ref('edit') // 'edit', 'preview', 'split'
-const previewPosition = ref('right') // 'left', 'right'
+const previewPosition = ref('left') // 'left', 'right'
 const currentStatus = ref('')
 const isGenerating = ref(false)
 const showStatusModal = ref(false)
@@ -1480,6 +1482,53 @@ defineExpose({ onUnmounted })
   margin-top: 0.25rem;
   color: #a16207;
   font-style: italic;
+}
+
+/* TOC Heading Level Display */
+:deep(.v-md-editor__toc li) {
+  position: relative;
+  padding-left: 1.5rem;
+}
+
+:deep(.v-md-editor__toc li:before) {
+  content: attr(data-level);
+  position: absolute;
+  left: 0;
+  font-weight: bold;
+  font-size: 0.75rem;
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  color: white;
+}
+
+:deep(.v-md-editor__toc li[data-level="1"]:before) {
+  content: "H1";
+  background: #4f46e5;
+}
+
+:deep(.v-md-editor__toc li[data-level="2"]:before) {
+  content: "H2";
+  background: #059669;
+}
+
+:deep(.v-md-editor__toc li[data-level="3"]:before) {
+  content: "H3";
+  background: #dc2626;
+}
+
+:deep(.v-md-editor__toc li[data-level="4"]:before) {
+  content: "H4";
+  background: #7c3aed;
+}
+
+:deep(.v-md-editor__toc li[data-level="5"]:before) {
+  content: "H5";
+  background: #ea580c;
+}
+
+:deep(.v-md-editor__toc li[data-level="6"]:before) {
+  content: "H6";
+  background: #0891b2;
 }
 
 /* Responsive design */
