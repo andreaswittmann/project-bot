@@ -229,7 +229,9 @@ const handleDeleteProject = async (projectId) => {
 const filterByStatus = async (status) => {
   console.log('Filtering by status:', status);
   try {
-    // Set filter to only show projects with this status
+    // First reset all existing filters
+    projectsStore.resetFilters();
+    // Then set filter to only show projects with this status
     projectsStore.setFilters({
       statuses: [status],
       page: 1 // Reset to first page when filtering
