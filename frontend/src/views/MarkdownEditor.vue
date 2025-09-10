@@ -27,7 +27,7 @@
             🔄 Swap
           </button>
         </div>
-        <button @click="saveContent" class="save-btn" :disabled="isSaving || !hasChanges" title="Save changes">
+        <button @click="saveContent" class="save-btn" :disabled="isSaving || !hasChanges" title="Save changes (Ctrl+S or Cmd+S)">
           <span v-if="isSaving">💾 Saving...</span>
           <span v-else-if="hasChanges">💾 Save</span>
           <span v-else>✅ Saved</span>
@@ -42,6 +42,9 @@
         </button>
         <button @click="reloadContent" class="reload-btn" title="Reload content from server">
           🔄 Reload
+        </button>
+        <button @click="insertTimestamp" class="timestamp-btn" title="Insert Timestamp [YYYY-MM-DD_HH:MM] (Ctrl+Shift+T or Cmd+Shift+T)">
+          🕐 Timestamp
         </button>
         <button @click="closeTab" class="close-btn" title="Close tab">
           ❌ Close
@@ -435,6 +438,17 @@ const onEditorChange = (value) => {
 }
 
 // Helper functions
+
+// Timestamp utility
+const getCurrentTimestamp = () => {
+  const now = new Date()
+  const year = now.getFullYear()
+  const month = String(now.getMonth() + 1).padStart(2, '0')
+  const day = String(now.getDate()).padStart(2, '0')
+  const hours = String(now.getHours()).padStart(2, '0')
+  const minutes = String(now.getMinutes()).padStart(2, '0')
+  return `[${year}-${month}-${day}_${hours}:${minutes}]`
+}
 const extractBetweenMarkers = (markdown) => {
   const regex = new RegExp('MARKER_APPLICATION_START([\\s\\S]*?)MARKER_APPLICATION_END', 'g')
   const match = regex.exec(markdown)
@@ -614,12 +628,92 @@ const reloadContent = async () => {
   }
 }
 
+// Insert timestamp at current cursor position
+const insertTimestamp = async () => {
+  console.log('🔍 insertTimestamp called, editorMode:', editorMode.value)
+  
+  // Only allow in edit or split modes
+  if (editorMode.value === 'preview') {
+    console.warn('Timestamp insertion disabled in preview mode')
+    return
+  }
+  
+  try {
+    const timestamp = getCurrentTimestamp()
+    console.log('🕐 Generated timestamp:', timestamp)
+    
+    // Method 1: Use document.execCommand for direct DOM insertion (most reliable)
+    const activeElement = document.activeElement
+    if (activeElement && activeElement.tagName === 'TEXTAREA') {
+      console.log('🔧 Using document.execCommand insertText')
+      activeElement.focus()
+      
+      // Modern browsers support insertText
+      if (document.execCommand('insertText', false, timestamp)) {
+        console.log('✅ Timestamp inserted via execCommand insertText')
+        // Trigger change event to update v-model
+        activeElement.dispatchEvent(new Event('input', { bubbles: true }))
+        activeElement.dispatchEvent(new Event('change', { bubbles: true }))
+        return
+      }
+    }
+    
+    // Method 2: Try v-md-editor insert method
+    if (editorRef.value && typeof editorRef.value.insert === 'function') {
+      console.log('🔧 Using v-md-editor insert method')
+      try {
+        await editorRef.value.insert(timestamp)
+        console.log('✅ Timestamp inserted via editor.insert()')
+        return
+      } catch (insertError) {
+        console.warn('⚠️ v-md-editor insert failed:', insertError)
+      }
+    }
+    
+    // Method 3: Try CodeMirror instance
+    if (editorRef.value && editorRef.value.codemirrorInstance) {
+      const cm = editorRef.value.codemirrorInstance
+      console.log('📝 CodeMirror instance available')
+      console.log('📍 Current cursor before insertion:', cm.getCursor())
+      
+      cm.replaceSelection(timestamp)
+      cm.focus()
+      
+      console.log('✅ Timestamp inserted via CodeMirror replaceSelection')
+      
+      setTimeout(() => {
+        const finalCursor = cm.getCursor()
+        console.log('📍 Final cursor position:', finalCursor)
+      }, 100)
+      
+      return
+    }
+    
+    // Method 4: Fallback append to content
+    console.log('⚠️ All methods failed, appending to end')
+    const currentContent = markdownContent.value || ''
+    const newContent = currentContent + '\n' + timestamp
+    markdownContent.value = newContent
+    console.log('✅ Timestamp appended to end:', timestamp)
+    
+  } catch (error) {
+    console.error('❌ Failed to insert timestamp:', error)
+    alert('Failed to insert timestamp. Please try again.')
+  }
+}
+
 // Keyboard shortcuts
 const handleKeyDown = (event) => {
   // Ctrl+S or Cmd+S to save
   if ((event.ctrlKey || event.metaKey) && event.key === 's') {
     event.preventDefault()
     saveContent()
+  }
+  
+  // Ctrl+Shift+T or Cmd+Shift+T for timestamp
+  if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key.toLowerCase() === 't') {
+    event.preventDefault()
+    insertTimestamp()
   }
 }
 
@@ -832,6 +926,26 @@ defineExpose({ onUnmounted })
   cursor: pointer;
   transition: all 0.2s;
   border: 1px solid transparent;
+}
+
+.timestamp-btn {
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid #d1d5db;
+  background: white;
+  color: #374151;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.timestamp-btn:hover {
+  background: #f3f4f6;
+  border-color: #9ca3af;
 }
 
 .status-scraped { background: #fef3c7; color: #92400e; border-color: #f59e0b; }
