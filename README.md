@@ -1,5 +1,7 @@
 # Project Bot
 
+## The Complete AI Career Workflow Solution
+
 A Python-based tool for automatically scraping, analyzing, generating applications, and managing freelance project opportunities from FreelancerMap.de using AI-powered evaluation with advanced state management.
 
 ## Overview

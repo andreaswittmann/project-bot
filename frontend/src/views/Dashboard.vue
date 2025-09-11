@@ -2,8 +2,8 @@
   <div class="dashboard">
     <header class="header">
       <div class="header-content">
-        <h1>Project Application Dashboard</h1>
-        <p>Vue3 Frontend - Connected to Flask API</p>
+        <h1>Project Bot</h1>
+        <p class="subtitle">The Complete AI Career Workflow Solution</p>
       </div>
       <nav class="header-nav">
         <button @click="createManualProject" class="nav-link create-btn" :disabled="loading">
@@ -427,6 +427,10 @@ onMounted(() => {
   margin: 0.5rem 0 0 0;
   opacity: 0.9;
   font-size: 1.1rem;
+}
+
+.header-content .subtitle {
+  font-weight: bold;
 }
 
 .header-nav {
