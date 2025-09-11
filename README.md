@@ -88,30 +88,47 @@ This bot helps freelancers automate the complete process of:
    cd project-bot
    ```
 
-2. **Install dependencies:**
+2. **Install Python dependencies:**
    ```bash
    pip install -r requirements.txt
    ```
 
-3. **Set up configuration:**
+3. **Install Frontend dependencies:**
+   ```bash
+   cd frontend
+   npm install
+   cd ..
+   ```
+
+4. **Set up configuration:**
    ```bash
    cp config_template.yaml config.yaml
    # Edit config.yaml with your API keys and preferences
    ```
 
-4. **Add your CV:**
+5. **Add your CV:**
     ```bash
     # Create data/cv.md with your CV content in markdown format
     # (A symlink cv.md is automatically created for backward compatibility)
     ```
 
-5. **Start the application:**
-   ```bash
-   # Start the backend server
-   python server_enhanced.py
+6. **Start the application:**
 
-   # Access the application at: http://localhost:8002
+   **Backend:**
+   ```bash
+   # Start the backend server (in one terminal)
+   python server_enhanced.py
    ```
+
+   **Frontend:**
+   ```bash
+   # Start the frontend development server (in another terminal)
+   cd frontend
+   npm run dev
+   ```
+
+   - **Backend**: Runs on http://localhost:8002
+   - **Frontend**: Access the Vue.js dashboard at http://localhost:5173 (default Vite port)
 
 ### Option 2: Docker Deployment
 
@@ -126,8 +143,9 @@ This bot helps freelancers automate the complete process of:
    ```
 
 3. **Access the application:**
-   - **Docker Environment**: http://localhost:8003
-   - **Local Development**: http://localhost:8002
+   - **Docker**: http://localhost:8003 (full stack)
+   - **Local Development Backend**: http://localhost:8002
+   - **Local Development Frontend**: http://localhost:5173
 
 ### Environment Configuration
 
@@ -145,19 +163,21 @@ The application supports two distinct environments to prevent configuration conf
 
 **Environment Variables:**
 ```bash
-# Local Development (frontend/.env)
+# Local Development (create frontend/.env)
 VITE_API_BASE_URL=http://localhost:8002
 
-# Docker (docker/docker-compose.yml)
+# Docker (docker/docker-compose.yml - already configured)
 VITE_API_BASE_URL=http://project-bot:8002
 ```
 
 ### Docker Commands
 
 ```bash
-# Start Docker environment
+# Start Docker environment (full stack)
 cd docker
 docker-compose up --build
+
+# Access at: http://localhost:8003
 
 # Stop Docker environment
 docker-compose down
@@ -373,19 +393,18 @@ python main.py --state-list --state sent
 
 #### Dashboard-Based Creation
 ```bash
-# Start the server
-python server_enhanced.py
+# Start the backend and frontend servers (see Installation section)
 
-# Access dashboard at: http://localhost:8002
+# Access Vue.js dashboard at: http://localhost:5173
 # Click "➕ Create Manual" button in the header
 # Fill in project details when prompted
-# Project is automatically created and opened in editor
+# Project is automatically created and opened in MarkdownEditor view
 ```
 
 **Manual Project Workflow:**
-1. **Create**: Click "➕ Create Manual" in dashboard header
+1. **Create**: Click "➕ Create Manual" in Vue.js dashboard header
 2. **Fill Details**: Enter title, company (optional), description (optional)
-3. **Edit**: Project opens in MarkdownEditor with template
+3. **Edit**: Project opens in MarkdownEditor view with template
 4. **Evaluate**: Click "Re-evaluate" to run AI analysis
 5. **Apply**: Generate application if fit score is high enough
 6. **Submit**: Update state to "sent" when application is submitted
@@ -473,31 +492,49 @@ python file_purger.py --config custom_config.yaml --categories rejected_low_pre_
 
 ```
 project-bot/
-├── main.py                    # Main scraping application with state management
-├── rss_helper.py             # RSS feed processing
-├── evaluate_projects.py      # Project evaluation engine with state updates
-├── application_generator.py  # Application generation engine
-├── state_manager.py          # Advanced state management system
-├── file_purger.py            # Intelligent file purging system
-├── parse_html.py             # HTML parsing utilities with frontmatter
-├── config.yaml               # Configuration (not in git)
+├── main.py                    # Main CLI orchestrator for scraping, evaluation, generation
+├── server_enhanced.py         # Flask backend API server
+├── rss_helper.py             # RSS feed processing and project scraping
+├── evaluate_projects.py      # AI-powered project evaluation
+├── application_generator.py  # Automated application generation
+├── state_manager.py          # Project lifecycle state management
+├── file_purger.py            # Intelligent score-based file purging
+├── simple_cleanup.py         # Basic cleanup utilities
+├── parse_html.py             # HTML parsing for project details
+├── scheduler_manager.py      # APScheduler integration for automated workflows
+├── config.yaml               # Main configuration (API keys, thresholds, not in git)
 ├── cv.md                     # CV symlink (points to data/cv.md)
 ├── requirements.txt          # Python dependencies
-├── data/                     # Personal and business data
-│   └── cv.md                 # Your CV (not in git)
-├── docs/                     # Documentation
-│   ├── archive/              # Historical documentation
-│   └── dashboard_guide.md    # Dashboard documentation
-├── dashboard/                # Dashboard system
-│   ├── dashboard.html        # Interactive dashboard with state filtering
-│   └── generate_dashboard_data.py  # Data extraction with state parsing
-├── projects/                 # All projects in single directory (state-managed)
-│   ├── project_001.md        # state: "accepted" (scraped project)
-│   ├── project_002.md        # state: "sent" (scraped project)
-│   ├── project_003.md        # state: "archived" (scraped project)
-│   └── manual_project.md     # state: "empty" (manually created)
-├── projects_log/             # Evaluation logs
-└── applications_status.json  # Application tracking
+├── data/                     # Data storage
+│   ├── cv.md                 # Your CV content (not in git)
+│   ├── schedules.json        # Scheduler configurations
+│   └── quick_filters.json    # Saved dashboard filters
+├── frontend/                 # Vue.js web dashboard
+│   ├── package.json          # Node dependencies
+│   ├── vite.config.js        # Vite build configuration
+│   ├── src/
+│   │   ├── App.vue           # Root Vue component
+│   │   ├── main.js           # Vue app initialization
+│   │   ├── components/       # Reusable UI components
+│   │   │   ├── Dashboard.vue
+│   │   │   ├── ScheduleManager.vue
+│   │   │   ├── ProjectTable.vue
+│   │   │   ├── ProjectFilters.vue
+│   │   │   └── ...
+│   │   ├── views/            # Page-level components
+│   │   ├── stores/           # Pinia state management
+│   │   │   └── projects.js
+│   │   └── services/         # API services
+│   │       └── api.js
+│   └── index.html            # Entry HTML
+├── docker/                   # Docker deployment
+│   ├── docker-compose.yml    # Multi-service composition
+│   ├── Dockerfile            # Backend container
+│   └── .env.template         # Environment template
+├── projects/                 # Generated project files (created dynamically)
+│   └── [project_id].md       # Markdown files with YAML frontmatter and states
+├── logs/                     # Application logs (created dynamically)
+└── .gitignore                # Git exclusions
 ```
 
 ## Workflow
@@ -511,10 +548,11 @@ project-bot/
 
 ### Option 2: Manual Project Creation
 1. **Manual Creation Phase:**
-    - Click "➕ Create Manual" in dashboard header
+    - Access the Vue.js dashboard at http://localhost:5173
+    - Click "➕ Create Manual" in the header
     - Enter project title, company (optional), description (optional)
     - Project created with template and state set to `empty`
-    - Automatically opens in MarkdownEditor for editing
+    - Automatically opens in MarkdownEditor view for editing
 
 2. **Evaluation Phase:**
     - Pre-evaluation scores projects using keyword matching
@@ -540,11 +578,12 @@ project-bot/
     - Transition to `archived` when project is completed or lost
 
 6. **Dashboard Management:**
-     - Open `dashboard/dashboard.html` to review all processed projects
-     - Filter by any combination of 7 states: scraped, accepted, rejected, applied, sent, open, archived
-     - Sort projects by state, scores, dates, or company
-     - View complete state history and evaluation results
-     - Track application costs and token usage across all states
+    - Access the Vue.js dashboard at http://localhost:5173
+    - Filter by any combination of states: scraped, accepted, rejected, applied, sent, open, archived
+    - Use quick filters for saved combinations (stored in data/quick_filters.json)
+    - Sort projects by state, scores, dates, companies, or custom criteria
+    - View complete state history, evaluation results, and application details
+    - Track application costs and token usage across all states
 
 7. **State Management:** *(Manual & Automatic)*
      - **Automatic**: State transitions during workflow processing
@@ -598,10 +637,9 @@ Create custom projects directly from the web interface with full workflow integr
 
 **Usage:**
 ```bash
-# Start the server
-python server_enhanced.py
+# Start the backend and frontend (see Installation)
 
-# Access dashboard at: http://localhost:8002
+# Access Vue.js dashboard at: http://localhost:5173
 # Click "➕ Create Manual" button
 # Fill in: title (required), company (optional), description (optional)
 ```
@@ -780,3 +818,8 @@ For issues and questions:
 ---
 
 **Note**: This tool is designed to assist with job searching and should be used responsibly. Always review project details manually before applying.
+
+### Additional Scripts
+- **server_control.sh**: Utility for managing the backend server (start/stop/restart)
+- **docker-setup.sh**: Docker environment setup helper
+- **SCHEDULING_SYSTEM_README.md**: Detailed scheduler documentation

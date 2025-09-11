@@ -17,26 +17,30 @@ graph TB
         Config["Configuration (config.yaml)"]
     end
 
-    subgraph "⚙️ Backend (Python)"
-        Main[main.py<br/>CLI Entry Point]
+    subgraph "⚙️ Backend (Python/Flask)"
+        Server[server_enhanced.py<br/>Flask API Server]
+        Main[main.py<br/>CLI Orchestrator]
         RSSHelper[rss_helper.py<br/>RSS Fetching & Processing]
         Evaluator[evaluate_projects.py<br/>Project Evaluation]
         Generator[application_generator.py<br/>Application Generation]
         StateMgr[state_manager.py<br/>State Management]
         Scheduler[scheduler_manager.py<br/>Automated Scheduling]
+        Purger[file_purger.py<br/>Intelligent Purging]
     end
 
-    subgraph "🖥️ Frontend (Vue.js)"
+    subgraph "🖥️ Frontend (Vue.js + Vite)"
         Dashboard[Dashboard.vue<br/>Project Overview]
         ScheduleMgr[ScheduleManager.vue<br/>Schedule Management]
+        MarkdownEditor[MarkdownEditor.vue<br/>Project Editing]
         Store[projects.js<br/>Pinia Store]
-        API[api.js<br/>HTTP Client]
+        API[api.js<br/>Axios HTTP Client]
     end
 
     subgraph "💾 Data Storage"
-        Projects[projects/<br/>Markdown Files]
+        Projects[projects/<br/>Markdown Files w/ YAML Frontmatter]
         Schedules[data/schedules.json]
-        Logs[logs/<br/>Log Files]
+        QuickFilters[data/quick_filters.json]
+        Logs[logs/<br/>Application Logs]
     end
 
     RSS --> RSSHelper
@@ -50,109 +54,126 @@ graph TB
     Main --> Generator
     Main --> StateMgr
     Main --> Scheduler
+    Main --> Purger
 
     Dashboard --> API
     ScheduleMgr --> API
-    API --> Main
+    MarkdownEditor --> API
+    API --> Server
     Store --> Dashboard
     Store --> ScheduleMgr
+    Store --> MarkdownEditor
 
     Scheduler --> Main
+    Purger --> Projects
+    Config --> Server
     Config --> Main
     CV --> Generator
 
     %% Apply styles
     class RSS,CV,Config dataSource
-    class Main,RSSHelper,Evaluator,Generator,StateMgr,Scheduler backend
-    class Dashboard,ScheduleMgr,Store,API frontend
-    class Projects,Schedules,Logs storage
+    class Server,Main,RSSHelper,Evaluator,Generator,StateMgr,Scheduler,Purger backend
+    class Dashboard,ScheduleMgr,MarkdownEditor,Store,API frontend
+    class Projects,Schedules,QuickFilters,Logs storage
 ```
 
 ### Architecture Overview
 
 The Bewerbungs-Bot is a comprehensive job application automation system consisting of:
 
-- **Backend**: Python-based core system handling data processing, AI evaluation, and automation
-- **Frontend**: Vue.js web interface for monitoring and manual control
-- **Data Flow**: RSS scraping → AI evaluation → Application generation → State management
-- **Scheduling**: Automated workflow execution using APScheduler
-- **Storage**: File-based storage with YAML frontmatter for metadata
+- **Backend**: Python/Flask API server (server_enhanced.py) with core CLI orchestrator (main.py) for data processing, AI evaluation, application generation, and intelligent purging
+- **Frontend**: Vue.js 3 + Vite web dashboard for project management, scheduling, and manual project creation/editing
+- **Data Flow**: RSS scraping → Pre-evaluation → LLM analysis → State transitions → Automatic application generation → Dashboard synchronization
+- **Scheduling**: APScheduler integration for automated workflow execution
+- **Storage**: Markdown files with YAML frontmatter for projects, JSON for schedules and quick filters, file-based logs
+- **Deployment**: Local development (separate backend/frontend servers) or Docker Compose for full-stack deployment
 
 ## Component Diagram
 
 ```mermaid
 graph TB
     %% Define styles
-    classDef core fill:#fee2e2,stroke:#ef4444,stroke-width:3px,color:#dc2626
-    classDef supporting fill:#fef3c7,stroke:#f59e0b,stroke-width:2px,color:#92400e
-    classDef frontend fill:#dcfce7,stroke:#10b981,stroke-width:2px,color:#166534
-    classDef services fill:#dbeafe,stroke:#3b82f6,stroke-width:2px,color:#1e40af
+    classDef core fill:#fee2e2,stroke:#ef4444,stroke-width:3px
+    classDef supporting fill:#fef3c7,stroke:#f59e0b,stroke-width:2px
+    classDef frontend fill:#dcfce7,stroke:#10b981,stroke-width:2px
+    classDef services fill:#dbeafe,stroke:#3b82f6,stroke-width:2px
 
-    subgraph "🎯 Core Components"
-        CLI[Command Line Interface<br/>main.py]
-        RSSProcessor[RSS Processor<br/>rss_helper.py]
-        ProjectEvaluator[Project Evaluator<br/>evaluate_projects.py]
-        AppGenerator[Application Generator<br/>application_generator.py]
+    subgraph "Core Components"
+        Server[Flask API Server]
+        CLI[CLI Orchestrator]
+        RSSProc[RSS Processor]
+        ProjEval[Project Evaluator]
+        AppGen[Application Generator]
     end
 
-    subgraph "🛠️ Supporting Components"
-        StateManager[State Manager<br/>state_manager.py]
-        ScheduleManager[Schedule Manager<br/>scheduler_manager.py]
-        FilePurger[File Purger<br/>file_purger.py]
+    subgraph "Supporting Components"
+        StateMgr[State Manager]
+        SchedMgr[Schedule Manager]
+        FilePurg[File Purger]
+        HTMLPars[HTML Parser]
     end
 
-    subgraph "🖥️ Frontend Components"
-        DashboardComp[Dashboard Component<br/>Dashboard.vue]
-        ScheduleComp[Schedule Manager<br/>ScheduleManager.vue]
-        ProjectTable[Project Table<br/>ProjectTable.vue]
-        ProjectFilters[Project Filters<br/>ProjectFilters.vue]
-        ScheduleCard[Schedule Card<br/>ScheduleCard.vue]
+    subgraph "Frontend Components"
+        Dash[Dashboard]
+        SchedComp[Schedule Manager]
+        MarkEd[Markdown Editor]
+        ProjTab[Project Table]
+        ProjFilt[Project Filters]
     end
 
-    subgraph "🔗 Services & Stores"
-        APIClient[API Client<br/>api.js]
-        PiniaStore[Pinia Store<br/>projects.js]
-        AxiosClient[Axios HTTP Client]
+    subgraph "Services & Stores"
+        API[API Service]
+        Store[Pinia Store]
+        Router[Vue Router]
     end
 
-    CLI --> RSSProcessor
-    CLI --> ProjectEvaluator
-    CLI --> AppGenerator
-    CLI --> StateManager
-    CLI --> ScheduleManager
-    CLI --> FilePurger
+    Server --> CLI
+    CLI --> RSSProc
+    CLI --> ProjEval
+    CLI --> AppGen
+    CLI --> StateMgr
+    CLI --> SchedMgr
+    CLI --> FilePurg
 
-    RSSProcessor --> StateManager
-    ProjectEvaluator --> StateManager
-    AppGenerator --> StateManager
+    RSSProc --> HTMLPars
+    HTMLPars --> StateMgr
+    ProjEval --> StateMgr
+    AppGen --> StateMgr
 
-    DashboardComp --> APIClient
-    ScheduleComp --> APIClient
-    APIClient --> AxiosClient
-    PiniaStore --> DashboardComp
-    PiniaStore --> ScheduleComp
+    Dash --> API
+    SchedComp --> API
+    MarkEd --> API
+    API --> Server
+    Store --> Dash
+    Store --> SchedComp
+    Store --> MarkEd
 
-    DashboardComp --> ProjectTable
-    DashboardComp --> ProjectFilters
-    ScheduleComp --> ScheduleCard
+    Dash --> ProjTab
+    Dash --> ProjFilt
+    ProjTab --> ProjFilt
+    SchedComp --> ProjFilt
 
     %% Apply styles
-    class CLI,RSSProcessor,ProjectEvaluator,AppGenerator core
-    class StateManager,ScheduleManager,FilePurger supporting
-    class DashboardComp,ScheduleComp,ProjectTable,ProjectFilters,ScheduleCard frontend
-    class APIClient,PiniaStore,AxiosClient services
+    class Server,CLI,RSSProc,ProjEval,AppGen core
+    class StateMgr,SchedMgr,FilePurg,HTMLPars supporting
+    class Dash,SchedComp,MarkEd,ProjTab,ProjFilt frontend
+    class API,Store,Router services
 ```
 
 ### Component Relationships
 
-- **CLI (main.py)**: Central orchestrator coordinating all backend operations
-- **RSS Processor**: Handles external data ingestion from FreelancerMap
-- **Project Evaluator**: AI-powered assessment using multiple LLM providers
-- **Application Generator**: Automated job application creation
-- **State Manager**: Maintains project lifecycle state
-- **Schedule Manager**: Handles automated workflow execution
-- **Frontend Components**: Vue.js components for user interaction
-- **API Services**: RESTful communication between frontend and backend
+- **Flask API Server (server_enhanced.py)**: RESTful backend API handling frontend requests and CLI coordination
+- **CLI Orchestrator (main.py)**: Central command-line interface for workflow execution
+- **RSS Processor (rss_helper.py)**: Fetches and processes FreelancerMap RSS feeds
+- **HTML Parser (parse_html.py)**: Extracts project details from HTML pages
+- **Project Evaluator (evaluate_projects.py)**: AI-powered fit assessment using OpenAI/Anthropic/Google Gemini
+- **Application Generator (application_generator.py)**: Generates professional German job applications
+- **State Manager (state_manager.py)**: Tracks project lifecycle through 7 states with YAML frontmatter
+- **File Purger (file_purger.py)**: Intelligent score-based cleanup of low-quality projects
+- **Schedule Manager (scheduler_manager.py)**: APScheduler integration for automated runs
+- **Frontend Components**: Vue.js 3 components for dashboard, scheduling, and project editing
+- **API Services**: Axios-based HTTP client for frontend-backend communication
+- **State Management**: Pinia store for reactive project data and quick filters
 
 ## Sequence Diagram: User Interaction
 
@@ -163,7 +184,7 @@ sequenceDiagram
     participant F as 🖥️ Frontend (Vue.js)
     participant S as 📦 Pinia Store
     participant A as 🔗 API Client
-    participant B as ⚙️ Backend (Flask)
+    participant B as ⚙️ Backend (Flask API)
     participant P as 📄 Project Files
     participant SM as 🔄 State Manager
 
@@ -177,7 +198,7 @@ sequenceDiagram
     U->>+F: 🏠 Open Dashboard
     F->>+S: 🔄 Initialize Store
     S->>+A: 📋 fetchProjects()
-    A->>+B: 🌐 GET /api/v1/projects
+    A->>+B: 🌐 GET /api/projects
     B->>+P: 📖 Read project files
     P-->>-B: 📊 Return project data
     B-->>-A: 📋 Return projects JSON
@@ -187,7 +208,7 @@ sequenceDiagram
 
     U->>+F: ⚡ Click "Generate Application"
     F->>+S: 🤖 generateApplication(projectId)
-    S->>+A: 📤 POST /api/v1/projects/{id}/generate
+    S->>+A: 📤 POST /api/projects/{id}/generate
     A->>+B: 🚀 Generate application request
     B->>+SM: 📝 Update state to 'applied'
     SM-->>-B: ✅ State updated
@@ -386,11 +407,13 @@ graph TB
 
 ## Key Technologies
 
-- **Backend**: Python 3, APScheduler, Anthropic/OpenAI/Google AI
-- **Frontend**: Vue.js 3, Pinia, Axios, Tailwind CSS
-- **Data**: Markdown files with YAML frontmatter, JSON configuration
-- **APIs**: RESTful Flask API, RSS feed consumption
-- **Deployment**: Docker support, server control scripts
+- **Backend**: Python 3.12+, Flask, APScheduler, OpenAI/Anthropic/Google Gemini APIs
+- **Frontend**: Vue.js 3.4+, Vite 5+, Pinia 2+, Axios, Tailwind CSS 3+, Vue Router
+- **Data Storage**: Markdown files with YAML frontmatter (projects), JSON (schedules, quick filters), file-based logging
+- **APIs**: RESTful Flask backend (/api/projects, /api/schedules), FreelancerMap RSS feeds
+- **Build Tools**: Vite for frontend bundling, Docker Compose for deployment
+- **Utilities**: server_control.sh (server management), docker-setup.sh (Docker setup)
+- **Deployment**: Local (npm run dev + python server), Docker (docker-compose up)
 
 This architecture provides a robust, automated job application system with comprehensive monitoring and manual override capabilities.
 
@@ -538,4 +561,13 @@ The Bewerbungs-Bot follows a comprehensive automated workflow with manual overri
 - **Cleanup**: Automatic file purging based on retention policies
 - **Reporting**: Comprehensive statistics and analytics
 
-This workflow ensures maximum automation while providing full manual control when needed, creating an efficient and flexible job application management system.
+This architecture provides a robust foundation for automated job application management with comprehensive monitoring, manual overrides, and intelligent automation features.
+
+### Deployment Considerations
+- **Local Development**: Separate processes for backend (python server_enhanced.py) and frontend (npm run dev)
+- **Production**: Docker Compose for full-stack deployment with environment-specific configurations
+- **Scaling**: ThreadPoolExecutor for concurrent evaluation and generation tasks
+- **Monitoring**: Real-time dashboard updates via API polling and WebSocket potential
+- **Data Persistence**: File-based with automatic backup and intelligent purging policies
+
+The system is designed for reliability, with clear separation of concerns between CLI automation, API services, and web interface, enabling both headless operation and interactive use.
