@@ -1,5 +1,7 @@
 # Project Bot
 
+![Project Bot](media/project-bot.png)
+
 ## The Complete AI Career Workflow Solution
 
 Project Bot automates freelance applications using AI. Python/Flask backend and Vue.js 3 frontend (Vite, Pinia) scrape FreelancerMap RSS feeds and evaluate projects with OpenAI and Google Gemini. High-fit projects get German applications. Features 7-state tracking, APScheduler automation, and intelligent purging. Docker deployment.
@@ -13,6 +15,8 @@ This bot helps freelancers automate the complete process of:
 - **Automatic application generation** for high-fit projects using professional German templates
 - **Advanced state management** with complete project lifecycle tracking
 - **Managing** applications through an interactive dashboard with state-based filtering
+
+![Project Bot Workflow](media/readme_workflow_graphic.jpeg)
 
 ## Features
 

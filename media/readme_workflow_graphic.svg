@@ -1,0 +1,195 @@
+<svg viewBox="0 0 1000 600" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Gradients -->
+    <linearGradient id="headerGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="scrapeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4299e1;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#3182ce;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="aiGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#48bb78;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#38a169;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="applyGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ed8936;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#dd6b20;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="dashGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#9f7aea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#805ad5;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Shadows and Effects -->
+    <filter id="dropShadow">
+      <feDropShadow dx="3" dy="3" stdDeviation="4" flood-color="#000" flood-opacity="0.3"/>
+    </filter>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge> 
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    
+    <!-- Arrow markers -->
+    <marker id="arrowBlue" markerWidth="12" markerHeight="8" refX="10" refY="4" orient="auto" markerUnits="strokeWidth">
+      <polygon points="0 0, 12 4, 0 8" fill="#4299e1"/>
+    </marker>
+    <marker id="arrowGreen" markerWidth="12" markerHeight="8" refX="10" refY="4" orient="auto" markerUnits="strokeWidth">
+      <polygon points="0 0, 12 4, 0 8" fill="#48bb78"/>
+    </marker>
+    <marker id="arrowOrange" markerWidth="12" markerHeight="8" refX="10" refY="4" orient="auto" markerUnits="strokeWidth">
+      <polygon points="0 0, 12 4, 0 8" fill="#ed8936"/>
+    </marker>
+    <marker id="arrowPurple" markerWidth="12" markerHeight="8" refX="10" refY="4" orient="auto" markerUnits="strokeWidth">
+      <polygon points="0 0, 12 4, 0 8" fill="#9f7aea"/>
+    </marker>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1000" height="600" fill="#f7fafc"/>
+  
+  <!-- Header -->
+  <rect x="0" y="0" width="1000" height="80" fill="url(#headerGradient)"/>
+  <text x="500" y="30" font-family="Arial, sans-serif" font-size="28" font-weight="bold" fill="white" text-anchor="middle">🤖 Project Bot - AI-Powered Freelance Automation</text>
+  <text x="500" y="55" font-family="Arial, sans-serif" font-size="16" fill="#e2e8f0" text-anchor="middle">Python/Flask Backend + Vue.js Frontend + Multi-LLM AI Evaluation</text>
+  
+  <!-- Step 1: RSS Scraping -->
+  <g transform="translate(80,120)">
+    <rect x="0" y="0" width="160" height="100" rx="15" fill="url(#scrapeGradient)" filter="url(#dropShadow)"/>
+    <text x="80" y="25" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="white" text-anchor="middle">📡 RSS SCRAPING</text>
+    <text x="80" y="45" font-family="Arial, sans-serif" font-size="11" fill="#e2e8f0" text-anchor="middle">FreelancerMap.de</text>
+    <text x="80" y="58" font-family="Arial, sans-serif" font-size="11" fill="#e2e8f0" text-anchor="middle">Multi-region feeds</text>
+    <text x="80" y="71" font-family="Arial, sans-serif" font-size="11" fill="#e2e8f0" text-anchor="middle">HTML parsing</text>
+    <text x="80" y="84" font-family="Arial, sans-serif" font-size="11" fill="#e2e8f0" text-anchor="middle">Duplicate detection</text>
+  </g>
+  
+  <!-- Arrow 1 -->
+  <line x1="240" y1="170" x2="290" y2="170" stroke="#4299e1" stroke-width="3" marker-end="url(#arrowBlue)"/>
+  <text x="265" y="160" font-family="Arial, sans-serif" font-size="10" fill="#4299e1" text-anchor="middle">projects/*.md</text>
+  
+  <!-- Step 2: AI Evaluation -->
+  <g transform="translate(310,120)">
+    <rect x="0" y="0" width="160" height="100" rx="15" fill="url(#aiGradient)" filter="url(#dropShadow)"/>
+    <text x="80" y="25" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="white" text-anchor="middle">🧠 AI EVALUATION</text>
+    <text x="80" y="45" font-family="Arial, sans-serif" font-size="11" fill="#e2e8f0" text-anchor="middle">OpenAI GPT</text>
+    <text x="80" y="58" font-family="Arial, sans-serif" font-size="11" fill="#e2e8f0" text-anchor="middle">Anthropic Claude</text>
+    <text x="80" y="71" font-family="Arial, sans-serif" font-size="11" fill="#e2e8f0" text-anchor="middle">Google Gemini</text>
+    <text x="80" y="84" font-family="Arial, sans-serif" font-size="11" fill="#e2e8f0" text-anchor="middle">Fit Score: 0-100%</text>
+  </g>
+  
+  <!-- Arrow 2 -->
+  <line x1="470" y1="170" x2="520" y2="170" stroke="#48bb78" stroke-width="3" marker-end="url(#arrowGreen)"/>
+  <text x="495" y="160" font-family="Arial, sans-serif" font-size="10" fill="#48bb78" text-anchor="middle">≥90% fit</text>
+  
+  <!-- Step 3: Auto Application -->
+  <g transform="translate(540,120)">
+    <rect x="0" y="0" width="160" height="100" rx="15" fill="url(#applyGradient)" filter="url(#dropShadow)"/>
+    <text x="80" y="25" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="white" text-anchor="middle">✍️ AUTO APPLY</text>
+    <text x="80" y="45" font-family="Arial, sans-serif" font-size="11" fill="#ffd6cc" text-anchor="middle">German templates</text>
+    <text x="80" y="58" font-family="Arial, sans-serif" font-size="11" fill="#ffd6cc" text-anchor="middle">Cost tracking</text>
+    <text x="80" y="71" font-family="Arial, sans-serif" font-size="11" fill="#ffd6cc" text-anchor="middle">Professional tone</text>
+    <text x="80" y="84" font-family="Arial, sans-serif" font-size="11" fill="#ffd6cc" text-anchor="middle">CV integration</text>
+  </g>
+  
+  <!-- Arrow 3 -->
+  <line x1="700" y1="170" x2="750" y2="170" stroke="#ed8936" stroke-width="3" marker-end="url(#arrowOrange)"/>
+  <text x="725" y="160" font-family="Arial, sans-serif" font-size="10" fill="#ed8936" text-anchor="middle">applications</text>
+  
+  <!-- Step 4: Vue.js Dashboard -->
+  <g transform="translate(770,120)">
+    <rect x="0" y="0" width="160" height="100" rx="15" fill="url(#dashGradient)" filter="url(#dropShadow)"/>
+    <text x="80" y="25" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="white" text-anchor="middle">📊 DASHBOARD</text>
+    <text x="80" y="45" font-family="Arial, sans-serif" font-size="11" fill="#e9d8fd" text-anchor="middle">Vue.js 3 + Vite</text>
+    <text x="80" y="58" font-family="Arial, sans-serif" font-size="11" fill="#e9d8fd" text-anchor="middle">7-state tracking</text>
+    <text x="80" y="71" font-family="Arial, sans-serif" font-size="11" fill="#e9d8fd" text-anchor="middle">Quick filters</text>
+    <text x="80" y="84" font-family="Arial, sans-serif" font-size="11" fill="#e9d8fd" text-anchor="middle">Export & analytics</text>
+  </g>
+  
+  <!-- State Flow Diagram -->
+  <g transform="translate(100,280)">
+    <text x="400" y="20" font-family="Arial, sans-serif" font-size="20" font-weight="bold" fill="#4a5568" text-anchor="middle">🔄 Project Lifecycle States</text>
+    
+    <!-- States -->
+    <g transform="translate(0,40)">
+      <!-- Scraped -->
+      <circle cx="50" cy="50" r="25" fill="#e2e8f0" stroke="#a0aec0" stroke-width="2"/>
+      <text x="50" y="55" font-family="Arial, sans-serif" font-size="9" fill="#4a5568" text-anchor="middle">SCRAPED</text>
+      
+      <!-- Accepted/Rejected -->
+      <circle cx="180" cy="30" r="25" fill="#c6f6d5" stroke="#48bb78" stroke-width="2"/>
+      <text x="180" y="35" font-family="Arial, sans-serif" font-size="9" fill="#22543d" text-anchor="middle">ACCEPTED</text>
+      
+      <circle cx="180" cy="70" r="25" fill="#fed7d7" stroke="#f56565" stroke-width="2"/>
+      <text x="180" y="75" font-family="Arial, sans-serif" font-size="9" fill="#742a2a" text-anchor="middle">REJECTED</text>
+      
+      <!-- Applied -->
+      <circle cx="310" cy="50" r="25" fill="#ffd6cc" stroke="#ed8936" stroke-width="2"/>
+      <text x="310" y="55" font-family="Arial, sans-serif" font-size="9" fill="#7b341e" text-anchor="middle">APPLIED</text>
+      
+      <!-- Sent -->
+      <circle cx="440" cy="50" r="25" fill="#bee3f8" stroke="#4299e1" stroke-width="2"/>
+      <text x="440" y="55" font-family="Arial, sans-serif" font-size="9" fill="#2a4365" text-anchor="middle">SENT</text>
+      
+      <!-- Open -->
+      <circle cx="570" cy="50" r="25" fill="#d9f7be" stroke="#52c41a" stroke-width="2"/>
+      <text x="570" y="55" font-family="Arial, sans-serif" font-size="9" fill="#135200" text-anchor="middle">OPEN</text>
+      
+      <!-- Archived -->
+      <circle cx="700" cy="50" r="25" fill="#e9d8fd" stroke="#9f7aea" stroke-width="2"/>
+      <text x="700" y="55" font-family="Arial, sans-serif" font-size="9" fill="#553c9a" text-anchor="middle">ARCHIVED</text>
+      
+      <!-- Flow arrows -->
+      <path d="M 75 50 Q 130 20 155 30" stroke="#48bb78" stroke-width="2" fill="none" marker-end="url(#arrowGreen)"/>
+      <path d="M 75 50 Q 130 80 155 70" stroke="#f56565" stroke-width="2" fill="none" marker-end="url(#arrowGreen)"/>
+      <path d="M 205 30 Q 260 30 285 50" stroke="#ed8936" stroke-width="2" fill="none" marker-end="url(#arrowOrange)"/>
+      <path d="M 335 50 L 415 50" stroke="#4299e1" stroke-width="2" fill="none" marker-end="url(#arrowBlue)"/>
+      <path d="M 465 50 L 545 50" stroke="#52c41a" stroke-width="2" fill="none" marker-end="url(#arrowGreen)"/>
+      <path d="M 595 50 L 675 50" stroke="#9f7aea" stroke-width="2" fill="none" marker-end="url(#arrowPurple)"/>
+    </g>
+  </g>
+  
+  <!-- Features Grid -->
+  <g transform="translate(50,420)">
+    <text x="450" y="20" font-family="Arial, sans-serif" font-size="20" font-weight="bold" fill="#4a5568" text-anchor="middle">🚀 Key Features</text>
+    
+    <g transform="translate(0,40)">
+      <!-- Row 1 -->
+      <g transform="translate(0,0)">
+        <rect x="0" y="0" width="200" height="60" rx="10" fill="#f0fff4" stroke="#48bb78" stroke-width="1"/>
+        <text x="100" y="20" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#22543d" text-anchor="middle">🤖 Multi-LLM AI</text>
+        <text x="100" y="35" font-family="Arial, sans-serif" font-size="10" fill="#22543d" text-anchor="middle">OpenAI • Claude • Gemini</text>
+        <text x="100" y="48" font-family="Arial, sans-serif" font-size="10" fill="#22543d" text-anchor="middle">Intelligent project evaluation</text>
+      </g>
+      
+      <g transform="translate(220,0)">
+        <rect x="0" y="0" width="200" height="60" rx="10" fill="#fffaf0" stroke="#ed8936" stroke-width="1"/>
+        <text x="100" y="20" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#7b341e" text-anchor="middle">🇩🇪 German Focus</text>
+        <text x="100" y="35" font-family="Arial, sans-serif" font-size="10" fill="#7b341e" text-anchor="middle">Professional applications</text>
+        <text x="100" y="48" font-family="Arial, sans-serif" font-size="10" fill="#7b341e" text-anchor="middle">FreelancerMap integration</text>
+      </g>
+      
+      <g transform="translate(440,0)">
+        <rect x="0" y="0" width="200" height="60" rx="10" fill="#f0f4ff" stroke="#4299e1" stroke-width="1"/>
+        <text x="100" y="20" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#2a4365" text-anchor="middle">⚡ Docker Ready</text>
+        <text x="100" y="35" font-family="Arial, sans-serif" font-size="10" fill="#2a4365" text-anchor="middle">One-command deployment</text>
+        <text x="100" y="48" font-family="Arial, sans-serif" font-size="10" fill="#2a4365" text-anchor="middle">Environment separation</text>
+      </g>
+      
+      <g transform="translate(660,0)">
+        <rect x="0" y="0" width="200" height="60" rx="10" fill="#faf5ff" stroke="#9f7aea" stroke-width="1"/>
+        <text x="100" y="20" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#553c9a" text-anchor="middle">📊 Smart Cleanup</text>
+        <text x="100" y="35" font-family="Arial, sans-serif" font-size="10" fill="#553c9a" text-anchor="middle">Score-based purging</text>
+        <text x="100" y="48" font-family="Arial, sans-serif" font-size="10" fill="#553c9a" text-anchor="middle">Intelligent categorization</text>
+      </g>
+    </g>
+  </g>
+  
+  <!-- Tech Stack -->
+  <g transform="translate(350,550)">
+    <text x="150" y="0" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#4a5568" text-anchor="middle">Built with: Python/Flask • Vue.js 3 • Vite • Pinia • APScheduler</text>
+  </g>
+</svg>
