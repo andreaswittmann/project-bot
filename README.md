@@ -2,7 +2,7 @@
 
 ## The Complete AI Career Workflow Solution
 
-A Python-based tool for automatically scraping, analyzing, generating applications, and managing freelance project opportunities from FreelancerMap.de using AI-powered evaluation with advanced state management.
+Project Bot automates freelance applications using AI. Python/Flask backend and Vue.js 3 frontend (Vite, Pinia) scrape FreelancerMap RSS feeds and evaluate projects with OpenAI and Google Gemini. High-fit projects get German applications. Features 7-state tracking, APScheduler automation, and intelligent purging. Docker deployment.
 
 ## Overview
 
