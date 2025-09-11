@@ -518,6 +518,9 @@ python file_purger.py --config custom_config.yaml --categories rejected_low_pre_
 
 ```
 project-bot/
+├── LICENSE                   # MIT License file
+├── LICENSES/                 # License documentation
+│   └── LICENSING_REVIEW.md   # Comprehensive licensing review
 ├── main.py                    # Main CLI orchestrator for scraping, evaluation, generation
 ├── server_enhanced.py         # Flask backend API server
 ├── rss_helper.py             # RSS feed processing and project scraping
@@ -832,6 +835,9 @@ python main.py --no-purge
 ## License
 
 This project is open-source under the MIT License. Please respect FreelancerMap.de's terms of service when using this tool.
+
+### Licensing Review
+For a comprehensive review of all dependencies and their license compatibility, see [`LICENSES/LICENSING_REVIEW.md`](LICENSES/LICENSING_REVIEW.md).
 
 ## Support
 
