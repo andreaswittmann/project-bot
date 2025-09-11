@@ -86,6 +86,12 @@ The Project Bot workflow diagram illustrates an automated freelance job applicat
 - Easy switching between providers
 - Independent configuration for evaluation vs. application generation
 
+## Architecture
+
+The Project Bot architecture consists of a Python/Flask backend for automated job application processing and a Vue.js frontend for interactive project management. The system scrapes FreelancerMap RSS feeds, evaluates projects using AI (OpenAI, Anthropic, or Google Gemini), generates professional German applications, and manages project states through a comprehensive dashboard.
+
+For detailed architecture documentation including component diagrams, data flows, and deployment options, see [`architecture.md`](architecture.md).
+
 ## Installation
 
 ### Option 1: Local Development
