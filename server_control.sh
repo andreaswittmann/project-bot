@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Server Control Script for bewerbungs-bot
+# Server Control Script for project-bot
 # Checks for running servers and provides start/restart functionality
 
 # Colors for output

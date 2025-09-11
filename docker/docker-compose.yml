@@ -1,9 +1,9 @@
-name: bot
+name: project-bot
 
 services:
-  bewerbungs-bot:
+  project-bot:
     build: ..
-    container_name: bewerbungs-bot
+    container_name: project-bot
     ports:
       - "8003:8002"
     environment:
@@ -18,7 +18,7 @@ services:
       # Flask settings
       - FLASK_ENV=production
       # Frontend API configuration
-      - VITE_API_BASE_URL=http://bewerbungs-bot:8002
+      - VITE_API_BASE_URL=http://project-bot:8002
     volumes:
       # Mount organized docker-volumes directory for persistence
       - ../docker-volumes/data:/app/data

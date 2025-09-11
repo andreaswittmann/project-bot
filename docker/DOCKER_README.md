@@ -1,4 +1,4 @@
-# Docker Setup for Bewerbungs-Bot
+# Docker Setup for Project Bot
 
 This Docker setup provides a simple, single-container solution that runs both your Python backend and Vue.js frontend with proper data persistence and multi-architecture support.
 
@@ -44,7 +44,7 @@ docker compose down
 ## 📁 Project Structure
 
 ```
-bewerbungs-bot/
+project-bot/
 ├── docker/                # Docker configuration directory
 │   ├── Dockerfile         # Multi-stage build configuration
 │   ├── docker-compose.yml # Container orchestration
@@ -110,7 +110,7 @@ All important data is mounted to the host:
 docker compose build
 
 # Build for multiple architectures (Intel + Apple Silicon)
-docker buildx build --platform linux/amd64,linux/arm64 -t bewerbungs-bot .
+docker buildx build --platform linux/amd64,linux/arm64 -t project-bot .
 
 # Rebuild without cache
 docker compose build --no-cache
@@ -140,10 +140,10 @@ docker compose ps
 ### Debugging Commands
 ```bash
 # Enter running container
-docker compose exec bewerbungs-bot bash
+docker compose exec project-bot bash
 
 # View container logs
-docker compose logs bewerbungs-bot
+docker compose logs project-bot
 
 # Check container health
 docker compose ps
@@ -171,7 +171,7 @@ docker compose up -d
 
 ### Option 2: Pure Docker
 ```bash
-docker build -t bewerbungs-bot .
+docker build -t project-bot .
 docker run -d -p 8002:8002 \
   -v $(pwd)/data:/app/data \
   -v $(pwd)/projects:/app/projects \
@@ -180,7 +180,7 @@ docker run -d -p 8002:8002 \
   -e OPENAI_API_KEY=$OPENAI_API_KEY \
   -e ANTHROPIC_API_KEY=$ANTHROPIC_API_KEY \
   -e GOOGLE_API_KEY=$GOOGLE_API_KEY \
-  bewerbungs-bot
+  project-bot
 ```
 
 ### Option 3: Docker with .env file
@@ -190,7 +190,7 @@ docker run --env-file .env -d -p 8002:8002 \
   -v $(pwd)/projects:/app/projects \
   -v $(pwd)/logs:/app/logs \
   -v $(pwd)/config.yaml:/app/config.yaml \
-  bewerbungs-bot
+  project-bot
 ```
 
 ## 🔄 Updates and Maintenance
@@ -221,7 +221,7 @@ tar -xzf backup-20241201.tar.gz
 docker compose down
 
 # Remove images
-docker image rm bewerbungs-bot
+docker image rm project-bot
 
 # Clean up unused resources
 docker system prune
@@ -247,19 +247,19 @@ chmod -R 755 data/ projects/ logs/
 **Container won't start**
 ```bash
 # Check logs for errors
-docker compose logs bewerbungs-bot
+docker compose logs project-bot
 
 # Verify environment variables
-docker compose exec bewerbungs-bot env | grep API_KEY
+docker compose exec project-bot env | grep API_KEY
 ```
 
 **Frontend not loading**
 ```bash
 # Check if frontend was built correctly
-docker compose exec bewerbungs-bot ls -la frontend/dist/
+docker compose exec project-bot ls -la frontend/dist/
 
 # Rebuild frontend
-docker compose exec bewerbungs-bot npm run build
+docker compose exec project-bot npm run build
 ```
 
 ### Health Checks
@@ -279,7 +279,7 @@ docker compose ps
 docker compose logs -f
 
 # View specific service logs
-docker compose logs -f bewerbungs-bot
+docker compose logs -f project-bot
 
 # Follow logs with timestamps
 docker compose logs -f -t

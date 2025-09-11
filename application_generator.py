@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-Application Generator Module for Bewerbungs-Bot
+Application Generator Module for Project Bot
 
 This module integrates the legacy bewerbung_generator_app functionality
-into the main bewerbungs-bot workflow with automated application generation.
+into the main project-bot workflow with automated application generation.
 """
 
 import os
@@ -48,7 +48,7 @@ except ImportError:
 
 class ApplicationGenerator:
     """
-    Integrated Application Generator for Bewerbungs-Bot
+    Integrated Application Generator for Project Bot
 
     This class handles the generation of professional German job applications
     using the proven template from the legacy bewerbung_generator_app.
@@ -500,7 +500,7 @@ Gehaltsvorstellung: 120,- € pro Stunde
 
         # Add footer
         application_section += "\n\n---\n"
-        application_section += "*Application generated automatically by Bewerbungs-Bot*"
+        application_section += "*Application generated automatically by Project Bot*"
 
         # Read existing file
         with open(project_file, 'r', encoding='utf-8') as f:

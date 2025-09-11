@@ -1,4 +1,4 @@
-# Bewerbungsbot Setup (Live-Scripting)
+# Project Bot Setup (Live-Scripting)
 
 This is a Setup Script that is developed and can be used with the Live-Scripting method by Andreas Wittmann. (https://github.com/andreaswittmann/live-scripting)
 
@@ -22,9 +22,9 @@ cd ~/LocalProjects/ai-bootcamp
 ls -ltr
 
 
-# Clone the bewerbungs-bot project
-git clone http://100.71.227.145:3300/anwi/bewerbungs-bot.git
-cd bewerbungs-bot
+# Clone the project-bot project
+git clone http://100.71.227.145:3300/anwi/project-bot.git
+cd project-bot
 
 export PROJECT_DIR=$(pwd)
 echo "Project directory set to: ${PROJECT_DIR}"
@@ -45,7 +45,7 @@ git log -1
 
 ```
 
-The project was cloned from http://100.71.227.145:3300/anwi/bewerbungs-bot into ~/test-projects/bewerbungs-bot and the directory structure was verified.
+The project was cloned from http://100.71.227.145:3300/anwi/project-bot into ~/test-projects/project-bot and the directory structure was verified.
 
 ## Step 2: Configure Application Settings and Docker Volumes
 
@@ -71,13 +71,13 @@ exit
 whoami
 
 # Update these paths according to your local setup
-scp ~/LocalProjects/ai-bootcamp/bewerbungs-bot/data/CV_Andreas.Wittmann_GmbH_DE_2025_04.md asamadhi:~/LocalProjects/ai-bootcamp/bewerbungs-bot/docker-volumes/data/cv.md
+scp ~/LocalProjects/ai-bootcamp/project-bot/data/CV_Andreas.Wittmann_GmbH_DE_2025_04.md asamadhi:~/LocalProjects/ai-bootcamp/project-bot/docker-volumes/data/cv.md
 
-scp ~/LocalProjects/ai-bootcamp/.env asamadhi:~/LocalProjects/ai-bootcamp/bewerbungs-bot/docker/.env
+scp ~/LocalProjects/ai-bootcamp/.env asamadhi:~/LocalProjects/ai-bootcamp/project-bot/docker/.env
 
 ssh asamadhi
 bash
-cd ~/LocalProjects/ai-bootcamp/bewerbungs-bot
+cd ~/LocalProjects/ai-bootcamp/project-bot
 export PROJECT_DIR=$(pwd)
 echo "Project directory set to: ${PROJECT_DIR}"
 ########### End of scp section
@@ -104,7 +104,7 @@ The main configuration was copied from template, a organized `docker-volumes` di
 cd ${PROJECT_DIR}/..
 pwd
 ls -la
-tar czf bewerbungs-bot-backup-$(date +%Y%m%d_%H%M%S).tar.gz bewerbungs-bot
+tar czf project-bot-backup-$(date +%Y%m%d_%H%M%S).tar.gz project-bot
 ls -la
 
 
@@ -180,12 +180,12 @@ docker compose logs --tail=10
 ls -la ../docker-volumes/
 
 # Log into the container to verify running process
-docker compose exec bewerbungs-bot bash -c "ps aux | grep python"
-Docker compose exec bewerbungs-bot bash -c "ls -la /app/data/"
-docker compose exec bewerbungs-bot bash -c "cat /app/config.yaml"
-docker compose exec bewerbungs-bot bash -c "env | grep API_KEY"
-docker compose exec bewerbungs-bot bash -c "env | grep OPENAI"
-docker compose exec bewerbungs-bot bash 
+docker compose exec project-bot bash -c "ps aux | grep python"
+Docker compose exec project-bot bash -c "ls -la /app/data/"
+docker compose exec project-bot bash -c "cat /app/config.yaml"
+docker compose exec project-bot bash -c "env | grep API_KEY"
+docker compose exec project-bot bash -c "env | grep OPENAI"
+docker compose exec project-bot bash
 ls
 
 
@@ -194,7 +194,7 @@ ls
 
 ```
 
-The docker-compose.yml was updated to use the organized `docker-volumes` directory structure and configured with project name "bot" for Docker Desktop. The Docker image was built and the application container started with all volumes properly mounted from the centralized location.
+The docker-compose.yml was updated to use the organized `docker-volumes` directory structure and configured with project name "project-bot" for Docker Desktop. The Docker image was built and the application container started with all volumes properly mounted from the centralized location.
 
 ## Step 5: Verify Application and Access
 
@@ -251,8 +251,8 @@ If issues occur, use these diagnostic commands:
 
 ```shell
 # Check detailed logs and environment
-docker compose logs bewerbungs-bot
-docker compose exec bewerbungs-bot env | grep API_KEY
+docker compose logs project-bot
+docker compose exec project-bot env | grep API_KEY
 
 # Clean restart
 docker compose down
@@ -277,14 +277,14 @@ pwd
 docker compose down
 
 # Remove Docker images
-docker rmi bewerbungs-bot || true
+docker rmi project-bot || true
 docker image prune -f
 
 # Remove project directory (WARNING: This deletes everything!)
 cd $PROJECT_DIR/..
 pwd
 
-rm -rf bewerbungs-bot
+rm -rf project-bot
 
 # Clean up Docker system
 docker system prune -f
@@ -298,6 +298,6 @@ This cleanup section stops all containers, removes Docker images, deletes the en
 
 **Setup completed successfully!** 🚀
 
-Your Bewerbungs-Bot is now running at: http://localhost:8003
+Your Project Bot is now running at: http://localhost:8003
 
 Note: Docker uses port 8003 to avoid conflicts with local development (port 8002)

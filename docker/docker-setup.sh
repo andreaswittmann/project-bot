@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# Docker Setup Script for Bewerbungs-Bot
+# Docker Setup Script for Project Bot
 # This script helps you get started with the Docker setup
 
 set -e
 
-echo "🚀 Bewerbungs-Bot Docker Setup"
+echo "🚀 Project Bot Docker Setup"
 echo "================================"
 
 # Check if we're in the docker directory

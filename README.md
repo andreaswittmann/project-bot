@@ -1,4 +1,4 @@
-# Bewerbungs-Bot (Application Bot)
+# Project Bot
 
 A Python-based tool for automatically scraping, analyzing, generating applications, and managing freelance project opportunities from FreelancerMap.de using AI-powered evaluation with advanced state management.
 
@@ -83,7 +83,7 @@ This bot helps freelancers automate the complete process of:
 1. **Clone the repository:**
    ```bash
    git clone <repository-url>
-   cd bewerbungs-bot
+   cd project-bot
    ```
 
 2. **Install dependencies:**
@@ -134,7 +134,7 @@ The application supports two distinct environments to prevent configuration conf
 | Environment | Port | Backend URL | Frontend Config |
 |-------------|------|-------------|----------------|
 | **Local Development** | 8002 | `http://localhost:8002` | `frontend/.env` |
-| **Docker** | 8003 | `http://bewerbungs-bot:8002` | `docker/docker-compose.yml` |
+| **Docker** | 8003 | `http://project-bot:8002` | `docker/docker-compose.yml` |
 
 **Why Different Ports?**
 - **Fail-safe Design**: If you accidentally access the wrong URL, you'll get a connection error immediately
@@ -147,7 +147,7 @@ The application supports two distinct environments to prevent configuration conf
 VITE_API_BASE_URL=http://localhost:8002
 
 # Docker (docker/docker-compose.yml)
-VITE_API_BASE_URL=http://bewerbungs-bot:8002
+VITE_API_BASE_URL=http://project-bot:8002
 ```
 
 ### Docker Commands
@@ -470,7 +470,7 @@ python file_purger.py --config custom_config.yaml --categories rejected_low_pre_
 ## Project Structure
 
 ```
-bewerbungs-bot/
+project-bot/
 ├── main.py                    # Main scraping application with state management
 ├── rss_helper.py             # RSS feed processing
 ├── evaluate_projects.py      # Project evaluation engine with state updates
