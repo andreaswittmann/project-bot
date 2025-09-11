@@ -1,0 +1,58 @@
++SETUPFILE: ~/Seafile/org2/aw-org-html-themes/setup/theme-readtheorg-local.setup
+#++SETUPFILE: https://github.com/andreaswittmann/aw-org-html-themes/setup/theme-readtheorg-local.setup
+#+OPTIONS: toc:nil
+#+STARTUP: overview
+#+Title: Project Bot
+#+Author: Andreas wittmann
+#+Options: c:t
+#+TODO: TODO(t!/!) MAYB(b!/!) WAIT(w!/!) OPEN(o!/!) |  DONE(d!/) CANC(c!/!)
+#+TODO:  | PROJ(p!/!) NOTE(n!/)  MEET(m!/!)
+#+Include: "~/Seafile/org2/latex_setup.org"
+
+- *PDF Version:* [[file:readme.pdf][readme.pdf]]
+- *HTML Version:* [[file:readme.html][readme.html]]
+
+#+TOC: headlines 4
+
+* Project Bot
+
+** Introduction
+
+Project Bot is an advanced application designed to streamline the process of generating professional job applications in German. Leveraging state-of-the-art AI technologies, it automates the creation of tailored application documents, making it easier for users to apply for jobs with confidence.
+
+** Migration
+This document uses the [[life-scripting][https://github.com/andreaswittmann/live-scripting]] approach to migrate the project from the old project path to the new location.
+
+*** Fresh Setup Steps from Remote Repository while migrating productive files and settings.
+
+
+#+begin_src bash
+# Listing: setup project-bot
+
+# Complete setup in one go
+cd /Users/aupeksha/LocalProjects/ai-bootcamp
+git clone http://100.71.227.145:3300/anwi/project-bot.git project-bot
+cd project-bot
+python3 -m venv venv && source venv/bin/activate
+pip install -r requirements.txt
+cd frontend && npm install && npm run build && cd ..
+cp ../bewerbungs-bot/config.yaml ./
+cp -r ../bewerbungs-bot/data ./ 2>/dev/null || mkdir data
+cp -r ../bewerbungs-bot/projects ./ 2>/dev/null || mkdir projects
+ls -l projects
+ls -l data
+mkdir logs
+
+## Start the server 
+ls -l server-control.sh 
+./server_control.sh status
+./server_control.sh start-all
+
+
+
+
+#+end_src
+
+*Result:* the project-bot directory is created with all files and folders. The virtual environment is set up and dependencies are installed. The servers are started.
+
+
