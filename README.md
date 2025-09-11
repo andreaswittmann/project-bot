@@ -170,6 +170,24 @@ VITE_API_BASE_URL=http://localhost:8002
 VITE_API_BASE_URL=http://project-bot:8002
 ```
 
+### Build-Time Environment Variables
+
+The frontend embeds GitHub project URL and release tag at build time for offline usability:
+
+- **GitHub URL**: `https://github.com/andreaswittmann/project-bot` (static)
+- **Release Tag**: Dynamically fetched from git using `git describe --tags --abbrev=0`
+- **Access**: Available as `import.meta.env.VITE_GITHUB_URL` and `import.meta.env.VITE_RELEASE_TAG`
+- **Display**: Footer in the app shows "Project: [release tag] | GitHub: [URL]"
+
+**Build Process:**
+1. `npm run build` fetches the latest git tag (defaults to "dev" if no tags)
+2. Vite replaces constants at build time
+3. Constants are embedded in the bundled JavaScript
+
+**Fallback Behavior:**
+- If no git tags exist, release tag defaults to "dev"
+- Git must be available during build (ensure repo is cloned with tags in CI/CD)
+
 ### Docker Commands
 
 ```bash
