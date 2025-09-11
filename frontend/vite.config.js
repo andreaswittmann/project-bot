@@ -1,12 +1,23 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
+import { execSync } from 'child_process'
+
+// Function to get current git tag
+function getGitTag() {
+  try {
+    return execSync('git describe --tags --abbrev=0', { encoding: 'utf8' }).trim()
+  } catch (error) {
+    console.warn('Could not get git tag, using "dev" as fallback')
+    return 'dev'
+  }
+}
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [vue()],
   define: {
     'import.meta.env.VITE_GITHUB_URL': JSON.stringify('https://github.com/andreaswittmann/project-bot'),
-    'import.meta.env.VITE_RELEASE_TAG': JSON.stringify(process.env.VITE_RELEASE_TAG || 'dev')
+    'import.meta.env.VITE_RELEASE_TAG': JSON.stringify(getGitTag())
   },
   optimizeDeps: {
     include: [
