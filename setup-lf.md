@@ -96,6 +96,24 @@ ls -la docker-volumes/
 
 The main configuration was copied from template, a organized `docker-volumes` directory was created containing all directories needed for Docker volume mounting (data, projects, logs), and configuration files were prepared for container access.
 
+## Step 2b: For Update only
+
+```shell
+## tar current installation before update 
+
+cd ${PROJECT_DIR}/..
+pwd
+ls -la
+tar czf bewerbungs-bot-backup-$(date +%Y%m%d_%H%M%S).tar.gz bewerbungs-bot
+ls -la
+
+
+
+```
+
+
+
+
 ## Step 3: Configure Docker Environment and API Keys
 
 We want to set up Docker environment variables and configure API keys.
@@ -148,6 +166,7 @@ cat docker-compose.yml
 # no cache build to ensure latest dependencies
 #docker compose build
 docker compose build --no-cache
+docker compose build 
 
 # Starting application container with organized volumes...
 docker compose down
