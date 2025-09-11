@@ -9,8 +9,8 @@
 #+TODO:  | PROJ(p!/!) NOTE(n!/)  MEET(m!/!)
 #+Include: "~/Seafile/org2/latex_setup.org"
 
-- *PDF Version:* [[file:readme.pdf][readme.pdf]]
-- *HTML Version:* [[file:readme.html][readme.html]]
+- *PDF Version:* [[file:setup.pdf][setup.pdf]]
+- *HTML Version:* [[file:setup.html][setup.html]]
 
 #+TOC: headlines 4
 
