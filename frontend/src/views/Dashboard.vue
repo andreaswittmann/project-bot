@@ -1,9 +1,14 @@
 <template>
   <div class="dashboard">
     <header class="header">
-      <div class="header-content">
-        <h1>Project Bot</h1>
-        <p class="subtitle">The Complete AI Career Workflow Solution</p>
+      <div class="header-left">
+        <img :src="logoImage" alt="Project Bot Logo" class="logo" />
+      </div>
+      <div class="header-center">
+        <div class="header-text">
+          <h1>Project Bot</h1>
+          <p class="subtitle">The Complete AI Career Workflow Solution</p>
+        </div>
       </div>
       <nav class="header-nav">
         <button @click="createManualProject" class="nav-link create-btn" :disabled="loading">
@@ -98,6 +103,7 @@ import ProjectFilters from '../components/ProjectFilters.vue'
 import ProjectTable from '../components/ProjectTable.vue'
 import ProjectDetailsModal from '../components/ProjectDetailsModal.vue'
 import ProjectActions from '../components/ProjectActions.vue'
+import logoImage from '../assets/project-bot.png'
 
 // Router
 const router = useRouter()
@@ -413,11 +419,33 @@ onMounted(() => {
   align-items: center;
 }
 
-.header-content {
+.header-left {
+  display: flex;
+  align-items: center;
+}
+
+.logo {
+  height: 120px;
+  width: auto;
+  flex-shrink: 0;
+  object-fit: contain;
+}
+
+.header-center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.header-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
   text-align: center;
 }
 
-.header-content h1 {
+.header-text h1 {
   margin: 0;
   font-size: 2.5rem;
   font-weight: 300;
@@ -681,18 +709,26 @@ onMounted(() => {
     gap: 1rem;
   }
 
-  .header-content {
+  .header-left {
     order: 1;
   }
 
-  .header-nav {
+  .header-center {
     order: 2;
+  }
+
+  .header-nav {
+    order: 3;
     width: 100%;
     justify-content: center;
   }
 
-  .header h1 {
+  .header-text h1 {
     font-size: 2rem;
+  }
+
+  .logo {
+    height: 90px;
   }
 
   .main-content {
@@ -748,6 +784,10 @@ onMounted(() => {
 
   .activity-item {
     padding: 0.5rem;
+  }
+
+  .logo {
+    height: 75px;
   }
 }
 </style>
