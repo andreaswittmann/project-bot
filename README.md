@@ -17,6 +17,21 @@ This bot helps freelancers automate the complete process of:
 - **Managing** applications through an interactive dashboard with state-based filtering
 
 ![Project Bot Workflow](media/readme_workflow_graphic.jpeg)
+
+## Screenshots
+
+<p align="center">
+  <a href="media/Screenshot-01.png">
+    <img src="media/Screenshot-01.png" alt="Screenshot 1" width="30%" style="margin: 0 1%;" />
+  </a>
+  <a href="media/Screenshot-02.png">
+    <img src="media/Screenshot-02.png" alt="Screenshot 2" width="30%" style="margin: 0 1%;" />
+  </a>
+  <a href="media/Screenshot-03.png">
+    <img src="media/Screenshot-03.png" alt="Screenshot 3" width="30%" style="margin: 0 1%;" />
+  </a>
+</p>
+
 ## Workflow Overview
 
 The Project Bot workflow diagram illustrates an automated freelance job application system that scrapes project opportunities, evaluates them using AI, generates applications for high-fit roles, and provides a dashboard for management. The process begins with RSS scraping from FreelancerMap.de across multiple regions, parsing HTML details, and detecting duplicates to create project files. These are then evaluated by multiple AI models (OpenAI GPT, Anthropic Claude, or Google Gemini) to assign fit scores from 0-100%. Projects scoring 90% or higher automatically generate professional German applications with cost tracking and CV integration. The Vue.js dashboard enables 7-state project lifecycle tracking (scraped → accepted/rejected → applied → sent → open → archived), quick filtering, and analytics. Key features include multi-LLM support, German market focus, Docker deployment, and intelligent score-based file cleanup, all built with Python/Flask backend and Vue.js frontend technologies.
