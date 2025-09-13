@@ -1,4 +1,7 @@
 # Project Bot
+## Demo Video
+
+[Watch the Project Bot Demo](https://www.youtube.com/watch?v=OOP2qulJpQ8)
 
 ![Project Bot](media/project-bot.png)
 
