@@ -1,4 +1,4 @@
-# Bewerbungs-Bot Architecture Documentation
+# Project-Bot Architecture Documentation
 
 ## High Level Architecture
 
@@ -79,7 +79,7 @@ graph TB
 
 ### Architecture Overview
 
-The Bewerbungs-Bot is a comprehensive job application automation system consisting of:
+The Project-Bot is a comprehensive job application automation system consisting of:
 
 - **Backend**: Python/Flask API server (server_enhanced.py) with core CLI orchestrator (main.py) for data processing, AI evaluation, application generation, and intelligent purging
 - **Frontend**: Vue.js 3 + Vite web dashboard for project management, scheduling, and manual project creation/editing
@@ -431,7 +431,7 @@ flowchart TD
     classDef final fill:#f3f4f6,stroke:#6b7280,stroke-width:2px,color:#374151
 
     %% Start
-    START([🚀 Start Bewerbungs-Bot])
+    START([🚀 Start Project-Bot])
 
     %% RSS Processing Phase
     RSS[📡 Fetch RSS Feeds<br/>FreelancerMap]
@@ -531,7 +531,7 @@ flowchart TD
 
 ### Complete Workflow Description
 
-The Bewerbungs-Bot follows a comprehensive automated workflow with manual override capabilities:
+The Project-Bot follows a comprehensive automated workflow with manual override capabilities:
 
 #### 🔄 **Automated Flow:**
 1. **Data Ingestion**: RSS feeds are fetched from FreelancerMap and parsed into structured markdown files
@@ -562,6 +562,56 @@ The Bewerbungs-Bot follows a comprehensive automated workflow with manual overri
 - **Reporting**: Comprehensive statistics and analytics
 
 This architecture provides a robust foundation for automated job application management with comprehensive monitoring, manual overrides, and intelligent automation features.
+
+## Deployment Diagram
+
+```mermaid
+graph TB
+    %% Define styles
+    classDef network fill:#e0f2fe,stroke:#06b6d4,stroke-width:2px,color:#0c4a6e
+    classDef server fill:#dbeafe,stroke:#3b82f6,stroke-width:2px,color:#1e40af
+    classDef client fill:#dcfce7,stroke:#10b981,stroke-width:2px,color:#166534
+    classDef vpn fill:#fef3c7,stroke:#f59e0b,stroke-width:2px,color:#92400e
+
+    subgraph "🌐 Internet"
+        Tailscale[Tailscale VPN<br/>Secure Access]
+    end
+
+    subgraph "🏠 Home WLAN"
+        Homeserver[Homeserver<br/>Docker Compose]
+
+        subgraph "🐳 Docker Services"
+            Backend[Backend<br/>Flask API]
+            Frontend[Frontend<br/>Vue.js + Vite]
+        end
+
+        Laptop[Laptop<br/>Browser]
+        Tablet[Tablet<br/>Browser]
+        Smartphone[Smartphone<br/>Browser]
+    end
+
+    Tailscale --> Homeserver
+    Homeserver --> Backend
+    Homeserver --> Frontend
+    Laptop --> Homeserver
+    Tablet --> Homeserver
+    Smartphone --> Homeserver
+    Backend --> Frontend
+
+    %% Apply styles
+    class Tailscale vpn
+    class Homeserver server
+    class Backend,Frontend server
+    class Laptop,Tablet,Smartphone client
+```
+
+### Deployment Architecture
+
+The Project-Bot is deployed on a homeserver within the home WLAN using Docker Compose for containerized services. The frontend (Vue.js) and backend (Flask) run as separate containers, communicating internally.
+
+Clients access the application through web browsers on various devices (laptop, tablet, smartphone) connected to the home network. For secure remote access from the internet, Tailscale VPN extends the home network, allowing encrypted connections without exposing ports directly to the internet.
+
+This setup ensures secure, local deployment with optional remote access capabilities.
 
 ### Deployment Considerations
 - **Local Development**: Separate processes for backend (python server_enhanced.py) and frontend (npm run dev)
