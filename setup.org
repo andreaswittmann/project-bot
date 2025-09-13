@@ -55,4 +55,63 @@ ls -l server-control.sh
 
 *Result:* the project-bot directory is created with all files and folders. The virtual environment is set up and dependencies are installed. The servers are started.
 
+## Docker Setup
+[2025-09-12 Fri] This section demonstrates to setup the project on my MacBook Pro home server with Docker.
+I migrate the settings and projects from an previous docker setup.
+
+#+begin_src bash
+# Listing: setup project-bot with docker
+
+# Login to home server
+ssh asamadhi
+bash
+
+
+# Create project directory
+cd ~/LocalProjects/
+ls -ltr
+
+# Clone the repository
+git clone https://github.com/andreaswittmann/project-bot.git
+cd project-bot
+export PROJECT_DIR=$(pwd)
+echo $PROJECT_DIR
+
+# Migrate Settings and Projects from old docker setup
+mkdir -p  $PROJECT_DIR/docker-volumes
+cd $PROJECT_DIR/docker-volumes
+cp -r ~/LocalProjects/ai-bootcamp/bewerbungs-bot/docker-volumes/data/ . 
+cp -r ~/LocalProjects/ai-bootcamp/bewerbungs-bot/docker-volumes/config.yaml .
+cp -r ~/LocalProjects/ai-bootcamp/bewerbungs-bot/docker-volumes/projects/ .
+
+exit
+
+# Copy conifguration from ohter machine
+scp ~/LocalProjects/ai-bootcamp/project-bot/data/CV_Andreas.Wittmann_GmbH_DE_2025_05.md asamadhi:~/LocalProjects/ai-bootcamp/project-bot/docker-volumes/data/cv.md
+scp ~/LocalProjects/ai-bootcamp/.env asamadhi:~/LocalProjects/ai-bootcamp/project-bot/docker/.env
+
+
+# Continue on home server
+ssh asamadhi
+bash
+cd ~/LocalProjects/project-bot
+export PROJECT_DIR=$(pwd)
+
+## Build the docker images
+cd ${PROJECT_DIR}/docker
+docker compose build --no-cache
+
+# Starting application container with organized volumes...
+docker compose down
+docker compose up -d
+
+# Verify container status and volumes
+
+docker compose ps
+docker compose logs --tail=10
+
+#+end_src
+
+
+
 
