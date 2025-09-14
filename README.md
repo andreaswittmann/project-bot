@@ -2,6 +2,9 @@
 ![Project Bot](media/project-bot.png)
 
 Project Bot automates freelance applications using AI. Python/Flask backend and Vue.js 3 frontend (Vite, Pinia) scrape FreelancerMap RSS feeds and evaluate projects with OpenAI and Google Gemini. High-fit projects get German applications. Features 7-state tracking, APScheduler automation, and intelligent purging. Docker deployment.
+
+This project is featured in the Blog Artikle from Andreas Wittmann: https://anwi.gmbh/?p=1272&lang=en
+
 ## Demo Video
 
 [![Project Bot Demo Video](media/Youtube-Video.png)](https://www.youtube.com/watch?v=OOP2qulJpQ8)
