@@ -2,10 +2,20 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { execSync } from 'child_process'
 
-// Function to get current git tag
-function getGitTag() {
+// Function to get release tag (prioritizes env var, falls back to git)
+function getReleaseTag() {
+  // First check if VITE_RELEASE_TAG is set via environment
+  const envTag = process.env.VITE_RELEASE_TAG
+  if (envTag && envTag.trim()) {
+    console.log(`Using VITE_RELEASE_TAG from environment: '${envTag}'`)
+    return envTag.trim()
+  }
+
+  // Fallback to git
   try {
-    return execSync('git describe --tags --abbrev=0', { encoding: 'utf8' }).trim()
+    const gitTag = execSync('git describe --tags --abbrev=0', { encoding: 'utf8' }).trim()
+    console.log(`Using git tag: '${gitTag}'`)
+    return gitTag
   } catch (error) {
     console.warn('Could not get git tag, using "dev" as fallback')
     return 'dev'
@@ -17,7 +27,7 @@ export default defineConfig({
   plugins: [vue()],
   define: {
     'import.meta.env.VITE_GITHUB_URL': JSON.stringify('https://github.com/andreaswittmann/project-bot'),
-    'import.meta.env.VITE_RELEASE_TAG': JSON.stringify(getGitTag())
+    'import.meta.env.VITE_RELEASE_TAG': JSON.stringify(getReleaseTag())
   },
   optimizeDeps: {
     include: [
