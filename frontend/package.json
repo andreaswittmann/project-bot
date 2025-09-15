@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "export VITE_RELEASE_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo 'dev') && vite",
-    "build": "if [ -f .env ] && grep -q 'VITE_RELEASE_TAG=' .env; then export VITE_RELEASE_TAG=$(grep 'VITE_RELEASE_TAG=' .env | cut -d'=' -f2); else export VITE_RELEASE_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo 'dev'); fi && vite build",
+    "build": "echo '=== DEBUG: Checking .env file ===' && ls -la .env 2>/dev/null || echo '.env file not found' && if [ -f .env ]; then echo '.env exists, contents:' && cat .env && if grep -q 'VITE_RELEASE_TAG=' .env; then export VITE_RELEASE_TAG=$(grep 'VITE_RELEASE_TAG=' .env | cut -d'=' -f2) && echo \"Using VITE_RELEASE_TAG from .env: $VITE_RELEASE_TAG\"; else echo 'VITE_RELEASE_TAG not found in .env, using git'; export VITE_RELEASE_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo 'dev'); fi; else echo '.env not found, using git'; export VITE_RELEASE_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo 'dev'); fi && echo \"Final VITE_RELEASE_TAG: $VITE_RELEASE_TAG\" && vite build",
     "preview": "vite preview",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
