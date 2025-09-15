@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "export VITE_RELEASE_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo 'dev') && vite",
-    "build": "export VITE_RELEASE_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo 'dev') && vite build",
+    "build": "export VITE_RELEASE_TAG=${VITE_RELEASE_TAG:-$(git describe --tags --abbrev=0 2>/dev/null || echo 'dev')} && vite build",
     "preview": "vite preview",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
