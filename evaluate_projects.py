@@ -494,12 +494,19 @@ def process_project_file(project_path: str, config: Dict[str, Any], cv_content: 
     if not project_content:
         return
 
-    # Run pre-evaluation
-    pre_eval_score, pre_eval_rationale, passed_pre_eval = handle_pre_evaluation(project_content, config, log)
+    # Handle force evaluation mode
+    if config.get('force_evaluation', False):
+        log("Force evaluation mode: Skipping pre-evaluation and proceeding directly to LLM analysis.")
+        pre_eval_score = 100  # Set to passing score for forced evaluation
+        pre_eval_rationale = "Pre-evaluation bypassed (forced evaluation mode)"
+        passed_pre_eval = True
+    else:
+        # Run pre-evaluation
+        pre_eval_score, pre_eval_rationale, passed_pre_eval = handle_pre_evaluation(project_content, config, log)
 
     # Determine final state
     final_state = 'accepted' if passed_pre_eval else 'rejected'
-    
+
     # Handle pre-eval-only mode
     if config.get('pre_eval_only', False):
         log(f"Result: Pre-evaluation only mode. Score: {pre_eval_score}%.")
@@ -520,9 +527,9 @@ def process_project_file(project_path: str, config: Dict[str, Any], cv_content: 
         log("Evaluation finished.")
         log("=" * 50 + "\n")
         return
-    
-    # Handle pre-evaluation failure
-    if not passed_pre_eval:
+
+    # Handle pre-evaluation failure (only when not in force evaluation mode)
+    if not passed_pre_eval and not config.get('force_evaluation', False):
         log("Result: Rejected based on pre-evaluation.")
 
         # Append pre-evaluation results to markdown file
@@ -586,6 +593,7 @@ Examples:
     parser.add_argument('--cv', default='data/cv.md', help='Path to the CV file (default: data/cv.md)')
     parser.add_argument('--projects-dir', default='projects', help="Directory containing projects to process (default: 'projects')")
     parser.add_argument('--pre-eval-only', action='store_true', help='Run only the pre-evaluation scoring without calling the LLM.')
+    parser.add_argument('--force-evaluation', action='store_true', help='Force evaluation by skipping pre-evaluation phase.')
     args = parser.parse_args()
 
     # --- Common Setup ---
@@ -594,10 +602,13 @@ Examples:
         print("Fatal: Could not load configuration. Exiting.")
         return
 
-    # Add the pre_eval_only flag to the config dictionary for easy access
+    # Add the pre_eval_only and force_evaluation flags to the config dictionary for easy access
     config['pre_eval_only'] = args.pre_eval_only
+    config['force_evaluation'] = args.force_evaluation
     if args.pre_eval_only:
         print("--- Running in PRE-EVALUATION ONLY mode ---")
+    if args.force_evaluation:
+        print("--- Running in FORCE EVALUATION mode (skipping pre-evaluation) ---")
 
 
     cv_content = parse_cv(args.cv)

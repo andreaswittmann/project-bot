@@ -269,8 +269,8 @@ const handleGenerateApplication = (projectId) => {
   emit('generate-application', projectId)
 }
 
-const handleReevaluateProject = (projectId) => {
-  emit('reevaluate-project', projectId)
+const handleReevaluateProject = (projectId, force = false) => {
+  emit('reevaluate-project', projectId, force)
 }
 
 const handleTransitionProject = (project) => {

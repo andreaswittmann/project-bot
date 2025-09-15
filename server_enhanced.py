@@ -770,6 +770,10 @@ def update_project_state(project_id: str):
 @handle_api_errors
 def reevaluate_project(project_id: str):
     """Re-evaluate a project"""
+    # Get force parameter from request
+    data = request.get_json() or {}
+    force_evaluation = data.get('force', False)
+
     projects_dir = Path("projects")
     project_file = projects_dir / f"{project_id}.md"
 
@@ -786,10 +790,13 @@ def reevaluate_project(project_id: str):
         import subprocess
         import sys
 
+        # Build command with optional force flag
+        cmd = [sys.executable, "evaluate_projects.py", str(project_file)]
+        if force_evaluation:
+            cmd.append("--force-evaluation")
+
         # Run evaluate_projects.py with the specific project file
-        result = subprocess.run([
-            sys.executable, "evaluate_projects.py", str(project_file)
-        ], capture_output=True, text=True, timeout=300)
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
 
         if result.returncode == 0:
             # Parse the updated project data

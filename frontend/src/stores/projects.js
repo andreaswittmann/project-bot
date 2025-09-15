@@ -128,7 +128,9 @@ export const useProjectsStore = defineStore('projects', {
 
     async generateApplication(id) {
       try {
-        const response = await api.post(`/api/v1/projects/${id}/generate`)
+        const response = await api.post(`/api/v1/projects/${id}/generate`, {}, {
+          timeout: 300000 // 5 minutes timeout to match backend
+        })
         console.log(`Application generated for project ${id}`)
         return response.data
       } catch (error) {
@@ -137,12 +139,12 @@ export const useProjectsStore = defineStore('projects', {
       }
     },
 
-    async reevaluateProject(id) {
+    async reevaluateProject(id, force = false) {
       try {
-        const response = await api.post(`/api/v1/projects/${id}/evaluate`, {}, {
+        const response = await api.post(`/api/v1/projects/${id}/evaluate`, { force }, {
           timeout: 60000 // 60 seconds timeout for evaluation
         })
-        console.log(`Project ${id} reevaluated successfully`)
+        console.log(`Project ${id} reevaluated successfully${force ? ' (forced)' : ''}`)
         return response.data
       } catch (error) {
         console.error('Error reevaluating project:', error)

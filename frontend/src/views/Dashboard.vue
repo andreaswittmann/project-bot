@@ -179,9 +179,9 @@ const handleGenerateApplication = async (projectId) => {
   }
 }
 
-const handleReevaluateProject = async (projectId) => {
+const handleReevaluateProject = async (projectId, force = false) => {
   try {
-    await projectsStore.reevaluateProject(projectId)
+    await projectsStore.reevaluateProject(projectId, force)
     // Refresh data after reevaluation
     await projectsStore.fetchProjects()
     await projectsStore.fetchStats()

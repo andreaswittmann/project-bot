@@ -238,7 +238,7 @@ const generateApplication = async () => {
 const reevaluateProject = async () => {
   isReevaluating.value = true
   try {
-    await emit('reevaluate-project', props.project.id)
+    await emit('reevaluate-project', props.project.id, true) // Pass true to force evaluation
   } finally {
     setTimeout(() => {
       isReevaluating.value = false

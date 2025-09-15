@@ -40,6 +40,10 @@
           <span v-if="currentStatus === 'sent'">✅ Sent</span>
           <span v-else>📤 Send</span>
         </button>
+        <button @click="reevaluateProject" class="reevaluate-btn" :disabled="isReevaluating" :title="isReevaluating ? 'Re-evaluating project...' : 'Force re-evaluation (bypasses pre-evaluation)'">
+          <span v-if="isReevaluating">⏳ Re-evaluating...</span>
+          <span v-else>🔍 Re-evaluate</span>
+        </button>
         <button @click="reloadContent" class="reload-btn" title="Reload content from server">
           🔄 Reload
         </button>
@@ -207,6 +211,7 @@ const editorMode = ref('edit') // 'edit', 'preview', 'split'
 const previewPosition = ref('left') // 'left', 'right'
 const currentStatus = ref('')
 const isGenerating = ref(false)
+const isReevaluating = ref(false)
 const showStatusModal = ref(false)
 const editorRef = ref(null)
 const project = ref(null)
@@ -537,6 +542,31 @@ const generateApplication = async () => {
   }
 }
 
+// Re-evaluate project method
+const reevaluateProject = async () => {
+  if (isReevaluating.value) return
+
+  const confirmed = confirm('This will force a complete re-evaluation of the project, bypassing pre-evaluation checks. Continue?')
+  if (!confirmed) return
+
+  isReevaluating.value = true
+  try {
+    await projectsStore.reevaluateProject(projectId, true) // Pass true for force evaluation
+
+    // Reload content to show the new evaluation results
+    await reloadContent()
+
+    alert('Project re-evaluated successfully! Check the evaluation results at the bottom of the document.')
+  } catch (error) {
+    console.error('Failed to re-evaluate project:', error)
+    alert('Failed to re-evaluate project: ' + (error.response?.data?.message || error.message))
+  } finally {
+    setTimeout(() => {
+      isReevaluating.value = false
+    }, 2000)
+  }
+}
+
 // Send application method
 const sendApplication = async () => {
   // Check for unsaved changes
@@ -852,7 +882,7 @@ defineExpose({ onUnmounted })
   border-color: #4f46e5;
 }
 
-.save-btn, .send-btn, .reload-btn, .generate-btn, .close-btn {
+.save-btn, .send-btn, .reload-btn, .generate-btn, .reevaluate-btn, .close-btn {
   padding: 0.5rem 1rem;
   border-radius: 0.375rem;
   font-size: 0.875rem;
@@ -899,6 +929,7 @@ defineExpose({ onUnmounted })
   opacity: 0.6;
 }
 
+
 .reload-btn {
   background: #3b82f6;
   color: white;
@@ -918,6 +949,20 @@ defineExpose({ onUnmounted })
 }
 
 .generate-btn:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+
+.reevaluate-btn {
+  background: #d97706;
+  color: white;
+}
+
+.reevaluate-btn:hover:not(:disabled) {
+  background: #b45309;
+}
+
+.reevaluate-btn:disabled {
   background: #9ca3af;
   cursor: not-allowed;
 }
