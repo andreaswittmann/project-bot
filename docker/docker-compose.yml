@@ -24,8 +24,8 @@ services:
       - ../docker-volumes/data:/app/data
       - ../docker-volumes/projects:/app/projects
       - ../docker-volumes/logs:/app/logs
-      # Mount config file
-      - ../docker-volumes/config.yaml:/app/config.yaml
+      # Mount config file (commented out - create config.yaml in docker-volumes/ if needed)
+      # - ../docker-volumes/config.yaml:/app/config.yaml
       # Optional: Mount additional directories if needed
       - ../applications_status.json:/app/applications_status.json
     restart: unless-stopped
