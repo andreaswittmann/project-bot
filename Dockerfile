@@ -1,6 +1,9 @@
 # Multi-stage build for frontend and backend
 FROM --platform=$BUILDPLATFORM node:18-alpine AS frontend-builder
 
+# Install git for version tag detection
+RUN apk add --no-cache git
+
 WORKDIR /app/frontend
 COPY frontend/package*.json ./
 COPY frontend/vite.config.js ./
