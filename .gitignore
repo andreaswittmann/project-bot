@@ -74,3 +74,6 @@ Thumbs.db
 .env.production.local
 # Node Modules
 node_modules/
+
+# Frontend Build Output
+frontend/dist/
