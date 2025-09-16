@@ -188,11 +188,17 @@ def analyze_with_llm(cv_content: str, project_offer: str, config: Dict[str, Any]
     model = config.get('llm', {}).get('model')
     api_key = config.get('llm', {}).get('api_key')
 
+    logger.info(f"🔧 Starting LLM analysis with provider: {provider}, model: {model}")
+
     # Resolve environment variables in API key
+    logger.debug("🔑 Resolving API key...")
     api_key = _resolve_api_key(api_key)
+    logger.debug("✅ API key resolved successfully")
 
     if not all([provider, model, api_key]):
-        return {"fit_score": 0, "rationale": "Error: LLM provider, model, or API key is missing from the configuration."}
+        error_msg = "Error: LLM provider, model, or API key is missing from the configuration."
+        logger.error(f"❌ {error_msg}")
+        return {"fit_score": 0, "rationale": error_msg}
 
     prompt = f"""
     As an expert technical recruiter, please analyze the following project offer and CV.
@@ -215,32 +221,50 @@ def analyze_with_llm(cv_content: str, project_offer: str, config: Dict[str, Any]
     5.  Return the output as a JSON object with the structure: {{"fit_score": <integer>, "rationale": "<string>"}}
     """
 
+    logger.debug(f"📝 Prompt length: {len(prompt)} characters")
+    logger.info("🚀 Sending request to LLM...")
+
     try:
         if provider == 'OpenAI':
+            logger.debug("🔧 Initializing OpenAI client...")
             client = OpenAI(api_key=api_key)
+            logger.debug("📡 Making OpenAI API call...")
             response = client.chat.completions.create(
                 model=model,
                 messages=[{"role": "user", "content": prompt}],
                 response_format={"type": "json_object"}
             )
-            return json.loads(response.choices[0].message.content)
+            logger.debug("✅ OpenAI response received")
+            result = json.loads(response.choices[0].message.content)
+            logger.info(f"📊 Fit score: {result.get('fit_score', 'N/A')}")
+            return result
 
         elif provider == 'Anthropic':
+            logger.debug("🔧 Initializing Anthropic client...")
             client = Anthropic(api_key=api_key)
+            logger.debug("📡 Making Anthropic API call...")
             response = client.messages.create(
                 model=model, max_tokens=2048,
                 messages=[{"role": "user", "content": prompt}]
             )
+            logger.debug("✅ Anthropic response received")
             json_str = re.search(r'{.*}', response.content[0].text, re.DOTALL)
             if json_str:
-                return json.loads(json_str.group(0))
+                result = json.loads(json_str.group(0))
+                logger.info(f"📊 Fit score: {result.get('fit_score', 'N/A')}")
+                return result
             else:
-                return {"fit_score": 0, "rationale": "Error: Could not parse JSON from Anthropic response."}
+                error_msg = "Error: Could not parse JSON from Anthropic response."
+                logger.error(f"❌ {error_msg}")
+                return {"fit_score": 0, "rationale": error_msg}
 
         elif provider == 'Google':
+            logger.debug("🔧 Initializing Google Gemini client...")
             genai.configure(api_key=api_key)
             genai_model = genai.GenerativeModel(model)
+            logger.debug("📡 Making Google Gemini API call...")
             response = genai_model.generate_content(prompt)
+            logger.debug("✅ Google Gemini response received")
             # Clean up the response to extract only the JSON part
             text_response = response.text.strip()
             json_str_match = re.search(r'```json\s*(\{.*?\})\s*```', text_response, re.DOTALL)
@@ -250,21 +274,37 @@ def analyze_with_llm(cv_content: str, project_offer: str, config: Dict[str, Any]
                 json_str = text_response
 
             if json_str:
-                return json.loads(json_str)
+                result = json.loads(json_str)
+                logger.info(f"📊 Fit score: {result.get('fit_score', 'N/A')}")
+                return result
             else:
-                return {"fit_score": 0, "rationale": "Error: Could not parse JSON from Google Gemini response."}
+                error_msg = "Error: Could not parse JSON from Google Gemini response."
+                logger.error(f"❌ {error_msg}")
+                return {"fit_score": 0, "rationale": error_msg}
 
         else:
-            return {"fit_score": 0, "rationale": f"Error: Unsupported LLM provider '{provider}'."}
+            error_msg = f"Error: Unsupported LLM provider '{provider}'."
+            logger.error(f"❌ {error_msg}")
+            return {"fit_score": 0, "rationale": error_msg}
 
-    except AuthenticationError:
-        return {"fit_score": 0, "rationale": f"Error: {provider} API key is invalid. Please check your config.yaml."}
-    except RateLimitError:
-        return {"fit_score": 0, "rationale": f"Error: Rate limit exceeded for {provider} API. Please try again later."}
+    except AuthenticationError as e:
+        error_msg = f"Error: {provider} API key is invalid. Please check your config.yaml."
+        logger.error(f"❌ Authentication error: {e}")
+        return {"fit_score": 0, "rationale": error_msg}
+    except RateLimitError as e:
+        error_msg = f"Error: Rate limit exceeded for {provider} API. Please try again later."
+        logger.error(f"❌ Rate limit error: {e}")
+        return {"fit_score": 0, "rationale": error_msg}
     except AnthropicAPIStatusError as e:
-        return {"fit_score": 0, "rationale": f"Error: Anthropic API request failed with status {e.status_code}: {e.response}"}
+        error_msg = f"Error: Anthropic API request failed with status {e.status_code}: {e.response}"
+        logger.error(f"❌ Anthropic API error: {error_msg}")
+        return {"fit_score": 0, "rationale": error_msg}
     except Exception as e:
         # Catch other google-specific API errors if possible, or a general one
+        logger.error(f"💥 Unexpected error in LLM analysis: {e}")
+        logger.error(f"🔍 Exception type: {type(e).__name__}")
+        import traceback
+        logger.error(f"📋 Full traceback: {traceback.format_exc()}")
         if "API key not valid" in str(e):
              return {"fit_score": 0, "rationale": "Error: Google Gemini API key is invalid. Please check your config.yaml."}
         return {"fit_score": 0, "rationale": f"An unexpected error occurred with {provider}: {e}"}
@@ -537,9 +577,10 @@ def process_project_file(project_path: str, config: Dict[str, Any], cv_content: 
 
     logger.info("Evaluation finished.")
     logger.info("=" * 50)
-
 def main():
     """Main function to run the project evaluation script."""
+    logger.info("🚀 Starting project evaluation script")
+
     parser = argparse.ArgumentParser(
         description="Evaluate project offers against a CV. Processes a single file or all files in the projects directory.",
         formatter_class=argparse.RawTextHelpFormatter,
@@ -563,58 +604,80 @@ Examples:
     parser.add_argument('--force-evaluation', action='store_true', help='Force evaluation by skipping pre-evaluation phase.')
     args = parser.parse_args()
 
+    logger.debug(f"📋 Arguments: config={args.config}, cv={args.cv}, project_file={args.project_file}")
+    logger.debug(f"🎯 Flags: pre_eval_only={args.pre_eval_only}, force_evaluation={args.force_evaluation}")
+
     # --- Common Setup ---
+    logger.debug("⚙️ Loading configuration...")
     config = load_config(args.config)
     if not config:
+        logger.error("❌ Fatal: Could not load configuration. Exiting.")
         print("Fatal: Could not load configuration. Exiting.")
         return
+
+    logger.debug("✅ Configuration loaded successfully")
 
     # Add the pre_eval_only and force_evaluation flags to the config dictionary for easy access
     config['pre_eval_only'] = args.pre_eval_only
     config['force_evaluation'] = args.force_evaluation
     if args.pre_eval_only:
+        logger.info("🔧 Running in PRE-EVALUATION ONLY mode")
         print("--- Running in PRE-EVALUATION ONLY mode ---")
     if args.force_evaluation:
+        logger.info("🔧 Running in FORCE EVALUATION mode (skipping pre-evaluation)")
         print("--- Running in FORCE EVALUATION mode (skipping pre-evaluation) ---")
 
 
+    logger.debug("📖 Loading CV content...")
     cv_content = parse_cv(args.cv)
     if not cv_content:
+        logger.error("❌ Fatal: Could not load CV. Exiting.")
         print("Fatal: Could not load CV. Exiting.")
         return
+
+    logger.debug(f"✅ CV content loaded ({len(cv_content)} characters)")
 
     # --- Main Logic ---
     if args.project_file:
         # Process a single file
+        logger.info(f"📄 Processing single file: {args.project_file}")
         print(f"Processing single file: {args.project_file}")
         if not os.path.exists(args.project_file):
+            logger.error(f"❌ Specified project file not found: {args.project_file}")
             print(f"Error: Specified project file not found at '{args.project_file}'")
             return
         process_project_file(args.project_file, config, cv_content)
     else:
         # Process only projects in 'scraped' state (newly scraped projects that need evaluation)
+        logger.info(f"📁 Processing projects in 'scraped' state from '{args.projects_dir}' directory")
         print(f"Processing projects in 'scraped' state from '{args.projects_dir}' directory...")
         if not os.path.isdir(args.projects_dir):
+            logger.error(f"❌ Projects directory not found: {args.projects_dir}")
             print(f"Error: Projects directory not found at '{args.projects_dir}'")
             return
 
         # Use state manager to get only projects in 'scraped' state
+        logger.debug("🔍 Getting projects in 'scraped' state...")
         state_manager = ProjectStateManager(args.projects_dir)
         scraped_projects = state_manager.get_projects_by_state('scraped')
 
         if not scraped_projects:
+            logger.warning("ℹ️ No projects in 'scraped' state found to evaluate")
             print("No projects in 'scraped' state found to evaluate.")
             return
 
+        logger.info(f"📋 Found {len(scraped_projects)} projects in 'scraped' state to evaluate")
         print(f"Found {len(scraped_projects)} projects in 'scraped' state to evaluate...")
 
         # Evaluate projects using centralized logging
-        logger.info(f"Evaluating {len(scraped_projects)} projects from 'scraped' state")
+        logger.info(f"🚀 Starting evaluation of {len(scraped_projects)} projects")
 
         for project_info in scraped_projects:
             project_path = project_info['path']
+            logger.debug(f"🔄 Processing project: {project_path}")
             process_project_file(project_path, config, cv_content)
 
+        logger.info(f"✅ Completed evaluation of {len(scraped_projects)} projects")
         print(f"\nEvaluated {len(scraped_projects)} projects from 'scraped' state.")
 
 if __name__ == "__main__":

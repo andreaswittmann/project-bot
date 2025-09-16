@@ -773,14 +773,19 @@ def update_project_state(project_id: str):
 @handle_api_errors
 def reevaluate_project(project_id: str):
     """Re-evaluate a project"""
+    logger.info(f"🔄 Starting re-evaluation for project: {project_id}")
+
     # Get force parameter from request
     data = request.get_json() or {}
     force_evaluation = data.get('force', False)
+    logger.debug(f"🎯 Force evaluation: {force_evaluation}")
 
     projects_dir = Path("projects")
     project_file = projects_dir / f"{project_id}.md"
+    logger.debug(f"📁 Project file path: {project_file}")
 
     if not project_file.exists():
+        logger.error(f"❌ Project file not found: {project_file}")
         return jsonify(APIErrorResponse(
             error="NotFound",
             message=f"Project {project_id} not found",
@@ -797,11 +802,24 @@ def reevaluate_project(project_id: str):
         cmd = [sys.executable, "evaluate_projects.py", str(project_file)]
         if force_evaluation:
             cmd.append("--force-evaluation")
+        logger.debug(f"🚀 Executing evaluation command: {' '.join(cmd)}")
 
         # Run evaluate_projects.py with the specific project file
         result = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
 
+        logger.debug(f"📋 Evaluation subprocess return code: {result.returncode}")
+        logger.debug(f"📄 Evaluation subprocess stdout length: {len(result.stdout)}")
+        logger.debug(f"⚠️ Evaluation subprocess stderr length: {len(result.stderr)}")
+
+        # Log first 500 chars of output for debugging
+        if result.stdout:
+            logger.debug(f"📄 Evaluation subprocess stdout (first 500 chars): {result.stdout[:500]}")
+        if result.stderr:
+            logger.error(f"⚠️ Evaluation subprocess stderr (first 500 chars): {result.stderr[:500]}")
+
         if result.returncode == 0:
+            logger.info(f"✅ Evaluation succeeded for project {project_id}")
+
             # Parse the updated project data
             project_data = parse_project_file(str(project_file))
             response = ProjectResponse(**project_data)
@@ -815,15 +833,17 @@ def reevaluate_project(project_id: str):
                 "timestamp": datetime.now().isoformat()
             })
         else:
+            logger.error(f"❌ Evaluation failed for project {project_id}")
             return jsonify(APIErrorResponse(
                 error="EvaluationError",
                 message=f"Evaluation failed: {result.stderr}",
                 code=500,
-                details={"stdout": result.stdout, "stderr": result.stderr},
+                details={"stdout": result.stdout, "stderr": result.stderr, "return_code": result.returncode},
                 timestamp=datetime.now().isoformat()
             ).dict()), 500
 
     except subprocess.TimeoutExpired:
+        logger.error(f"⏰ Evaluation timed out for project {project_id}")
         return jsonify(APIErrorResponse(
             error="TimeoutError",
             message="Evaluation timed out after 5 minutes",
@@ -831,7 +851,10 @@ def reevaluate_project(project_id: str):
             timestamp=datetime.now().isoformat()
         ).dict()), 408
     except Exception as e:
-        logger.error(f"Error reevaluating project {project_id}: {e}")
+        logger.error(f"💥 Unexpected error during evaluation for project {project_id}: {e}")
+        logger.error(f"🔍 Exception type: {type(e).__name__}")
+        import traceback
+        logger.error(f"📋 Full traceback: {traceback.format_exc()}")
         return jsonify(APIErrorResponse(
             error="InternalServerError",
             message=f"Failed to reevaluate project: {str(e)}",
@@ -846,7 +869,11 @@ def generate_application(project_id: str):
     projects_dir = Path("projects")
     project_file = projects_dir / f"{project_id}.md"
 
+    logger.info(f"🔧 Starting application generation for project: {project_id}")
+    logger.debug(f"📁 Project file path: {project_file}")
+
     if not project_file.exists():
+        logger.error(f"❌ Project file not found: {project_file}")
         return jsonify(APIErrorResponse(
             error="NotFound",
             message=f"Project {project_id} not found",
@@ -858,10 +885,14 @@ def generate_application(project_id: str):
         # Check if project is in a valid state for generation
         project_data = parse_project_file(str(project_file))
         valid_states = ["accepted", "rejected", "applied"]
-        if project_data.get("status") not in valid_states:
+        current_status = project_data.get("status")
+        logger.debug(f"📊 Project status: {current_status}")
+
+        if current_status not in valid_states:
+            logger.warning(f"⚠️ Invalid state for generation: {current_status}")
             return jsonify(APIErrorResponse(
                 error="InvalidState",
-                message=f"Project {project_id} must be in 'accepted', 'rejected', or 'applied' state (current: {project_data.get('status')})",
+                message=f"Project {project_id} must be in 'accepted', 'rejected', or 'applied' state (current: {current_status})",
                 code=400,
                 timestamp=datetime.now().isoformat()
             ).dict()), 400
@@ -870,12 +901,26 @@ def generate_application(project_id: str):
         import subprocess
         import sys
 
+        # Prepare command
+        cmd = [sys.executable, "main.py", "--generate-applications", str(project_file)]
+        logger.debug(f"🚀 Executing command: {' '.join(cmd)}")
+
         # Run main.py with generate-applications flag for this specific project
-        result = subprocess.run([
-            sys.executable, "main.py", "--generate-applications", str(project_file)
-        ], capture_output=True, text=True, timeout=300)
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
+
+        logger.debug(f"📋 Subprocess return code: {result.returncode}")
+        logger.debug(f"📄 Subprocess stdout length: {len(result.stdout)}")
+        logger.debug(f"⚠️ Subprocess stderr length: {len(result.stderr)}")
+
+        # Log first 500 chars of output for debugging
+        if result.stdout:
+            logger.debug(f"📄 Subprocess stdout (first 500 chars): {result.stdout[:500]}")
+        if result.stderr:
+            logger.error(f"⚠️ Subprocess stderr (first 500 chars): {result.stderr[:500]}")
 
         if result.returncode == 0:
+            logger.info(f"✅ Application generation succeeded for project {project_id}")
+
             # Update project state to applied (even if already applied) to track generation
             current_state = project_data.get("status")
             use_force = current_state == "applied"  # Force if already applied to allow same-state transition
@@ -902,15 +947,17 @@ def generate_application(project_id: str):
                 "timestamp": datetime.now().isoformat()
             })
         else:
+            logger.error(f"❌ Application generation failed for project {project_id}")
             return jsonify(APIErrorResponse(
                 error="GenerationError",
                 message=f"Application generation failed: {result.stderr}",
                 code=500,
-                details={"stdout": result.stdout, "stderr": result.stderr},
+                details={"stdout": result.stdout, "stderr": result.stderr, "return_code": result.returncode},
                 timestamp=datetime.now().isoformat()
             ).dict()), 500
 
     except subprocess.TimeoutExpired:
+        logger.error(f"⏰ Application generation timed out for project {project_id}")
         return jsonify(APIErrorResponse(
             error="TimeoutError",
             message="Application generation timed out after 5 minutes",
@@ -918,7 +965,10 @@ def generate_application(project_id: str):
             timestamp=datetime.now().isoformat()
         ).dict()), 408
     except Exception as e:
-        logger.error(f"Error generating application for project {project_id}: {e}")
+        logger.error(f"💥 Unexpected error generating application for project {project_id}: {e}")
+        logger.error(f"🔍 Exception type: {type(e).__name__}")
+        import traceback
+        logger.error(f"📋 Full traceback: {traceback.format_exc()}")
         return jsonify(APIErrorResponse(
             error="InternalServerError",
             message=f"Failed to generate application: {str(e)}",

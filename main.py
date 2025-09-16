@@ -194,30 +194,46 @@ def handle_manual_application_generation(args) -> None:
         args: Parsed command-line arguments
     """
     try:
+        logger.info("🚀 Starting manual application generation")
+        logger.debug(f"📋 Config file: {args.config}")
+        logger.debug(f"📄 CV file: {args.cv_file}")
+        logger.debug(f"🎯 Application threshold: {args.application_threshold}")
+
         # Load configuration
+        logger.debug("⚙️ Loading configuration...")
         config = load_application_config(args.config)
+        logger.debug("✅ Configuration loaded successfully")
 
         # Override threshold if specified
         if args.application_threshold is not None:
             config['application_generator']['auto_generation_threshold'] = args.application_threshold
+            logger.debug(f"🔧 Threshold overridden to: {args.application_threshold}")
 
         # Create application generator
+        logger.debug("🏗️ Creating application generator...")
         generator = create_application_generator(args.config)
+        logger.debug("✅ Application generator created successfully")
 
         # Load CV content
+        logger.debug("📖 Loading CV content...")
         cv_content = load_cv_content(args.cv_file)
+        logger.debug(f"✅ CV content loaded ({len(cv_content)} characters)")
 
         # Determine which projects to process
         if args.generate_applications and len(args.generate_applications) > 0:
             # Specific files provided
             project_files = args.generate_applications
+            logger.info(f"📋 Processing {len(project_files)} specified project files")
             print(f"🔧 Generating applications for {len(project_files)} specified projects...")
         else:
             # All accepted projects
+            logger.info("🔍 Getting all accepted projects...")
             project_files = get_accepted_projects()
             if not project_files:
+                logger.warning("ℹ️ No accepted projects found")
                 print("ℹ️  No accepted projects found")
                 return
+            logger.info(f"📋 Found {len(project_files)} accepted projects")
             print(f"🔧 Generating applications for all {len(project_files)} accepted projects...")
 
         # Process projects
@@ -226,7 +242,9 @@ def handle_manual_application_generation(args) -> None:
         total_cost = 0.0
 
         for project_file in project_files:
+            logger.debug(f"🔄 Processing project: {project_file}")
             if not os.path.exists(project_file):
+                logger.error(f"❌ Project file not found: {project_file}")
                 print(f"❌ Project file not found: {project_file}")
                 continue
 
@@ -234,24 +252,43 @@ def handle_manual_application_generation(args) -> None:
 
             # For manual generation, use high fit score to ensure processing
             fit_score = 95
+            logger.debug(f"🎯 Using fit score: {fit_score}")
 
-            result = generator.process_project(project_file, cv_content, fit_score)
+            try:
+                result = generator.process_project(project_file, cv_content, fit_score)
+                logger.debug(f"📋 Process result: {result}")
 
-            if result['application_generated']:
-                total_applications += 1
-                total_cost += result.get('cost', 0.0)
-                print(f"  ✅ Application generated (Cost: ${result.get('cost', 0.0):.4f})")
-            else:
-                print(f"  ❌ Failed: {result.get('error', 'Unknown error')}")
+                if result['application_generated']:
+                    total_applications += 1
+                    cost = result.get('cost', 0.0)
+                    total_cost += cost
+                    logger.info(f"✅ Application generated successfully (Cost: ${cost:.4f})")
+                    print(f"  ✅ Application generated (Cost: ${cost:.4f})")
+                else:
+                    error_msg = result.get('error', 'Unknown error')
+                    logger.error(f"❌ Application generation failed: {error_msg}")
+                    print(f"  ❌ Failed: {error_msg}")
+
+            except Exception as e:
+                logger.error(f"💥 Exception during project processing: {e}")
+                logger.error(f"🔍 Exception type: {type(e).__name__}")
+                import traceback
+                logger.error(f"📋 Full traceback: {traceback.format_exc()}")
+                print(f"  ❌ Exception: {e}")
 
             total_processed += 1
 
+        logger.info(f"📊 Generation summary - Processed: {total_processed}, Generated: {total_applications}, Total cost: ${total_cost:.4f}")
         print(f"\n📊 Manual Application Generation Summary:")
         print(f"   Projects processed: {total_processed}")
         print(f"   Applications generated: {total_applications}")
         print(f"   Total cost: ${total_cost:.4f}")
 
     except Exception as e:
+        logger.error(f"💥 Critical error during manual application generation: {e}")
+        logger.error(f"🔍 Exception type: {type(e).__name__}")
+        import traceback
+        logger.error(f"📋 Full traceback: {traceback.format_exc()}")
         print(f"❌ Error during manual application generation: {e}")
         sys.exit(1)
 
