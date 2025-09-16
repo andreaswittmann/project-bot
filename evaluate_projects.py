@@ -457,7 +457,7 @@ def process_project_file(project_path: str, config: Dict[str, Any], cv_content: 
     state_manager = ProjectStateManager(projects_dir)
 
     # Load and validate project content
-    project_content = load_and_validate_project(project_path, log)
+    project_content = load_and_validate_project(project_path, logger)
     if not project_content:
         return
 
