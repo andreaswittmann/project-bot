@@ -193,7 +193,7 @@ def handle_api_errors(f):
                 code=400,
                 details={"validation_errors": e.errors()},
                 timestamp=datetime.now().isoformat()
-            ).dict()), 400
+            ).model_dump()), 400
         except Exception as e:
             logger.error(f"API Error in {f.__name__}: {e}")
             return jsonify(APIErrorResponse(
@@ -201,7 +201,7 @@ def handle_api_errors(f):
                 message=str(e),
                 code=500,
                 timestamp=datetime.now().isoformat()
-            ).dict()), 500
+            ).model_dump()), 500
     return decorated_function
 
 # Quick Filters Configuration
@@ -659,7 +659,7 @@ def get_projects():
             has_prev=has_prev
         )
 
-        return jsonify(response.dict())
+        return jsonify(response.model_dump())
 
     except Exception as e:
         logger.error(f"Error in get_projects: {e}")
@@ -678,7 +678,7 @@ def get_project(project_id: str):
             message=f"Project {project_id} not found",
             code=404,
             timestamp=datetime.now().isoformat()
-        ).dict()), 404
+        ).model_dump()), 404
 
     project_data = parse_project_file(str(project_file))
     response = ProjectResponse(**project_data)
@@ -698,7 +698,7 @@ def delete_project(project_id: str):
             message=f"Project {project_id} not found",
             code=404,
             timestamp=datetime.now().isoformat()
-        ).dict()), 404
+        ).model_dump()), 404
 
     try:
         project_file.unlink()
@@ -710,7 +710,7 @@ def delete_project(project_id: str):
             message=f"Failed to delete project file: {str(e)}",
             code=500,
             timestamp=datetime.now().isoformat()
-        ).dict()), 500
+        ).model_dump()), 500
 
 @app.route('/api/v1/projects/<project_id>/transition', methods=['POST'])
 @handle_api_errors
@@ -733,8 +733,8 @@ def update_project_state(project_id: str):
             message=f"Project {project_id} not found",
             code=404,
             timestamp=datetime.now().isoformat()
-        ).dict()), 404
-    
+        ).model_dump()), 404
+
     # Update state using state manager with UI context for relaxed validation
     success = state_manager.update_state(
         str(project_file),
@@ -743,7 +743,7 @@ def update_project_state(project_id: str):
         update_request.force,
         update_request.ui_context  # Pass UI context for relaxed validation
     )
-    
+
     if not success:
         return jsonify(APIErrorResponse(
             error="StateTransitionError",
@@ -754,18 +754,18 @@ def update_project_state(project_id: str):
                 "ui_context": update_request.ui_context
             },
             timestamp=datetime.now().isoformat()
-        ).dict()), 400
-    
+        ).model_dump()), 400
+
     # Return updated project data
     project_data = parse_project_file(str(project_file))
     response = ProjectResponse(**project_data)
-    
+
     logger.info(f"✅ State transition successful: {update_request.from_state} → {update_request.to_state} (force={update_request.force}, ui_context={update_request.ui_context})")
-    
+
     return jsonify({
         "success": True,
         "message": f"Project state updated to {update_request.to_state}",
-        "project": response.dict(),
+        "project": response.model_dump(),
         "timestamp": datetime.now().isoformat()
     })
 
@@ -791,7 +791,7 @@ def reevaluate_project(project_id: str):
             message=f"Project {project_id} not found",
             code=404,
             timestamp=datetime.now().isoformat()
-        ).dict()), 404
+        ).model_dump()), 404
 
     try:
         # Execute the evaluation script for this specific project
@@ -828,7 +828,7 @@ def reevaluate_project(project_id: str):
             return jsonify({
                 "success": True,
                 "message": f"Project {project_id} reevaluated successfully",
-                "project": response.dict(),
+                "project": response.model_dump(),
                 "output": result.stdout,
                 "timestamp": datetime.now().isoformat()
             })
@@ -840,7 +840,7 @@ def reevaluate_project(project_id: str):
                 code=500,
                 details={"stdout": result.stdout, "stderr": result.stderr, "return_code": result.returncode},
                 timestamp=datetime.now().isoformat()
-            ).dict()), 500
+            ).model_dump()), 500
 
     except subprocess.TimeoutExpired:
         logger.error(f"⏰ Evaluation timed out for project {project_id}")
@@ -849,7 +849,7 @@ def reevaluate_project(project_id: str):
             message="Evaluation timed out after 5 minutes",
             code=408,
             timestamp=datetime.now().isoformat()
-        ).dict()), 408
+        ).model_dump()), 408
     except Exception as e:
         logger.error(f"💥 Unexpected error during evaluation for project {project_id}: {e}")
         logger.error(f"🔍 Exception type: {type(e).__name__}")
@@ -860,7 +860,7 @@ def reevaluate_project(project_id: str):
             message=f"Failed to reevaluate project: {str(e)}",
             code=500,
             timestamp=datetime.now().isoformat()
-        ).dict()), 500
+        ).model_dump()), 500
 
 @app.route('/api/v1/projects/<project_id>/generate', methods=['POST'])
 @handle_api_errors
@@ -879,7 +879,7 @@ def generate_application(project_id: str):
             message=f"Project {project_id} not found",
             code=404,
             timestamp=datetime.now().isoformat()
-        ).dict()), 404
+        ).model_dump()), 404
 
     try:
         # Check if project is in a valid state for generation
@@ -895,7 +895,7 @@ def generate_application(project_id: str):
                 message=f"Project {project_id} must be in 'accepted', 'rejected', or 'applied' state (current: {current_status})",
                 code=400,
                 timestamp=datetime.now().isoformat()
-            ).dict()), 400
+            ).model_dump()), 400
 
         # Execute the application generation for this specific project
         import subprocess
@@ -954,7 +954,7 @@ def generate_application(project_id: str):
                 code=500,
                 details={"stdout": result.stdout, "stderr": result.stderr, "return_code": result.returncode},
                 timestamp=datetime.now().isoformat()
-            ).dict()), 500
+            ).model_dump()), 500
 
     except subprocess.TimeoutExpired:
         logger.error(f"⏰ Application generation timed out for project {project_id}")
@@ -963,7 +963,7 @@ def generate_application(project_id: str):
             message="Application generation timed out after 5 minutes",
             code=408,
             timestamp=datetime.now().isoformat()
-        ).dict()), 408
+        ).model_dump()), 408
     except Exception as e:
         logger.error(f"💥 Unexpected error generating application for project {project_id}: {e}")
         logger.error(f"🔍 Exception type: {type(e).__name__}")
@@ -974,7 +974,7 @@ def generate_application(project_id: str):
             message=f"Failed to generate application: {str(e)}",
             code=500,
             timestamp=datetime.now().isoformat()
-        ).dict()), 500
+        ).model_dump()), 500
 
 @app.route('/api/v1/projects/<project_id>/markdown', methods=['GET'])
 @handle_api_errors
@@ -989,7 +989,7 @@ def get_project_markdown(project_id: str):
             message=f"Project {project_id} not found",
             code=404,
             timestamp=datetime.now().isoformat()
-        ).dict()), 404
+        ).model_dump()), 404
 
     try:
         # Read the raw markdown content
@@ -1016,7 +1016,7 @@ def get_project_markdown(project_id: str):
             message=f"Failed to read markdown file: {str(e)}",
             code=500,
             timestamp=datetime.now().isoformat()
-        ).dict()), 500
+        ).model_dump()), 500
 
 @app.route('/api/v1/projects/<project_id>/markdown', methods=['PUT'])
 @handle_api_errors
@@ -1037,7 +1037,7 @@ def update_project_markdown(project_id: str):
             message=f"Project {project_id} not found",
             code=404,
             timestamp=datetime.now().isoformat()
-        ).dict()), 404
+        ).model_dump()), 404
 
     try:
         # Create backup before updating
@@ -1075,7 +1075,7 @@ def update_project_markdown(project_id: str):
             message=f"Failed to update markdown file: {str(e)}",
             code=500,
             timestamp=datetime.now().isoformat()
-        ).dict()), 500
+        ).model_dump()), 500
 
 @app.route('/api/v1/projects', methods=['POST'])
 @handle_api_errors
@@ -1122,7 +1122,7 @@ def create_manual_project():
         return jsonify({
             "success": True,
             "message": f"Manual project '{create_request.title}' created successfully",
-            "project": response.dict(),
+            "project": response.model_dump(),
             "project_id": project_id,
             "timestamp": datetime.now().isoformat()
         }), 201
@@ -1134,7 +1134,7 @@ def create_manual_project():
             message=f"Failed to create manual project: {str(e)}",
             code=500,
             timestamp=datetime.now().isoformat()
-        ).dict()), 500
+        ).model_dump()), 500
 
 @app.route('/api/v1/dashboard/stats', methods=['GET'])
 @handle_api_errors
@@ -1148,44 +1148,44 @@ def get_dashboard_stats():
                 by_status={},
                 recent_activity=[],
                 last_updated=datetime.now().isoformat()
-            ).dict())
-
-        all_projects = []
-        for project_file in projects_dir.glob("*.md"):
-            project_data = parse_project_file(str(project_file))
-            all_projects.append(project_data)
-
-        # Calculate statistics
-        status_counts = {}
-        recent_activity = []
-
-        for project in all_projects:
-            status = project.get("status", "unknown")
-            status_counts[status] = status_counts.get(status, 0) + 1
-
-            # Get recent state changes
-            state_history = project.get("state_history", [])
-            for change in state_history[-3:]:  # Last 3 changes per project
-                recent_activity.append({
-                    "project_id": project["id"],
-                    "project_title": project["title"],
-                    "state": change.get("state"),
-                    "timestamp": change.get("timestamp"),
-                    "note": change.get("note")
-                })
-
-        # Sort recent activity by timestamp
-        recent_activity.sort(key=lambda x: x.get("timestamp", ""), reverse=True)
-        recent_activity = recent_activity[:10]  # Top 10 recent activities
-
-        response = DashboardStats(
-            total_projects=len(all_projects),
-            by_status=status_counts,
-            recent_activity=recent_activity,
-            last_updated=datetime.now().isoformat()
-        )
-
-        return jsonify(response.dict())
+            ).model_dump())
+    
+            all_projects = []
+            for project_file in projects_dir.glob("*.md"):
+                project_data = parse_project_file(str(project_file))
+                all_projects.append(project_data)
+    
+            # Calculate statistics
+            status_counts = {}
+            recent_activity = []
+    
+            for project in all_projects:
+                status = project.get("status", "unknown")
+                status_counts[status] = status_counts.get(status, 0) + 1
+    
+                # Get recent state changes
+                state_history = project.get("state_history", [])
+                for change in state_history[-3:]:  # Last 3 changes per project
+                    recent_activity.append({
+                        "project_id": project["id"],
+                        "project_title": project["title"],
+                        "state": change.get("state"),
+                        "timestamp": change.get("timestamp"),
+                        "note": change.get("note")
+                    })
+    
+            # Sort recent activity by timestamp
+            recent_activity.sort(key=lambda x: x.get("timestamp", ""), reverse=True)
+            recent_activity = recent_activity[:10]  # Top 10 recent activities
+    
+            response = DashboardStats(
+                total_projects=len(all_projects),
+                by_status=status_counts,
+                recent_activity=recent_activity,
+                last_updated=datetime.now().isoformat()
+            )
+    
+            return jsonify(response.model_dump())
 
     except Exception as e:
         logger.error(f"Error in get_dashboard_stats: {e}")
@@ -1223,7 +1223,7 @@ def run_workflow(workflow_name: str):
                     code=500,
                     details={"stdout": result.stdout, "stderr": result.stderr},
                     timestamp=datetime.now().isoformat()
-                ).dict()), 500
+                ).model_dump()), 500
 
         elif workflow_name == 'evaluate':
             # Execute evaluation only
@@ -1249,7 +1249,7 @@ def run_workflow(workflow_name: str):
                     code=500,
                     details={"stdout": result.stdout, "stderr": result.stderr},
                     timestamp=datetime.now().isoformat()
-                ).dict()), 500
+                ).model_dump()), 500
 
         elif workflow_name == 'generate':
             # Execute application generation only
@@ -1275,7 +1275,7 @@ def run_workflow(workflow_name: str):
                     code=500,
                     details={"stdout": result.stdout, "stderr": result.stderr},
                     timestamp=datetime.now().isoformat()
-                ).dict()), 500
+                ).model_dump()), 500
 
         else:
             return jsonify(APIErrorResponse(
@@ -1283,7 +1283,7 @@ def run_workflow(workflow_name: str):
                 message=f"Unknown workflow: {workflow_name}",
                 code=400,
                 timestamp=datetime.now().isoformat()
-            ).dict()), 400
+            ).model_dump()), 400
 
     except subprocess.TimeoutExpired:
         return jsonify(APIErrorResponse(
@@ -1291,7 +1291,7 @@ def run_workflow(workflow_name: str):
             message=f"Workflow '{workflow_name}' timed out",
             code=408,
             timestamp=datetime.now().isoformat()
-        ).dict()), 408
+        ).model_dump()), 408
     except Exception as e:
         logger.error(f"Error executing workflow {workflow_name}: {e}")
         return jsonify(APIErrorResponse(
@@ -1299,7 +1299,7 @@ def run_workflow(workflow_name: str):
             message=f"Failed to execute workflow: {str(e)}",
             code=500,
             timestamp=datetime.now().isoformat()
-        ).dict()), 500
+        ).model_dump()), 500
 
 @app.route('/api/v1/workflows/<workflow_name>/status', methods=['GET'])
 @handle_api_errors
@@ -1335,7 +1335,7 @@ def health_check():
 def get_quick_filters():
     """Get all quick filters"""
     filters = load_quick_filters()
-    return jsonify(filters.dict())
+    return jsonify(filters.model_dump())
 
 @app.route('/api/v1/quick-filters', methods=['POST'])
 @handle_api_errors
@@ -1346,9 +1346,9 @@ def create_quick_filter():
         raise ValidationError("No JSON data provided")
 
     create_request = QuickFilterCreateRequest(**data)
-    
+
     filters = load_quick_filters()
-    
+
     new_filter = QuickFilterItem(
         id=str(uuid.uuid4()),
         name=create_request.name,
@@ -1359,11 +1359,11 @@ def create_quick_filter():
         created_at=datetime.now().isoformat(),
         updated_at=datetime.now().isoformat()
     )
-    
+
     filters.filters.append(new_filter)
     save_quick_filters(filters)
-    
-    return jsonify(new_filter.dict()), 201
+
+    return jsonify(new_filter.model_dump()), 201
 
 @app.route('/api/v1/quick-filters/<filter_id>', methods=['PUT'])
 @handle_api_errors
@@ -1374,22 +1374,22 @@ def update_quick_filter(filter_id: str):
         raise ValidationError("No JSON data provided")
 
     update_request = QuickFilterUpdateRequest(**data)
-    
+
     filters = load_quick_filters()
-    
+
     filter_to_update = None
     for f in filters.filters:
         if f.id == filter_id:
             filter_to_update = f
             break
-            
+
     if not filter_to_update:
         return jsonify(APIErrorResponse(
             error="NotFound",
             message=f"Quick filter with id {filter_id} not found",
             code=404,
             timestamp=datetime.now().isoformat()
-        ).dict()), 404
+        ).model_dump()), 404
 
     if update_request.name is not None:
         filter_to_update.name = update_request.name
@@ -1401,32 +1401,32 @@ def update_quick_filter(filter_id: str):
         filter_to_update.isDynamic = update_request.isDynamic
     if update_request.originalRange is not None:
         filter_to_update.originalRange = update_request.originalRange
-        
+
     filter_to_update.updated_at = datetime.now().isoformat()
-    
+
     save_quick_filters(filters)
-    
-    return jsonify(filter_to_update.dict())
+
+    return jsonify(filter_to_update.model_dump())
 
 @app.route('/api/v1/quick-filters/<filter_id>', methods=['DELETE'])
 @handle_api_errors
 def delete_quick_filter(filter_id: str):
     """Delete a quick filter"""
     filters = load_quick_filters()
-    
+
     initial_len = len(filters.filters)
     filters.filters = [f for f in filters.filters if f.id != filter_id]
-    
+
     if len(filters.filters) == initial_len:
         return jsonify(APIErrorResponse(
             error="NotFound",
             message=f"Quick filter with id {filter_id} not found",
             code=404,
             timestamp=datetime.now().isoformat()
-        ).dict()), 404
-        
+        ).model_dump()), 404
+
     save_quick_filters(filters)
-    
+
     return jsonify({"success": True, "message": f"Quick filter {filter_id} deleted"}), 200
 
 # API Endpoints for Scheduling
@@ -1488,7 +1488,7 @@ def create_schedule():
         next_run=next_run
     )
 
-    return jsonify(response.dict()), 201
+    return jsonify(response.model_dump()), 201
 
 @app.route('/api/v1/schedules/<schedule_id>', methods=['PUT'])
 @handle_api_errors
@@ -1523,7 +1523,7 @@ def update_schedule(schedule_id: str):
             message=f"Schedule {schedule_id} not found",
             code=404,
             timestamp=datetime.now().isoformat()
-        ).dict()), 404
+        ).model_dump()), 404
 
     # Get next run time
     next_run = None
@@ -1538,7 +1538,7 @@ def update_schedule(schedule_id: str):
         next_run=next_run
     )
 
-    return jsonify(response.dict())
+    return jsonify(response.model_dump())
 
 @app.route('/api/v1/schedules/<schedule_id>', methods=['DELETE'])
 @handle_api_errors
@@ -1552,7 +1552,7 @@ def delete_schedule(schedule_id: str):
             message=f"Schedule {schedule_id} not found",
             code=404,
             timestamp=datetime.now().isoformat()
-        ).dict()), 404
+        ).model_dump()), 404
 
     return jsonify({"success": True, "message": f"Schedule {schedule_id} deleted"}), 200
 
@@ -1568,7 +1568,7 @@ def toggle_schedule(schedule_id: str):
             message=f"Schedule {schedule_id} not found",
             code=404,
             timestamp=datetime.now().isoformat()
-        ).dict()), 404
+        ).model_dump()), 404
 
     # Get next run time
     next_run = None
@@ -1583,7 +1583,7 @@ def toggle_schedule(schedule_id: str):
         next_run=next_run
     )
 
-    return jsonify(response.dict())
+    return jsonify(response.model_dump())
 
 @app.route('/api/v1/schedules/<schedule_id>/run', methods=['POST'])
 @handle_api_errors
@@ -1597,7 +1597,7 @@ def run_schedule_now(schedule_id: str):
             message=f"Schedule {schedule_id} not found",
             code=404,
             timestamp=datetime.now().isoformat()
-        ).dict()), 404
+        ).model_dump()), 404
 
     return jsonify({
         "success": True,
@@ -1617,7 +1617,7 @@ def get_schedule_runs(schedule_id: str):
             message=f"Schedule {schedule_id} not found",
             code=404,
             timestamp=datetime.now().isoformat()
-        ).dict()), 404
+        ).model_dump()), 404
 
     # Convert execution history to response format
     history = []
@@ -1665,7 +1665,7 @@ def get_scheduler_status():
         timestamp=datetime.now().isoformat()
     )
 
-    return jsonify(response.dict())
+    return jsonify(response.model_dump())
 
 # Legacy routes for backward compatibility
 @app.route('/')
