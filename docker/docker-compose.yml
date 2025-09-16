@@ -28,9 +28,9 @@ services:
       - ../docker-volumes/projects:/app/projects
       - ../docker-volumes/logs:/app/logs
       # Mount config file from project root (ensure source file exists)
-      - ./config.yaml:/app/config.yaml
+      - ../docker-volumes/config.yaml:/app/config.yaml
       # Optional: Mount additional directories if needed
       - ../applications_status.json:/app/applications_status.json
     restart: unless-stopped
     # Multi-architecture support - will use native architecture by default
-    # For multi-arch builds, use: docker buildx build --platform linux/amd64,linux/arm64
+    # For multi-arch builds, use: docker buildx build --platform linux/amd64,linux/arm64   
