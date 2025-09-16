@@ -806,16 +806,6 @@ def reevaluate_project(project_id: str):
             project_data = parse_project_file(str(project_file))
             response = ProjectResponse(**project_data)
 
-            # Regenerate dashboard data to reflect the reevaluation results
-            try:
-                dashboard_result = subprocess.run([
-                    sys.executable, "dashboard/generate_dashboard_data.py"
-                ], capture_output=True, text=True, timeout=300)
-
-                if dashboard_result.returncode != 0:
-                    logger.warning(f"Dashboard data regeneration failed: {dashboard_result.stderr}")
-            except Exception as e:
-                logger.warning(f"Failed to regenerate dashboard data: {e}")
 
             return jsonify({
                 "success": True,
@@ -903,16 +893,6 @@ def generate_application(project_id: str):
             project_data = parse_project_file(str(project_file))
             response = ProjectResponse(**project_data)
 
-            # Regenerate dashboard data to reflect the application generation
-            try:
-                dashboard_result = subprocess.run([
-                    sys.executable, "dashboard/generate_dashboard_data.py"
-                ], capture_output=True, text=True, timeout=300)
-
-                if dashboard_result.returncode != 0:
-                    logger.warning(f"Dashboard data regeneration failed: {dashboard_result.stderr}")
-            except Exception as e:
-                logger.warning(f"Failed to regenerate dashboard data: {e}")
 
             return jsonify({
                 "success": True,
@@ -1179,16 +1159,6 @@ def run_workflow(workflow_name: str):
             ], capture_output=True, text=True, timeout=600)  # 10 minute timeout
 
             if result.returncode == 0:
-                # Regenerate dashboard data after workflow completion
-                try:
-                    dashboard_result = subprocess.run([
-                        sys.executable, "dashboard/generate_dashboard_data.py"
-                    ], capture_output=True, text=True, timeout=60)
-
-                    if dashboard_result.returncode != 0:
-                        logger.warning(f"Dashboard regeneration failed: {dashboard_result.stderr}")
-                except Exception as e:
-                    logger.warning(f"Failed to regenerate dashboard: {e}")
 
                 return jsonify({
                     "success": True,
@@ -1215,13 +1185,6 @@ def run_workflow(workflow_name: str):
             ], capture_output=True, text=True, timeout=300)
 
             if result.returncode == 0:
-                # Regenerate dashboard data
-                try:
-                    subprocess.run([
-                        sys.executable, "dashboard/generate_dashboard_data.py"
-                    ], capture_output=True, text=True, timeout=300)
-                except Exception as e:
-                    logger.warning(f"Failed to regenerate dashboard: {e}")
 
                 return jsonify({
                     "success": True,
@@ -1248,13 +1211,6 @@ def run_workflow(workflow_name: str):
             ], capture_output=True, text=True, timeout=300)
 
             if result.returncode == 0:
-                # Regenerate dashboard data
-                try:
-                    subprocess.run([
-                        sys.executable, "dashboard/generate_dashboard_data.py"
-                    ], capture_output=True, text=True, timeout=300)
-                except Exception as e:
-                    logger.warning(f"Failed to regenerate dashboard: {e}")
 
                 return jsonify({
                     "success": True,

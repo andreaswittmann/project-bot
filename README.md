@@ -378,7 +378,7 @@ python main.py --no-applications
 3. **Automatically generates applications for high-fit projects (≥90%)**
 4. **Automatically updates dashboard data**
 5. **Automatically purges low-quality rejected projects** (score-based cleanup)
-6. Ready to view results in `dashboard/dashboard.html`
+6. Ready to view results in the Vue.js dashboard
 
 ### Application Generation
 
@@ -483,10 +483,7 @@ python evaluate_projects.py --pre-eval-only
 
 #### Dashboard Update
 ```bash
-# Manually update dashboard data
-python dashboard/generate_dashboard_data.py
-
-# View dashboard: open dashboard/dashboard.html in your browser
+# View dashboard: Access the Vue.js dashboard at http://localhost:5173
 ```
 
 ### File Purging

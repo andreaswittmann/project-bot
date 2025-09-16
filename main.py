@@ -451,24 +451,8 @@ Examples:
     # Handle manual application generation first
     if args.generate_applications is not None:
         handle_manual_application_generation(args)
-        # Update dashboard after manual generation
-        print("\nUpdating dashboard data...")
-        try:
-            result = subprocess.run([
-                sys.executable, "dashboard/generate_dashboard_data.py"
-            ], capture_output=True, text=True, check=True)
-            print("✅ Dashboard data updated successfully")
-            if result.stdout:
-                print(result.stdout.strip())
-        except subprocess.CalledProcessError as e:
-            print(f"⚠️  Warning: Dashboard update failed: {e}")
-            if e.stderr:
-                print(f"Error details: {e.stderr.strip()}")
-        except FileNotFoundError:
-            print("⚠️  Warning: Dashboard generation script not found at 'dashboard/generate_dashboard_data.py'")
 
         print("\n🎉 Manual application generation completed!")
-        print("📊 View your dashboard: open dashboard/dashboard.html in your browser")
         sys.exit(0)
 
     # Normal workflow: scraping -> evaluation -> application generation -> dashboard
@@ -502,21 +486,6 @@ Examples:
     else:
         print("\n⏭️  Skipping application generation (--no-applications flag set)")
 
-    # After evaluation and application generation, update the dashboard data
-    print("\nUpdating dashboard data...")
-    try:
-        result = subprocess.run([
-            sys.executable, "dashboard/generate_dashboard_data.py"
-        ], capture_output=True, text=True, check=True)
-        print("✅ Dashboard data updated successfully")
-        if result.stdout:
-            print(result.stdout.strip())
-    except subprocess.CalledProcessError as e:
-        print(f"⚠️  Warning: Dashboard update failed: {e}")
-        if e.stderr:
-            print(f"Error details: {e.stderr.strip()}")
-    except FileNotFoundError:
-        print("⚠️  Warning: Dashboard generation script not found at 'dashboard/generate_dashboard_data.py'")
 
     # After dashboard update, run automatic file purging (unless disabled)
     if not args.no_purge:
@@ -543,4 +512,3 @@ Examples:
         print("\n⏭️  Skipping automatic file purging (--no-purge flag set)")
 
     print("\n🎉 Complete workflow finished!")
-    print("📊 View your dashboard: open dashboard/dashboard.html in your browser")
