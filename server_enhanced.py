@@ -1149,43 +1149,43 @@ def get_dashboard_stats():
                 recent_activity=[],
                 last_updated=datetime.now().isoformat()
             ).model_dump())
-    
-            all_projects = []
-            for project_file in projects_dir.glob("*.md"):
-                project_data = parse_project_file(str(project_file))
-                all_projects.append(project_data)
-    
-            # Calculate statistics
-            status_counts = {}
-            recent_activity = []
-    
-            for project in all_projects:
-                status = project.get("status", "unknown")
-                status_counts[status] = status_counts.get(status, 0) + 1
-    
-                # Get recent state changes
-                state_history = project.get("state_history", [])
-                for change in state_history[-3:]:  # Last 3 changes per project
-                    recent_activity.append({
-                        "project_id": project["id"],
-                        "project_title": project["title"],
-                        "state": change.get("state"),
-                        "timestamp": change.get("timestamp"),
-                        "note": change.get("note")
-                    })
-    
-            # Sort recent activity by timestamp
-            recent_activity.sort(key=lambda x: x.get("timestamp", ""), reverse=True)
-            recent_activity = recent_activity[:10]  # Top 10 recent activities
-    
-            response = DashboardStats(
-                total_projects=len(all_projects),
-                by_status=status_counts,
-                recent_activity=recent_activity,
-                last_updated=datetime.now().isoformat()
-            )
-    
-            return jsonify(response.model_dump())
+
+        all_projects = []
+        for project_file in projects_dir.glob("*.md"):
+            project_data = parse_project_file(str(project_file))
+            all_projects.append(project_data)
+
+        # Calculate statistics
+        status_counts = {}
+        recent_activity = []
+
+        for project in all_projects:
+            status = project.get("status", "unknown")
+            status_counts[status] = status_counts.get(status, 0) + 1
+
+            # Get recent state changes
+            state_history = project.get("state_history", [])
+            for change in state_history[-3:]:  # Last 3 changes per project
+                recent_activity.append({
+                    "project_id": project["id"],
+                    "project_title": project["title"],
+                    "state": change.get("state"),
+                    "timestamp": change.get("timestamp"),
+                    "note": change.get("note")
+                })
+
+        # Sort recent activity by timestamp
+        recent_activity.sort(key=lambda x: x.get("timestamp", ""), reverse=True)
+        recent_activity = recent_activity[:10]  # Top 10 recent activities
+
+        response = DashboardStats(
+            total_projects=len(all_projects),
+            by_status=status_counts,
+            recent_activity=recent_activity,
+            last_updated=datetime.now().isoformat()
+        )
+
+        return jsonify(response.model_dump())
 
     except Exception as e:
         logger.error(f"Error in get_dashboard_stats: {e}")
