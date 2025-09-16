@@ -55,7 +55,7 @@ ls -l server-control.sh
 
 *Result:* the project-bot directory is created with all files and folders. The virtual environment is set up and dependencies are installed. The servers are started.
 
-## Docker Setup
+** Docker Setup
 [2025-09-12 Fri] This section demonstrates to setup the project on my MacBook Pro home server with Docker.
 I migrate the settings and projects from an previous docker setup.
 
@@ -76,20 +76,20 @@ git clone https://github.com/andreaswittmann/project-bot.git
 cd project-bot
 export PROJECT_DIR=$(pwd)
 echo $PROJECT_DIR
+git pull
 
 # Migrate Settings and Projects from old docker setup
 mkdir -p  $PROJECT_DIR/docker-volumes
 cd $PROJECT_DIR/docker-volumes
-cp -r ~/LocalProjects/ai-bootcamp/bewerbungs-bot/docker-volumes/data . 
+cp -r ~/LocalProjects/ai-bootcamp/bewerbungs-bot/docker-volumes/data/ . 
 cp -r ~/LocalProjects/ai-bootcamp/bewerbungs-bot/docker-volumes/config.yaml .
-cp -r ~/LocalProjects/ai-bootcamp/bewerbungs-bot/docker-volumes/projects .
-ls -la
+cp -r ~/LocalProjects/ai-bootcamp/bewerbungs-bot/docker-volumes/projects/ .
+
 exit
 
 # Copy conifguration from ohter machine
-whoami
-scp ~/Seafile/01AndreasCrypt/01Andreas_GmbH/2025/CV_Andreas.Wittmann_GmbH_DE_2025_05.md asamadhi:~/LocalProjects/project-bot/docker-volumes/data/cv.md
-scp ~/LocalProjects/ai-bootcamp/.env asamadhi:~/LocalProjects/project-bot/docker/.env
+scp ~/LocalProjects/ai-bootcamp/project-bot/data/CV_Andreas.Wittmann_GmbH_DE_2025_05.md asamadhi:~/LocalProjects/ai-bootcamp/project-bot/docker-volumes/data/cv.md
+scp ~/LocalProjects/ai-bootcamp/.env asamadhi:~/LocalProjects/ai-bootcamp/project-bot/docker/.env
 
 
 # Continue on home server
@@ -98,25 +98,9 @@ bash
 cd ~/LocalProjects/project-bot
 export PROJECT_DIR=$(pwd)
 
-## Now we need to edit the frontend/.env file to add the correct VITE_API_BASE_URL
-cd ${PROJECT_DIR}
-cat frontend/.env
-#get currnt tailscale ip
-ifconfig | awk '/inet / && $2 ~ /^100\./ {print $2}'
-export TAILSCALE_IP=$(ifconfig | awk '/inet / && $2 ~ /^100\./ {print $2}')
-echo $TAILSCALE_IP
-
-## Here document to update the VITE_API_BASE_URL in frontend/.env
-cat <<EOF > frontend/.env
-VITE_API_BASE_URL=http://${TAILSCALE_IP}:8003
-EOF
-cat frontend/.env
-
-
 ## Build the docker images
 cd ${PROJECT_DIR}/docker
 docker compose build --no-cache
-docker compose build
 
 # Starting application container with organized volumes...
 docker compose down
@@ -129,6 +113,53 @@ docker compose logs --tail=10
 
 #+end_src
 
+** Update Docker Installation
+[2025-09-15 Mon 16:19] This section demonstrates how to update the project-bot installation on my MacBook Pro home server with Docker.
 
+#+BEGIN_src bash
+ssh asamadhi
+whoami
+bash
+
+
+# Listing: update project-bot with docker on home server
+cd ~/LocalProjects/
+ls -ltr
+cd project-bot
+
+export PROJECT_DIR=$(pwd)
+echo $PROJECT_DIR
+
+# Pull latest changes from repository
+git pull
+
+
+# Set environment variable for frontend. 
+export VITE_RELEASE_TAG=$(git describe --tags --abbrev=0)
+cat > ./frontend/.env <<EOL
+VITE_API_BASE_URL=http://100.71.227.145:8003
+VITE_RELEASE_TAG=$VITE_RELEASE_TAG
+EOL
+cat ./frontend/.env
+
+# Stop the running containers
+cd ${PROJECT_DIR}/docker
+docker compose down
+# Rebuild the docker images
+docker compose build --no-cache
+rm build.log
+docker compose build --no-cache 2>&1 | tee build.log  # for debugging
+docker compose build  2>&1 | tee build.log  # for debugging
+
+# Start the containers again
+
+docker compose up -d
+
+exit
+exit
+
+#+end_src
+
+*Result:* The project-bot installation is updated and shows the new release tag.
 
 
