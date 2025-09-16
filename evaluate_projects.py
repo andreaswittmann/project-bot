@@ -14,8 +14,10 @@ from openai import OpenAI, RateLimitError, AuthenticationError
 
 from state_manager import ProjectStateManager
 
-LOG_DIR = 'projects_log'
-Path(LOG_DIR).mkdir(exist_ok=True)
+# Import centralized logging
+from logging_config import get_logger
+
+logger = get_logger(__name__)
 
 def _resolve_api_key(api_key_template: str) -> str:
     """
@@ -44,22 +46,6 @@ def _resolve_api_key(api_key_template: str) -> str:
     # Return as-is if no environment variable pattern
     return api_key_template
 
-def setup_logging(log_file_name: str) -> Callable[[str], None]:
-    """
-    Sets up a log file for a specific project evaluation.
-    
-    Args:
-        log_file_name: Name of the log file to create
-        
-    Returns:
-        Logging function that accepts message strings
-    """
-    log_path = os.path.join(LOG_DIR, log_file_name)
-    def log_message(message: str) -> None:
-        """Writes a timestamped message to the log file."""
-        with open(log_path, 'a', encoding='utf-8') as f:
-            f.write(f"[{datetime.now().isoformat()}] {message}\n")
-    return log_message
 
 def load_config(config_path: str) -> Optional[Dict[str, Any]]:
     """
@@ -153,7 +139,7 @@ def pre_evaluate_project(project_content: str, config: Dict[str, Any], log: Call
             # Use word boundaries to avoid partial matches (e.g., 'java' in 'javascript')
             if re.search(r'\b' + re.escape(tag.lower()) + r'\b', content_lower):
                 rationale = f"Rejected: Contains forbidden tag '{tag}'."
-                log(rationale) # Add specific logging for diagnosis
+                logger.info(rationale) # Add specific logging for diagnosis
                 return -1, rationale
     
     # 2. Check for required tags
@@ -284,23 +270,6 @@ def analyze_with_llm(cv_content: str, project_offer: str, config: Dict[str, Any]
         return {"fit_score": 0, "rationale": f"An unexpected error occurred with {provider}: {e}"}
 
 
-def setup_project_logging(project_path: str, log_func: Optional[Callable[[str], None]]) -> Callable[[str], None]:
-    """
-    Set up logging for a project evaluation.
-    
-    Args:
-        project_path: Path to the project file
-        log_func: Optional existing log function
-        
-    Returns:
-        Logging function to use for this project
-    """
-    if log_func is not None:
-        return log_func
-    
-    project_filename = os.path.basename(project_path)
-    log_filename = f"{os.path.splitext(project_filename)[0]}.log"
-    return setup_logging(log_filename)
 
 
 def load_and_validate_project(project_path: str, log: Callable[[str], None]) -> Optional[str]:
@@ -314,10 +283,10 @@ def load_and_validate_project(project_path: str, log: Callable[[str], None]) -> 
     Returns:
         Project content string or None if loading failed
     """
-    log(f"Parsing project file: {project_path}")
+    logger.info(f"Parsing project file: {project_path}")
     project_content = parse_input_file(project_path)
     if not project_content:
-        log("Fatal: Could not parse project file. Aborting this file.")
+        logger.error("Fatal: Could not parse project file. Aborting this file.")
         return None
     return project_content
 
@@ -378,12 +347,12 @@ def append_evaluation_results_to_markdown(project_path: str, pre_eval_score: int
         with open(project_path, 'w', encoding='utf-8') as f:
             f.write(original_content + evaluation_section)
 
-        log(f"Evaluation results appended to markdown file.")
+        logger.info(f"Evaluation results appended to markdown file.")
         return True
 
     except Exception as e:
         error_msg = f"Error appending evaluation results to markdown: {e}"
-        log(error_msg)
+        logger.error(error_msg)
         print(error_msg)
         return False
 
@@ -406,11 +375,11 @@ def move_project_file(project_path: str, dest_folder: str, log: Callable[[str], 
 
     try:
         shutil.move(project_path, destination_path)
-        log(f"File moved to '{destination_path}'.")
+        logger.info(f"File moved to '{destination_path}'.")
         return True
     except Exception as e:
         error_msg = f"Fatal: Error moving file: {e}"
-        log(error_msg)
+        logger.error(error_msg)
         print(error_msg)
         return False
 
@@ -427,10 +396,10 @@ def handle_pre_evaluation(project_content: str, config: Dict[str, Any], log: Cal
     Returns:
         Tuple of (score, rationale, should_continue)
     """
-    pre_eval_score, pre_eval_rationale = pre_evaluate_project(project_content, config, log)
+    pre_eval_score, pre_eval_rationale = pre_evaluate_project(project_content, config, logger)
     pre_eval_threshold = config.get('pre_evaluation', {}).get('acceptance_threshold', 50)
-    log(f"Pre-evaluation score: {pre_eval_score}% (Threshold: {pre_eval_threshold}%)")
-    log(f"Pre-evaluation rationale: {pre_eval_rationale}")
+    logger.info(f"Pre-evaluation score: {pre_eval_score}% (Threshold: {pre_eval_threshold}%)")
+    logger.debug(f"Pre-evaluation rationale: {pre_eval_rationale}")
     
     passed_pre_eval = pre_eval_score >= pre_eval_threshold
     return pre_eval_score, pre_eval_rationale, passed_pre_eval
@@ -450,25 +419,25 @@ def handle_llm_evaluation(cv_content: str, project_content: str, config: Dict[st
         Tuple of (fit_score, formatted_rationale)
     """
     acceptance_threshold = config.get('settings', {}).get('acceptance_threshold', 85)
-    log(f"Using LLM acceptance threshold of {acceptance_threshold}%.")
-    
-    log("Sending data to LLM for analysis...")
+    logger.info(f"Using LLM acceptance threshold of {acceptance_threshold}%.")
+
+    logger.info("Sending data to LLM for analysis...")
     analysis = analyze_with_llm(cv_content, project_content, config)
     fit_score = analysis.get('fit_score', 0)
     rationale = analysis.get('rationale', 'No rationale provided.')
-    log(f"LLM analysis complete. Fit Score: {fit_score}%.")
-    
+    logger.info(f"LLM analysis complete. Fit Score: {fit_score}%.")
+
     # Handle rationale formatting
     if isinstance(rationale, list):
         rationale_text = "\n".join(f"- {item}" for item in rationale)
     else:
         rationale_text = str(rationale).strip()
-    
-    log(f"Rationale:\n{rationale_text}")
+
+    logger.debug(f"Rationale:\n{rationale_text}")
     return fit_score, rationale_text
 
 
-def process_project_file(project_path: str, config: Dict[str, Any], cv_content: str, log_func: Optional[Callable[[str], None]] = None) -> None:
+def process_project_file(project_path: str, config: Dict[str, Any], cv_content: str) -> None:
     """
     Process a single project file through the complete evaluation pipeline.
 
@@ -476,14 +445,12 @@ def process_project_file(project_path: str, config: Dict[str, Any], cv_content: 
         project_path: Path to the project file to process
         config: Configuration dictionary
         cv_content: Content of the CV for comparison
-        log_func: Optional existing log function to use
     """
     project_filename = os.path.basename(project_path)
 
-    # Set up logging
-    log = setup_project_logging(project_path, log_func)
-    log("=" * 50)
-    log(f"Starting evaluation for: {project_filename}")
+    # Logging is centralized
+    logger.info("=" * 50)
+    logger.info(f"Starting evaluation for: {project_filename}")
 
     # Initialize state manager
     projects_dir = os.path.dirname(project_path)
@@ -496,27 +463,27 @@ def process_project_file(project_path: str, config: Dict[str, Any], cv_content: 
 
     # Handle force evaluation mode
     if config.get('force_evaluation', False):
-        log("Force evaluation mode: Skipping pre-evaluation and proceeding directly to LLM analysis.")
+        logger.info("Force evaluation mode: Skipping pre-evaluation and proceeding directly to LLM analysis.")
         pre_eval_score = 100  # Set to passing score for forced evaluation
         pre_eval_rationale = "Pre-evaluation bypassed (forced evaluation mode)"
         passed_pre_eval = True
     else:
         # Run pre-evaluation
-        pre_eval_score, pre_eval_rationale, passed_pre_eval = handle_pre_evaluation(project_content, config, log)
+        pre_eval_score, pre_eval_rationale, passed_pre_eval = handle_pre_evaluation(project_content, config, logger)
 
     # Determine final state
     final_state = 'accepted' if passed_pre_eval else 'rejected'
 
     # Handle pre-eval-only mode
     if config.get('pre_eval_only', False):
-        log(f"Result: Pre-evaluation only mode. Score: {pre_eval_score}%.")
+        logger.info(f"Result: Pre-evaluation only mode. Score: {pre_eval_score}%.")
 
         # Append pre-evaluation results to markdown file
         acceptance_threshold = config.get('settings', {}).get('acceptance_threshold', 85)
         final_decision = 'accepted' if pre_eval_score >= config.get('pre_evaluation', {}).get('acceptance_threshold', 50) else 'rejected'
         append_success = append_evaluation_results_to_markdown(
             project_path, pre_eval_score, pre_eval_rationale,
-            0, "LLM evaluation skipped (pre-evaluation only mode)", final_decision, acceptance_threshold, config, log
+            0, "LLM evaluation skipped (pre-evaluation only mode)", final_decision, acceptance_threshold, config, logger
         )
 
         # Update state instead of moving file
@@ -524,19 +491,19 @@ def process_project_file(project_path: str, config: Dict[str, Any], cv_content: 
         print(f"-> Processed {project_filename} | Pre-eval Score: {pre_eval_score:<3}% | State: '{final_state}'")
         if append_success:
             print(f"   ✓ Pre-evaluation results appended to markdown")
-        log("Evaluation finished.")
-        log("=" * 50 + "\n")
+        logger.info("Evaluation finished.")
+        logger.info("=" * 50)
         return
 
     # Handle pre-evaluation failure (only when not in force evaluation mode)
     if not passed_pre_eval and not config.get('force_evaluation', False):
-        log("Result: Rejected based on pre-evaluation.")
+        logger.info("Result: Rejected based on pre-evaluation.")
 
         # Append pre-evaluation results to markdown file
         acceptance_threshold = config.get('settings', {}).get('acceptance_threshold', 85)
         append_success = append_evaluation_results_to_markdown(
             project_path, pre_eval_score, pre_eval_rationale,
-            0, "LLM evaluation skipped (failed pre-evaluation)", 'rejected', acceptance_threshold, config, log
+            0, "LLM evaluation skipped (failed pre-evaluation)", 'rejected', acceptance_threshold, config, logger
         )
 
         # Update state instead of moving file
@@ -544,13 +511,13 @@ def process_project_file(project_path: str, config: Dict[str, Any], cv_content: 
         print(f"-> Processed {project_filename} | Pre-eval Score: {pre_eval_score:<3}% | State: 'rejected'")
         if append_success:
             print(f"   ✓ Pre-evaluation results appended to markdown")
-        log("Evaluation finished.")
-        log("=" * 50 + "\n")
+        logger.info("Evaluation finished.")
+        logger.info("=" * 50)
         return
     
     # Proceed with LLM evaluation
-    log("Result: Passed pre-evaluation. Proceeding to LLM analysis.")
-    fit_score, rationale_text = handle_llm_evaluation(cv_content, project_content, config, log)
+    logger.info("Result: Passed pre-evaluation. Proceeding to LLM analysis.")
+    fit_score, rationale_text = handle_llm_evaluation(cv_content, project_content, config, logger)
 
     # Final decision and state update
     acceptance_threshold = config.get('settings', {}).get('acceptance_threshold', 85)
@@ -559,7 +526,7 @@ def process_project_file(project_path: str, config: Dict[str, Any], cv_content: 
     # Append evaluation results to markdown file
     append_success = append_evaluation_results_to_markdown(
         project_path, pre_eval_score, pre_eval_rationale,
-        fit_score, rationale_text, final_state, acceptance_threshold, config, log
+        fit_score, rationale_text, final_state, acceptance_threshold, config, logger
     )
 
     # Update state instead of moving file
@@ -568,8 +535,8 @@ def process_project_file(project_path: str, config: Dict[str, Any], cv_content: 
     if append_success:
         print(f"   ✓ Evaluation results appended to markdown")
 
-    log("Evaluation finished.")
-    log("=" * 50 + "\n")
+    logger.info("Evaluation finished.")
+    logger.info("=" * 50)
 
 def main():
     """Main function to run the project evaluation script."""
@@ -641,14 +608,12 @@ Examples:
 
         print(f"Found {len(scraped_projects)} projects in 'scraped' state to evaluate...")
 
-        # Create a single logger for the batch run
-        batch_log_filename = f"batch_run_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
-        log = setup_logging(batch_log_filename)
-        print(f"Evaluating projects. See log file for details: {os.path.join(LOG_DIR, batch_log_filename)}")
+        # Evaluate projects using centralized logging
+        logger.info(f"Evaluating {len(scraped_projects)} projects from 'scraped' state")
 
         for project_info in scraped_projects:
             project_path = project_info['path']
-            process_project_file(project_path, config, cv_content, log)
+            process_project_file(project_path, config, cv_content)
 
         print(f"\nEvaluated {len(scraped_projects)} projects from 'scraped' state.")
 

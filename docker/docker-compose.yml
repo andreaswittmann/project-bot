@@ -17,6 +17,9 @@ services:
       - ANTHROPIC_API_KEY2=${ANTHROPIC_API_KEY2:-$ANTHROPIC_API_KEY}
       # Flask settings
       - FLASK_ENV=production
+      # Logging configuration
+      - LOG_LEVEL=INFO
+      - LOG_FILE=/app/logs/app.log
       # Frontend API configuration
       - VITE_API_BASE_URL=http://project-bot:8002
     volumes:

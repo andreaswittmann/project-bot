@@ -3,6 +3,7 @@ import argparse
 import subprocess
 import sys
 import os
+import logging
 from datetime import datetime
 from pathlib import Path
 from rss_helper import generate_rss_urls, fetch_and_process_rss
@@ -10,6 +11,13 @@ import evaluate_projects
 from application_generator import create_application_generator, load_application_config
 from file_purger import FilePurger
 from state_manager import ProjectStateManager
+
+# Import centralized logging
+from logging_config import setup_logging
+
+# Configure logging
+setup_logging()
+logger = logging.getLogger(__name__)
 
 
 def load_cv_content(cv_file: str) -> str:

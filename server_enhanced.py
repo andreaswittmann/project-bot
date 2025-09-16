@@ -28,8 +28,11 @@ from state_manager import ProjectStateManager
 # Import scheduler manager
 from scheduler_manager import get_scheduler_manager
 
+# Import centralized logging
+from logging_config import setup_logging
+
 # Configure logging
-logging.basicConfig(level=logging.INFO)
+setup_logging()
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
