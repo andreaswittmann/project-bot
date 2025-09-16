@@ -683,7 +683,7 @@ def get_project(project_id: str):
     project_data = parse_project_file(str(project_file))
     response = ProjectResponse(**project_data)
 
-    return jsonify(response.dict())
+    return jsonify(response.model_dump())
 
 @app.route('/api/v1/projects/<project_id>', methods=['DELETE'])
 @handle_api_errors
@@ -942,7 +942,7 @@ def generate_application(project_id: str):
             return jsonify({
                 "success": True,
                 "message": f"Application generated successfully for project {project_id}",
-                "project": response.dict(),
+                "project": response.model_dump(),
                 "output": result.stdout,
                 "timestamp": datetime.now().isoformat()
             })
@@ -1007,7 +1007,7 @@ def get_project_markdown(project_id: str):
             file_size=stat.st_size
         )
 
-        return jsonify(response.dict())
+        return jsonify(response.model_dump())
 
     except Exception as e:
         logger.error(f"Error reading markdown file {project_id}: {e}")
