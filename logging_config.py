@@ -17,7 +17,7 @@ def setup_logging():
     Configurable via environment variables:
     - LOG_LEVEL: DEBUG|INFO|WARNING|ERROR|CRITICAL (default: INFO)
     - LOG_FILE: Path to log file (default: logs/app.log)
-    - LOG_TO_CONSOLE: true|false (default: false)
+    - LOG_TO_CONSOLE: true|false (default: true)
     - LOG_MAX_BYTES: Max size per log file in bytes (default: 10MB)
     - LOG_BACKUP_COUNT: Number of backup files to keep (default: 5)
 
@@ -27,7 +27,7 @@ def setup_logging():
     # Get configuration from environment variables
     log_level = os.getenv('LOG_LEVEL', 'INFO').upper()
     log_file = os.getenv('LOG_FILE', 'logs/app.log')
-    log_to_console = os.getenv('LOG_TO_CONSOLE', 'false').lower() == 'true'
+    log_to_console = os.getenv('LOG_TO_CONSOLE', 'true').lower() == 'true'
     max_bytes = int(os.getenv('LOG_MAX_BYTES', '10485760'))  # 10MB default
     backup_count = int(os.getenv('LOG_BACKUP_COUNT', '5'))
 
