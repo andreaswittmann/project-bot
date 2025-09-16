@@ -31,7 +31,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code, excluding config files that will be mounted
 COPY . .
 # Remove config.yaml from container since it will be mounted as a volume
-RUN rm -f /app/config.yaml
+RUN rm -rf /app/config.yaml
 
 # Copy built frontend from builder stage
 COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
