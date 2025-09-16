@@ -118,7 +118,9 @@ docker compose logs --tail=10
 
 #+BEGIN_src bash
 ssh asamadhi
+whoami
 bash
+
 
 # Listing: update project-bot with docker on home server
 cd ~/LocalProjects/
@@ -127,10 +129,11 @@ cd project-bot
 
 export PROJECT_DIR=$(pwd)
 echo $PROJECT_DIR
+cd $PROJECT_DIR
 
 # Pull latest changes from repository
 git pull
-
+git describe --tags
 
 # Set environment variable for frontend. 
 export VITE_RELEASE_TAG=$(git describe --tags --abbrev=0)

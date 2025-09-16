@@ -20,6 +20,9 @@
         <router-link to="/schedules" class="nav-link">
           ⏰ Schedule Manager
         </router-link>
+        <router-link to="/logs" class="nav-link">
+          📋 Log Viewer
+        </router-link>
       </nav>
     </header>
 

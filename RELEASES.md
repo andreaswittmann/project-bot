@@ -1,5 +1,48 @@
 # Release Notes
 
+## v1.1.2 (2025-09-16) - Docker Fixes and Logging Enhancements
+
+### 🔧 Technical Improvements
+
+#### Docker Configuration Fixes
+- **Fixed Docker volume mount path** for config.yaml to prevent mounting conflicts
+- **Resolved Docker build errors** by using rm -rf to remove config.yaml directory
+- **Corrected Docker volume mounting** to avoid conflicts with config.yaml
+- **Fixed Docker config mounting** issues
+
+#### Backend Enhancements
+- **Fixed remaining Pydantic .dict() deprecation warnings**
+- **Enhanced logging** for application generation and re-evaluation debugging
+- **Enabled console logging** by default for Docker container output
+- **Corrected logger reference** in evaluate_projects.py
+- **Removed dashboard regeneration calls** to resolve FileNotFoundError
+- **Implemented consolidated logging system**
+
+#### Documentation Updates
+- **Updated setup.org** with latest configuration changes
+
+### 📋 Changes by Component
+
+#### Docker (`docker-compose.yml`, `Dockerfile`)
+- Fixed volume mount paths and conflicts
+- Resolved build errors and mounting issues
+
+#### Backend (`server_enhanced.py`, `evaluate_projects.py`, `logging_config.py`)
+- Fixed Pydantic deprecation warnings
+- Enhanced logging and debugging capabilities
+- Consolidated logging system
+
+#### Documentation (`setup.org`)
+- Updated with latest configuration changes
+
+### 🐛 Bug Fixes
+- **Docker mounting conflicts**: Resolved issues with config.yaml mounting
+- **Pydantic deprecation**: Fixed .dict() method warnings
+- **Logger references**: Corrected incorrect logger usage
+- **Dashboard regeneration**: Removed problematic regeneration calls
+
+---
+
 ## v1.1.0 (2025-09-15) - Re-Evaluate Button Feature
 
 ### 🎉 New Features

@@ -4,7 +4,7 @@ Enhanced Flask Backend for Vue3 Frontend
 Backend-for-Frontend Pattern with REST API
 """
 
-from flask import Flask, jsonify, request, send_from_directory, Response
+from flask import Flask, jsonify, request, send_from_directory, Response, send_file
 from flask_cors import CORS
 import subprocess
 import os
@@ -179,6 +179,17 @@ class SchedulerStatusResponse(BaseModel):
     active_jobs: int
     next_job: Optional[Dict[str, Any]]
     timestamp: str
+
+# Pydantic Models for Log API
+
+class LogFileInfo(BaseModel):
+    name: str
+    size: int
+    modified: str
+    is_current: bool
+
+class LogFilesResponse(BaseModel):
+    files: List[LogFileInfo]
 
 # Error handling decorator
 def handle_api_errors(f):
@@ -1666,6 +1677,81 @@ def get_scheduler_status():
     )
 
     return jsonify(response.model_dump())
+
+# API Endpoints for Log Viewer
+
+@app.route('/api/v1/logs', methods=['GET'])
+@handle_api_errors
+def get_log_files():
+    """List all log files in /app/logs directory"""
+    logs_dir = Path("logs")
+
+    if not logs_dir.exists():
+        return jsonify(LogFilesResponse(files=[]).model_dump())
+
+    log_files = []
+
+    # Get all .log files
+    for log_file in logs_dir.glob("*.log*"):
+        if log_file.is_file():
+            try:
+                stat = log_file.stat()
+                file_info = LogFileInfo(
+                    name=log_file.name,
+                    size=stat.st_size,
+                    modified=datetime.fromtimestamp(stat.st_mtime).isoformat(),
+                    is_current=log_file.name == "app.log"
+                )
+                log_files.append(file_info)
+            except Exception as e:
+                logger.warning(f"Error getting info for log file {log_file}: {e}")
+
+    # Sort files: current log first, then by modification time (newest first)
+    log_files.sort(key=lambda x: (not x.is_current, x.modified), reverse=True)
+
+    response = LogFilesResponse(files=log_files)
+    return jsonify(response.model_dump())
+
+@app.route('/api/v1/logs/<filename>', methods=['GET'])
+@handle_api_errors
+def get_log_file(filename: str):
+    """Serve specific log file content"""
+    logs_dir = Path("logs")
+    log_file = logs_dir / filename
+
+    # Security check: ensure filename doesn't contain path traversal
+    if ".." in filename or "/" in filename or "\\" in filename:
+        return jsonify(APIErrorResponse(
+            error="InvalidFilename",
+            message="Invalid filename",
+            code=400,
+            timestamp=datetime.now().isoformat()
+        ).model_dump()), 400
+
+    if not log_file.exists() or not log_file.is_file():
+        return jsonify(APIErrorResponse(
+            error="NotFound",
+            message=f"Log file {filename} not found",
+            code=404,
+            timestamp=datetime.now().isoformat()
+        ).model_dump()), 404
+
+    try:
+        # Serve the file as plain text
+        return send_file(
+            str(log_file),
+            mimetype='text/plain',
+            as_attachment=False,
+            download_name=filename
+        )
+    except Exception as e:
+        logger.error(f"Error serving log file {filename}: {e}")
+        return jsonify(APIErrorResponse(
+            error="ReadError",
+            message=f"Failed to read log file: {str(e)}",
+            code=500,
+            timestamp=datetime.now().isoformat()
+        ).model_dump()), 500
 
 # Legacy routes for backward compatibility
 @app.route('/')

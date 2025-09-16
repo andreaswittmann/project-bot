@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import Dashboard from '../views/Dashboard.vue'
 import MarkdownEditor from '../views/MarkdownEditor.vue'
 import ScheduleManager from '../views/ScheduleManager.vue'
+import LogViewer from '../views/LogViewer.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -21,6 +22,11 @@ const router = createRouter({
       path: '/schedules',
       name: 'schedule-manager',
       component: ScheduleManager
+    },
+    {
+      path: '/logs',
+      name: 'log-viewer',
+      component: LogViewer
     }
   ]
 })

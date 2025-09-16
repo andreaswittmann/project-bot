@@ -20,6 +20,8 @@ services:
       # Logging configuration
       - LOG_LEVEL=INFO
       - LOG_FILE=/app/logs/app.log
+      - LOG_ROTATION_WHEN=MIDNIGHT
+      - LOG_BACKUP_COUNT=10
       # Frontend API configuration
       - VITE_API_BASE_URL=http://project-bot:8002
     volumes:

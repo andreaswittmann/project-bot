@@ -6,7 +6,7 @@ Provides simple, file-based logging with configurable levels.
 
 import os
 import logging
-from logging.handlers import RotatingFileHandler
+from logging.handlers import TimedRotatingFileHandler
 from pathlib import Path
 
 
@@ -18,8 +18,8 @@ def setup_logging():
     - LOG_LEVEL: DEBUG|INFO|WARNING|ERROR|CRITICAL (default: INFO)
     - LOG_FILE: Path to log file (default: logs/app.log)
     - LOG_TO_CONSOLE: true|false (default: true)
-    - LOG_MAX_BYTES: Max size per log file in bytes (default: 10MB)
-    - LOG_BACKUP_COUNT: Number of backup files to keep (default: 5)
+    - LOG_ROTATION_WHEN: When to rotate logs (default: MIDNIGHT)
+    - LOG_BACKUP_COUNT: Number of backup files to keep (default: 10)
 
     Returns:
         Configured root logger
@@ -28,8 +28,8 @@ def setup_logging():
     log_level = os.getenv('LOG_LEVEL', 'INFO').upper()
     log_file = os.getenv('LOG_FILE', 'logs/app.log')
     log_to_console = os.getenv('LOG_TO_CONSOLE', 'true').lower() == 'true'
-    max_bytes = int(os.getenv('LOG_MAX_BYTES', '10485760'))  # 10MB default
-    backup_count = int(os.getenv('LOG_BACKUP_COUNT', '5'))
+    rotation_when = os.getenv('LOG_ROTATION_WHEN', 'MIDNIGHT')
+    backup_count = int(os.getenv('LOG_BACKUP_COUNT', '10'))
 
     # Ensure logs directory exists
     log_dir = Path(log_file).parent
@@ -54,10 +54,11 @@ def setup_logging():
         datefmt='%Y-%m-%d %H:%M:%S'
     )
 
-    # Rotating file handler
-    file_handler = RotatingFileHandler(
+    # Timed rotating file handler
+    file_handler = TimedRotatingFileHandler(
         log_file,
-        maxBytes=max_bytes,
+        when=rotation_when,
+        interval=1,
         backupCount=backup_count
     )
     file_handler.setFormatter(formatter)
@@ -70,7 +71,7 @@ def setup_logging():
         logger.addHandler(console_handler)
 
     # Log the setup
-    logger.info(f"Logging initialized: level={log_level}, file={log_file}, console={log_to_console}")
+    logger.info(f"Logging initialized: level={log_level}, file={log_file}, rotation={rotation_when}, backups={backup_count}, console={log_to_console}")
 
     return logger
 
