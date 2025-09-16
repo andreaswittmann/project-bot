@@ -1,5 +1,78 @@
 # Release Notes
 
+## v1.2.0 (2025-09-16) - Daily Log Rotation and UI Log Viewer
+
+### 🎉 New Features
+
+#### Daily Log Rotation System
+- **Automatic daily log rotation**: `app.log` rotates at midnight every day
+- **10-day retention policy**: Maintains 10 days of log history with automatic cleanup
+- **Configurable rotation**: Environment variables control rotation timing and retention
+- **File naming convention**: `app.log`, `app.log.2025-09-16`, `app.log.2025-09-15`, etc.
+
+#### UI Log Viewer
+- **Log file browser**: Navigate and select from available log files
+- **File metadata display**: Shows file size, modification date, and status
+- **In-browser log viewing**: Open log files as plain text in new browser tabs
+- **Navigation integration**: "📋 Log Viewer" link added to dashboard header
+- **Responsive design**: Works on desktop and mobile devices
+
+#### API Endpoints for Log Management
+- **GET /api/v1/logs**: List all log files with metadata
+- **GET /api/v1/logs/<filename>**: Serve specific log file content
+- **Security validation**: Prevents directory traversal attacks
+- **Error handling**: Comprehensive error responses and logging
+
+### 🔧 Technical Improvements
+
+#### Backend Enhancements
+- **TimedRotatingFileHandler**: Replaced size-based with time-based log rotation
+- **Environment configuration**: `LOG_ROTATION_WHEN=MIDNIGHT`, `LOG_BACKUP_COUNT=10`
+- **Security hardening**: Filename validation for log file access
+- **API documentation**: Comprehensive endpoint documentation
+
+#### Frontend Enhancements
+- **New Vue component**: `LogViewer.vue` with complete log browsing functionality
+- **Routing integration**: Added `/logs` route to Vue Router
+- **Navigation updates**: Added log viewer link to dashboard header
+- **User experience**: Loading states, error handling, and responsive design
+
+#### Docker Configuration
+- **Environment variables**: Added log rotation configuration to docker-compose.yml
+- **Volume management**: Proper log file persistence and rotation
+
+### 📋 Changes by Component
+
+#### Backend (`logging_config.py`, `server_enhanced.py`)
+- Implemented TimedRotatingFileHandler with daily rotation
+- Added log API endpoints with security validation
+- Updated Docker configuration with rotation environment variables
+
+#### Frontend (`LogViewer.vue`, `router/index.js`, `Dashboard.vue`)
+- Created comprehensive log viewer component
+- Added routing and navigation integration
+- Implemented file selection and viewing functionality
+
+#### Docker (`docker-compose.yml`)
+- Added log rotation environment variables
+- Configured proper log file management
+
+### 🆕 New Files
+- `frontend/src/views/LogViewer.vue`: Complete log viewer component
+- `log_viewer_plan.md`: Implementation planning documentation
+
+### 📈 Performance Improvements
+- **Automatic log cleanup**: Prevents disk space issues from log accumulation
+- **Efficient file serving**: Direct file serving with proper MIME types
+- **Responsive UI**: Optimized for different screen sizes
+
+### 🔒 Security Enhancements
+- **Path traversal protection**: Validates filenames to prevent directory attacks
+- **File access control**: Only serves files from designated logs directory
+- **Error handling**: Prevents information leakage through error messages
+
+---
+
 ## v1.1.2 (2025-09-16) - Docker Fixes and Logging Enhancements
 
 ### 🔧 Technical Improvements
