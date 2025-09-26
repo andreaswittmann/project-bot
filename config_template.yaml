@@ -188,8 +188,32 @@ application_generator:
     salary_expectation: "120,- € pro Stunde"
     availability: "sofort, vollzeit, remote und vor Ort"
 
+# Email Ingestion Configuration (Milestone 1)
+channels:
+  email:
+    server: your.imap.server.com  # IMAP server address
+    port: 993                    # IMAP SSL port
+    username: your_username      # IMAP username
+    password: ${EMAIL_PASSWORD}  # Environment variable for password
+    source_folder: INBOX         # Folder to poll for new emails
+    processed_folder: Processed  # Base folder for processed emails
+
+providers:
+  freelancermap:
+    enabled: true
+    channels:
+      email:
+        senders: ["noreply@freelancermap.de"]  # List of allowed senders
+        subject_patterns: ["Neues Projekt", "New Project"]  # Regex patterns for subject
+        body_url_patterns: ["https://www\\.freelancermap\\.(de|at|ch)/(projekt|nproj)/\\d+.*"]  # Regex for URL extraction
+        source_folder: INBOX
+        processed_folder: Processed/FreelancerMap
+        max_age_days: 7  # Only process emails from the last N days (default: 7)
+        max_emails: 50   # Maximum number of emails to process per run (default: 50)
+        move_processed: true  # Move processed emails to processed folder (default: true)
+
 # Configuration Notes:
-# 
+#
 # LLM Providers:
 # - OpenAI: Requires OpenAI API key, models: gpt-5-mini, gpt-4o, gpt-4-turbo, gpt-3.5-turbo
 # - Anthropic: Requires Anthropic API key, models: claude-3-sonnet-20240229, claude-3-haiku-20240307
@@ -207,3 +231,16 @@ application_generator:
 # Forbidden Tags:
 # - Projects containing these keywords are automatically rejected
 # - Use for roles or industries you want to avoid
+#
+# Email Channel:
+# - server/port/username/password: Standard IMAP settings
+# - source_folder: Folder to check for new emails
+# - processed_folder: Folder to move processed emails (created if needed)
+# - Provider-specific settings under providers.<provider_id>.channels.email
+# - senders: List of email addresses that are allowed
+# - subject_patterns: List of regex patterns that subject must match
+# - body_url_patterns: List of regex patterns to extract project URLs from email body
+# - source_folder/processed_folder: Can override per provider
+# - max_age_days: Only process emails received within the last N days (default: 7)
+# - max_emails: Maximum number of emails to process per run (default: 50)
+# - move_processed: Whether to move processed emails to the processed folder (default: true)

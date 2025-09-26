@@ -11,6 +11,7 @@ import evaluate_projects
 from application_generator import create_application_generator, load_application_config
 from file_purger import FilePurger
 from state_manager import ProjectStateManager
+from email_agent import run_email_ingestion
 
 # Import centralized logging
 from logging_config import setup_logging
@@ -405,21 +406,24 @@ def handle_state_report(args) -> None:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="FreelancerMap Project Scraper: Scrape project details from FreelancerMap either from a single URL or by searching via RSS feeds.",
+        description="Project Bot: Scrape project details from providers either via RSS feeds or email ingestion.",
         formatter_class=argparse.RawTextHelpFormatter,
         epilog="""
 Examples:
 
-1. Search for projects with a query and scrape the top 5 from Germany:
+1. Search for projects with RSS and scrape the top 5 from Germany:
    python main.py
 
-2. Search for projects with a query and scrape the top 10 from multiple regions:
+2. Search for projects with RSS and scrape the top 10 from multiple regions:
    python main.py -n 10 -r germany switzerland
 
-3. Search for projects across all available regions:
+3. Search for projects across all available regions with RSS:
    python main.py -r all
 
-4. Search for a project and save the output to a custom directory:
+4. Run email ingestion for freelancermap provider:
+   python main.py --email-ingest --provider freelancermap
+
+5. Save output to a custom directory:
    python main.py -o ./output_folder
 """
     )
@@ -464,7 +468,15 @@ Examples:
     parser.add_argument("--note", help="Optional note for state transition")
     parser.add_argument("--state-report", action="store_true",
                         help="Generate project state report")
-    
+
+    # Email ingestion arguments (Milestone 1)
+    parser.add_argument("--email-ingest", action="store_true",
+                        help="Run email ingestion instead of RSS")
+    parser.add_argument("--provider", default="freelancermap",
+                        help="Provider for email ingestion (default: freelancermap)")
+    parser.add_argument("--dry-run", action="store_true",
+                        help="Validate configuration and simulate email ingestion without actual operations")
+
     args = parser.parse_args()
 
     # Handle state management commands first
@@ -493,13 +505,25 @@ Examples:
         sys.exit(0)
 
     # Normal workflow: scraping -> evaluation -> application generation -> dashboard
-    if "all" in args.regions:
-        regions = ["international", "austria", "switzerland", "germany"]
-    else:
-        regions = args.regions
 
-    rss_urls = generate_rss_urls(regions)
-    fetch_and_process_rss(rss_urls, args.number, args.output_dir)
+    # Load configuration for email ingestion or application generation
+    config = load_application_config(args.config)
+
+    if args.email_ingest:
+        # Email ingestion instead of RSS
+        mode = "DRY RUN" if args.dry_run else "LIVE"
+        print(f"📧 Running email ingestion ({mode})...")
+        summary = run_email_ingestion(args.provider, config, args.output_dir, args.dry_run)
+        print(f"📊 Email ingestion summary: {summary}")
+    else:
+        # Original RSS workflow
+        if "all" in args.regions:
+            regions = ["international", "austria", "switzerland", "germany"]
+        else:
+            regions = args.regions
+
+        rss_urls = generate_rss_urls(regions)
+        fetch_and_process_rss(rss_urls, args.number, args.output_dir)
 
     # After fetching projects, run the evaluation
     print("\nStarting project evaluation...")
