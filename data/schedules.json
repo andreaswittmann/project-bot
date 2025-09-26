@@ -78,28 +78,7 @@
       "cron_schedule": "0 9,15,21 * * 6,0",
       "timezone": "Europe/Berlin",
       "created_at": "2025-09-01T15:25:40.522886",
-      "updated_at": "2025-09-12T10:19:57.278674",
-      "last_run": null,
-      "last_status": null,
-      "execution_history": []
-    },
-    {
-      "id": "ee2adf3b-4eda-4484-a117-aa271226e654",
-      "name": "Weekday Full Workflow",
-      "description": "Run full workflow every hour between 8-23 on weekdays",
-      "enabled": false,
-      "workflow_type": "main",
-      "parameters": {
-        "number": 10,
-        "regions": [
-          "germany",
-          "austria"
-        ]
-      },
-      "cron_schedule": "0 8-23 * * 1-5",
-      "timezone": "Europe/Berlin",
-      "created_at": "2025-09-01T15:25:57.127419",
-      "updated_at": "2025-09-01T15:32:40.035130",
+      "updated_at": "2025-09-26T21:01:13.147063",
       "last_run": null,
       "last_status": null,
       "execution_history": []
@@ -121,11 +100,58 @@
       "cron_schedule": "0 9,15,21 * * sat,sun",
       "timezone": "Europe/Berlin",
       "created_at": "2025-09-01T15:25:57.129910",
-      "updated_at": "2025-09-01T14:07:29.993868",
+      "updated_at": "2025-09-26T20:53:57.950529",
       "last_run": null,
       "last_status": null,
       "execution_history": []
+    },
+    {
+      "id": "d8263fcb-292f-48a0-af42-3cfff920c467",
+      "name": "adsf",
+      "description": "asdfa",
+      "enabled": true,
+      "workflow_type": "email_ingest",
+      "parameters": {
+        "provider": "solcom",
+        "output_dir": "projects",
+        "dry_run": false
+      },
+      "cron_schedule": "0 8-23 * * mon-fri",
+      "timezone": "Europe/Berlin",
+      "created_at": "2025-09-26T21:07:36.006342",
+      "updated_at": "2025-09-26T21:08:42.287344",
+      "last_run": "2025-09-26T21:08:40.997925",
+      "last_status": "success",
+      "execution_history": [
+        {
+          "run_id": "7852d54e-b7e5-416f-98e9-78b4d78c2213",
+          "started_at": "2025-09-26T21:08:40.997925",
+          "completed_at": "2025-09-26T21:08:42.286972",
+          "status": "success",
+          "output": "📧 Running email ingestion (LIVE)...\n📊 Email ingestion summary: {'provider_id': 'solcom', 'dry_run': False, 'emails_processed': 0, 'emails_matched': 0, 'urls_found': 0, 'urls_skipped_dedupe': 0, 'projects_saved': 0, 'errors': 1}\n\nStarting project evaluation...\nProcessing projects in 'scraped' state from 'projects' directory...\nNo projects in 'scraped' state found to evaluate.\nℹ️  No accepted projects found for application generation\n\n🗑️  Running automatic file purging...\nℹ️  No files needed purging\n\n🎉 Complete workflow finished!\n",
+          "error": "2025-09-26 21:08:41 [INFO] root: Logging initialized: level=DEBUG, file=logs/app.log, rotation=MIDNIGHT, backups=10, console=True\n2025-09-26 21:08:41 [INFO] email_agent: Starting email ingestion run\n2025-09-26 21:08:41 [DEBUG] email_agent: Calling validate_config\n2025-09-26 21:08:41 [DEBUG] email_agent: Validating config\n2025-09-26 21:08:41 [DEBUG] email_agent: Provider email config\n2025-09-26 21:08:41 [ERROR] email_agent: Config validation error: Missing channels.email.server\n2025-09-26 21:08:41 [ERROR] email_agent: Config validation error: Missing channels.email.username\n2025-09-26 21:08:41 [ERROR] email_agent: Config validation error: Missing channels.email.password\n2025-09-26 21:08:41 [DEBUG] email_agent: validate_config result\n2025-09-26 21:08:41 [INFO] email_agent: Configuration validation failed, aborting run\n2025-09-26 21:08:41 [INFO] evaluate_projects: 🚀 Starting project evaluation script\n2025-09-26 21:08:41 [DEBUG] evaluate_projects: 📋 Arguments: config=config.yaml, cv=data/cv.md, project_file=None\n2025-09-26 21:08:41 [DEBUG] evaluate_projects: 🎯 Flags: pre_eval_only=False, force_evaluation=False\n2025-09-26 21:08:41 [DEBUG] evaluate_projects: ⚙️ Loading configuration...\n2025-09-26 21:08:41 [DEBUG] evaluate_projects: ✅ Configuration loaded successfully\n2025-09-26 21:08:41 [DEBUG] evaluate_projects: 📖 Loading CV content...\n2025-09-26 21:08:41 [DEBUG] evaluate_projects: ✅ CV content loaded (44635 characters)\n2025-09-26 21:08:41 [INFO] evaluate_projects: 📁 Processing projects in 'scraped' state from 'projects' directory\n2025-09-26 21:08:41 [DEBUG] evaluate_projects: 🔍 Getting projects in 'scraped' state...\n2025-09-26 21:08:41 [WARNING] evaluate_projects: ℹ️ No projects in 'scraped' state found to evaluate\n/Users/aupeksha/LocalProjects/ai-bootcamp/project-bot/application_generator.py:120: LangChainDeprecationWarning: The class `LLMChain` was deprecated in LangChain 0.1.17 and will be removed in 1.0. Use :meth:`~RunnableSequence, e.g., `prompt | llm`` instead.\n  self.chain = LLMChain(llm=self.chat, prompt=self.prompt, verbose=True)\n2025-09-26 21:08:41,933 - FilePurger - INFO - Starting file purge for categories: ['logs', 'temp_files', 'rejected_low_pre_eval', 'rejected_low_llm']\n2025-09-26 21:08:41 [INFO] FilePurger: Starting file purge for categories: ['logs', 'temp_files', 'rejected_low_pre_eval', 'rejected_low_llm']\n2025-09-26 21:08:42,137 - FilePurger - INFO - Purge completed: 0 files deleted\n2025-09-26 21:08:42 [INFO] FilePurger: Purge completed: 0 files deleted\n",
+          "exit_code": 0
+        },
+        {
+          "run_id": "38de0b7d-d56d-4c97-a757-13c29b762dfb",
+          "started_at": "2025-09-26T21:08:15.905356",
+          "completed_at": "2025-09-26T21:08:17.181282",
+          "status": "success",
+          "output": "📧 Running email ingestion (LIVE)...\n📊 Email ingestion summary: {'provider_id': 'solcom', 'dry_run': False, 'emails_processed': 0, 'emails_matched': 0, 'urls_found': 0, 'urls_skipped_dedupe': 0, 'projects_saved': 0, 'errors': 1}\n\nStarting project evaluation...\nProcessing projects in 'scraped' state from 'projects' directory...\nNo projects in 'scraped' state found to evaluate.\nℹ️  No accepted projects found for application generation\n\n🗑️  Running automatic file purging...\nℹ️  No files needed purging\n\n🎉 Complete workflow finished!\n",
+          "error": "2025-09-26 21:08:16 [INFO] root: Logging initialized: level=DEBUG, file=logs/app.log, rotation=MIDNIGHT, backups=10, console=True\n2025-09-26 21:08:16 [INFO] email_agent: Starting email ingestion run\n2025-09-26 21:08:16 [DEBUG] email_agent: Calling validate_config\n2025-09-26 21:08:16 [DEBUG] email_agent: Validating config\n2025-09-26 21:08:16 [DEBUG] email_agent: Provider email config\n2025-09-26 21:08:16 [ERROR] email_agent: Config validation error: Missing channels.email.server\n2025-09-26 21:08:16 [ERROR] email_agent: Config validation error: Missing channels.email.username\n2025-09-26 21:08:16 [ERROR] email_agent: Config validation error: Missing channels.email.password\n2025-09-26 21:08:16 [DEBUG] email_agent: validate_config result\n2025-09-26 21:08:16 [INFO] email_agent: Configuration validation failed, aborting run\n2025-09-26 21:08:16 [INFO] evaluate_projects: 🚀 Starting project evaluation script\n2025-09-26 21:08:16 [DEBUG] evaluate_projects: 📋 Arguments: config=config.yaml, cv=data/cv.md, project_file=None\n2025-09-26 21:08:16 [DEBUG] evaluate_projects: 🎯 Flags: pre_eval_only=False, force_evaluation=False\n2025-09-26 21:08:16 [DEBUG] evaluate_projects: ⚙️ Loading configuration...\n2025-09-26 21:08:16 [DEBUG] evaluate_projects: ✅ Configuration loaded successfully\n2025-09-26 21:08:16 [DEBUG] evaluate_projects: 📖 Loading CV content...\n2025-09-26 21:08:16 [DEBUG] evaluate_projects: ✅ CV content loaded (44635 characters)\n2025-09-26 21:08:16 [INFO] evaluate_projects: 📁 Processing projects in 'scraped' state from 'projects' directory\n2025-09-26 21:08:16 [DEBUG] evaluate_projects: 🔍 Getting projects in 'scraped' state...\n2025-09-26 21:08:16 [WARNING] evaluate_projects: ℹ️ No projects in 'scraped' state found to evaluate\n/Users/aupeksha/LocalProjects/ai-bootcamp/project-bot/application_generator.py:120: LangChainDeprecationWarning: The class `LLMChain` was deprecated in LangChain 0.1.17 and will be removed in 1.0. Use :meth:`~RunnableSequence, e.g., `prompt | llm`` instead.\n  self.chain = LLMChain(llm=self.chat, prompt=self.prompt, verbose=True)\n2025-09-26 21:08:16,835 - FilePurger - INFO - Starting file purge for categories: ['logs', 'temp_files', 'rejected_low_pre_eval', 'rejected_low_llm']\n2025-09-26 21:08:16 [INFO] FilePurger: Starting file purge for categories: ['logs', 'temp_files', 'rejected_low_pre_eval', 'rejected_low_llm']\n2025-09-26 21:08:17,034 - FilePurger - INFO - Purge completed: 0 files deleted\n2025-09-26 21:08:17 [INFO] FilePurger: Purge completed: 0 files deleted\n",
+          "exit_code": 0
+        },
+        {
+          "run_id": "957a1b89-e68c-4438-98e7-eae2ce8157fb",
+          "started_at": "2025-09-26T21:07:44.536740",
+          "completed_at": "2025-09-26T21:07:46.850979",
+          "status": "success",
+          "output": "📧 Running email ingestion (LIVE)...\n📊 Email ingestion summary: {'provider_id': 'freelancermap', 'dry_run': False, 'emails_processed': 0, 'emails_matched': 0, 'urls_found': 0, 'urls_skipped_dedupe': 0, 'projects_saved': 0, 'errors': 1}\n\nStarting project evaluation...\nProcessing projects in 'scraped' state from 'projects' directory...\nNo projects in 'scraped' state found to evaluate.\nℹ️  No accepted projects found for application generation\n\n🗑️  Running automatic file purging...\nℹ️  No files needed purging\n\n🎉 Complete workflow finished!\n",
+          "error": "2025-09-26 21:07:46 [INFO] root: Logging initialized: level=DEBUG, file=logs/app.log, rotation=MIDNIGHT, backups=10, console=True\n2025-09-26 21:07:46 [INFO] email_agent: Starting email ingestion run\n2025-09-26 21:07:46 [DEBUG] email_agent: Calling validate_config\n2025-09-26 21:07:46 [DEBUG] email_agent: Validating config\n2025-09-26 21:07:46 [DEBUG] email_agent: Provider email config\n2025-09-26 21:07:46 [ERROR] email_agent: Config validation error: Missing channels.email.server\n2025-09-26 21:07:46 [ERROR] email_agent: Config validation error: Missing channels.email.username\n2025-09-26 21:07:46 [ERROR] email_agent: Config validation error: Missing channels.email.password\n2025-09-26 21:07:46 [DEBUG] email_agent: validate_config result\n2025-09-26 21:07:46 [INFO] email_agent: Configuration validation failed, aborting run\n2025-09-26 21:07:46 [INFO] evaluate_projects: 🚀 Starting project evaluation script\n2025-09-26 21:07:46 [DEBUG] evaluate_projects: 📋 Arguments: config=config.yaml, cv=data/cv.md, project_file=None\n2025-09-26 21:07:46 [DEBUG] evaluate_projects: 🎯 Flags: pre_eval_only=False, force_evaluation=False\n2025-09-26 21:07:46 [DEBUG] evaluate_projects: ⚙️ Loading configuration...\n2025-09-26 21:07:46 [DEBUG] evaluate_projects: ✅ Configuration loaded successfully\n2025-09-26 21:07:46 [DEBUG] evaluate_projects: 📖 Loading CV content...\n2025-09-26 21:07:46 [DEBUG] evaluate_projects: ✅ CV content loaded (44635 characters)\n2025-09-26 21:07:46 [INFO] evaluate_projects: 📁 Processing projects in 'scraped' state from 'projects' directory\n2025-09-26 21:07:46 [DEBUG] evaluate_projects: 🔍 Getting projects in 'scraped' state...\n2025-09-26 21:07:46 [WARNING] evaluate_projects: ℹ️ No projects in 'scraped' state found to evaluate\n/Users/aupeksha/LocalProjects/ai-bootcamp/project-bot/application_generator.py:120: LangChainDeprecationWarning: The class `LLMChain` was deprecated in LangChain 0.1.17 and will be removed in 1.0. Use :meth:`~RunnableSequence, e.g., `prompt | llm`` instead.\n  self.chain = LLMChain(llm=self.chat, prompt=self.prompt, verbose=True)\n2025-09-26 21:07:46,310 - FilePurger - INFO - Starting file purge for categories: ['logs', 'temp_files', 'rejected_low_pre_eval', 'rejected_low_llm']\n2025-09-26 21:07:46 [INFO] FilePurger: Starting file purge for categories: ['logs', 'temp_files', 'rejected_low_pre_eval', 'rejected_low_llm']\n2025-09-26 21:07:46,690 - FilePurger - INFO - Purge completed: 0 files deleted\n2025-09-26 21:07:46 [INFO] FilePurger: Purge completed: 0 files deleted\n",
+          "exit_code": 0
+        }
+      ]
     }
   ],
-  "last_updated": "2025-09-13T10:02:13.976232"
+  "last_updated": "2025-09-26T21:08:42.287536"
 }

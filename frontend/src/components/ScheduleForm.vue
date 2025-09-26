@@ -48,6 +48,8 @@
           >
             <option value="">Select workflow type...</option>
             <option value="main">Full Workflow (scrape → evaluate → generate → dashboard)</option>
+            <option value="email_ingest">Email Ingestion (provider-specific email scraping)</option>
+            <option value="rss_ingest">RSS Ingestion (provider-specific RSS scraping)</option>
             <option value="evaluate">Evaluation Only</option>
             <option value="generate">Application Generation Only</option>
           </select>
@@ -105,6 +107,86 @@
                   type="checkbox"
                 />
                 Skip file purging
+              </label>
+            </div>
+          </div>
+
+          <!-- Email Ingestion Parameters -->
+          <div v-if="formData.workflow_type === 'email_ingest'" class="parameter-grid">
+            <div class="form-group">
+              <label for="provider">Provider *</label>
+              <select
+                id="provider"
+                v-model="formData.parameters.provider"
+                required
+                :class="{ 'error': errors.provider }"
+              >
+                <option value="">Select provider...</option>
+                <option value="freelancermap">FreelancerMap</option>
+                <option value="solcom">Solcom</option>
+              </select>
+              <span v-if="errors.provider" class="error-message">{{ errors.provider }}</span>
+              <small class="help-text">Provider must be enabled in config.yaml</small>
+            </div>
+
+            <div class="form-group">
+              <label for="output_dir">Output Directory</label>
+              <input
+                id="output_dir"
+                v-model="formData.parameters.output_dir"
+                type="text"
+                placeholder="projects"
+              />
+              <small class="help-text">Directory to save scraped projects (default: projects)</small>
+            </div>
+
+            <div class="checkbox-group">
+              <label class="checkbox-label">
+                <input
+                  v-model="formData.parameters.dry_run"
+                  type="checkbox"
+                />
+                Dry run (validate configuration without actual operations)
+              </label>
+            </div>
+          </div>
+
+          <!-- RSS Ingestion Parameters -->
+          <div v-if="formData.workflow_type === 'rss_ingest'" class="parameter-grid">
+            <div class="form-group">
+              <label for="provider">Provider *</label>
+              <select
+                id="provider"
+                v-model="formData.parameters.provider"
+                required
+                :class="{ 'error': errors.provider }"
+              >
+                <option value="">Select provider...</option>
+                <option value="freelancermap">FreelancerMap</option>
+                <option value="solcom">Solcom</option>
+              </select>
+              <span v-if="errors.provider" class="error-message">{{ errors.provider }}</span>
+              <small class="help-text">Provider must be enabled in config.yaml</small>
+            </div>
+
+            <div class="form-group">
+              <label for="output_dir">Output Directory</label>
+              <input
+                id="output_dir"
+                v-model="formData.parameters.output_dir"
+                type="text"
+                placeholder="projects"
+              />
+              <small class="help-text">Directory to save scraped projects (default: projects)</small>
+            </div>
+
+            <div class="checkbox-group">
+              <label class="checkbox-label">
+                <input
+                  v-model="formData.parameters.dry_run"
+                  type="checkbox"
+                />
+                Dry run (validate configuration without actual operations)
               </label>
             </div>
           </div>
@@ -231,14 +313,12 @@ const isEditing = computed(() => !!props.schedule)
 watch(() => props.schedule, (newSchedule) => {
   if (newSchedule) {
     // Populate form with existing schedule data
-    formData.value = {
-      name: newSchedule.name || '',
-      description: newSchedule.description || '',
-      workflow_type: newSchedule.workflow_type || '',
-      parameters: { ...newSchedule.parameters } || {},
-      cron_schedule: newSchedule.cron_schedule || '',
-      timezone: newSchedule.timezone || 'Europe/Berlin'
-    }
+    formData.value.name = newSchedule.name || ''
+    formData.value.description = newSchedule.description || ''
+    formData.value.workflow_type = newSchedule.workflow_type || ''
+    formData.value.parameters = { ...newSchedule.parameters } || {}
+    formData.value.cron_schedule = newSchedule.cron_schedule || ''
+    formData.value.timezone = newSchedule.timezone || 'Europe/Berlin'
 
     // Handle regions for main workflow
     if (newSchedule.workflow_type === 'main' && newSchedule.parameters?.regions) {
@@ -248,10 +328,11 @@ watch(() => props.schedule, (newSchedule) => {
     } else {
       selectedRegions.value = []
     }
-  } else {
-    // Reset form for new schedule
-    resetForm()
+
+    // Reset errors when editing
+    errors.value = {}
   }
+  // Note: resetForm() for new schedules is handled in onMounted
 }, { immediate: true })
 
 watch(selectedRegions, (newRegions) => {
@@ -315,6 +396,28 @@ const handleSubmit = async () => {
         regions: selectedRegions.value.length > 0 ? selectedRegions.value : ['germany'],
         no_applications: formData.value.parameters.no_applications || false,
         no_purge: formData.value.parameters.no_purge || false
+      }
+    } else if (formData.value.workflow_type === 'email_ingest') {
+      if (!formData.value.parameters.provider) {
+        errors.value.provider = 'Provider is required for email ingestion'
+        loading.value = false
+        return
+      }
+      formData.value.parameters = {
+        provider: formData.value.parameters.provider,
+        output_dir: formData.value.parameters.output_dir || 'projects',
+        dry_run: formData.value.parameters.dry_run || false
+      }
+    } else if (formData.value.workflow_type === 'rss_ingest') {
+      if (!formData.value.parameters.provider) {
+        errors.value.provider = 'Provider is required for RSS ingestion'
+        loading.value = false
+        return
+      }
+      formData.value.parameters = {
+        provider: formData.value.parameters.provider,
+        output_dir: formData.value.parameters.output_dir || 'projects',
+        dry_run: formData.value.parameters.dry_run || false
       }
     } else if (formData.value.workflow_type === 'evaluate') {
       formData.value.parameters = {

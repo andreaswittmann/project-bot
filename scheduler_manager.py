@@ -48,7 +48,7 @@ class Schedule:
     name: str
     description: str
     enabled: bool
-    workflow_type: str  # main, evaluate, generate
+    workflow_type: str  # main, evaluate, generate, email_ingest, rss_ingest
     parameters: Dict[str, Any]
     cron_schedule: str
     timezone: str
@@ -353,6 +353,45 @@ class SchedulerManager:
         except Exception as e:
             logger.error(f"Error removing schedule from scheduler: {schedule_id} - {e}")
 
+    def _validate_provider_config(self, workflow_type: str, parameters: Dict[str, Any]) -> bool:
+        """Validate provider configuration for ingestion workflows"""
+        if workflow_type not in ("email_ingest", "rss_ingest"):
+            return True  # No validation needed for other workflows
+
+        provider = parameters.get("provider")
+        if not provider:
+            logger.error(f"Provider not specified for {workflow_type}")
+            return False
+
+        # Try to load config and check provider
+        try:
+            # Import here to avoid circular imports
+            from application_generator import load_application_config
+            config = load_application_config("config.yaml")
+
+            providers = config.get("providers", {})
+            if provider not in providers:
+                logger.error(f"Provider '{provider}' not found in configuration")
+                return False
+
+            if not providers[provider].get("enabled", False):
+                logger.error(f"Provider '{provider}' is disabled in configuration")
+                return False
+
+            # Check if the channel is configured
+            channel = parameters.get("channel", "email" if workflow_type == "email_ingest" else "rss")
+            provider_config = providers[provider]
+            if "channels" not in provider_config or channel not in provider_config["channels"]:
+                logger.error(f"Channel '{channel}' not configured for provider '{provider}'")
+                return False
+
+            logger.debug(f"Provider '{provider}' validation passed for {workflow_type}")
+            return True
+
+        except Exception as e:
+            logger.error(f"Error validating provider config: {e}")
+            return False
+
     def _execute_workflow(self, schedule_id: str):
         """Execute a workflow job"""
         if schedule_id not in self.schedules:
@@ -384,6 +423,15 @@ class SchedulerManager:
         logger.info(f"Starting workflow execution: {schedule.name} (run: {run_id})")
 
         try:
+            # Validate provider config for ingestion workflows
+            if not self._validate_provider_config(schedule.workflow_type, schedule.parameters):
+                result.status = "failed"
+                result.completed_at = datetime.now().isoformat()
+                result.error = "Provider validation failed"
+                schedule.last_status = "failed"
+                self._save_schedules()
+                return
+
             # Build command
             command = self._build_workflow_command(schedule.workflow_type, schedule.parameters)
 
@@ -438,7 +486,9 @@ class SchedulerManager:
         base_commands = {
             "main": ["python", "main.py"],
             "evaluate": ["python", "evaluate_projects.py"],
-            "generate": ["python", "main.py", "--generate-applications"]
+            "generate": ["python", "main.py", "--generate-applications"],
+            "email_ingest": ["python", "main.py", "--email-ingest"],
+            "rss_ingest": ["python", "main.py", "--rss-ingest"]
         }
 
         if workflow_type not in base_commands:
@@ -471,6 +521,18 @@ class SchedulerManager:
                 command.append("--all-accepted")
             if "threshold" in parameters:
                 command.extend(["--application-threshold", str(parameters["threshold"])])
+
+        elif workflow_type in ("email_ingest", "rss_ingest"):
+            # Required parameters
+            if "provider" not in parameters:
+                raise ValueError(f"Provider is required for {workflow_type}")
+            command.extend(["--provider", parameters["provider"]])
+
+            # Optional parameters
+            if "output_dir" in parameters:
+                command.extend(["-o", parameters["output_dir"]])
+            if parameters.get("dry_run"):
+                command.append("--dry-run")
 
         # Add any custom arguments
         if "custom_args" in parameters:

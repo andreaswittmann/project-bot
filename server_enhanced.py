@@ -136,10 +136,17 @@ class CreateManualProjectRequest(BaseModel):
 class ScheduleCreateRequest(BaseModel):
     name: str
     description: str
-    workflow_type: str  # main, evaluate, generate
+    workflow_type: str  # main, evaluate, generate, email_ingest, rss_ingest
     parameters: Dict[str, Any]
     cron_schedule: str
     timezone: str = "Europe/Berlin"
+
+    def __init__(self, **data):
+        super().__init__(**data)
+        # Validate workflow_type
+        valid_types = {"main", "evaluate", "generate", "email_ingest", "rss_ingest"}
+        if self.workflow_type not in valid_types:
+            raise ValueError(f"Invalid workflow_type '{self.workflow_type}'. Valid types: {', '.join(sorted(valid_types))}")
 
 class ScheduleUpdateRequest(BaseModel):
     name: Optional[str] = None

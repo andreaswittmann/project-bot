@@ -12,7 +12,7 @@
         <button @click="refreshSchedules" class="btn-secondary">
           🔄 Refresh
         </button>
-        <button @click="showCreateForm = true" class="btn-primary">
+        <button @click="openCreateModal" class="btn-primary">
           ➕ New Schedule
         </button>
       </div>
@@ -177,6 +177,11 @@ const loadSchedules = async () => {
 
 const refreshSchedules = () => {
   loadSchedules()
+}
+
+const openCreateModal = () => {
+  console.log('Opening create modal')
+  showCreateForm.value = true
 }
 
 const editSchedule = (schedule) => {
