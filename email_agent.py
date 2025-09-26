@@ -18,6 +18,9 @@ from bs4 import BeautifulSoup
 from parse_html import parse_project, to_markdown
 from state_manager import ProjectStateManager
 from rss_helper import create_safe_filename
+from dedupe_service import DedupeService
+from scraping_adapters.freelancermap import FreelancerMapAdapter
+from markdown_renderer import MarkdownRenderer
 
 logger = logging.getLogger(__name__)
 
@@ -234,7 +237,7 @@ class EmailAgent:
             })
             return False
 
-    def process_email(self, mail: imaplib.IMAP4_SSL, message_id: str, provider_config: Dict[str, Any], output_dir: str) -> int:
+    def process_email(self, mail: imaplib.IMAP4_SSL, message_id: str, provider_config: Dict[str, Any], output_dir: str) -> Dict[str, int]:
         """
         Process a single email: extract URLs, scrape projects, save to files.
 
@@ -245,9 +248,10 @@ class EmailAgent:
             output_dir: Directory to save project files
 
         Returns:
-            Number of projects saved
+            Dict with processing results: projects_saved, urls_skipped_dedupe
         """
         projects_saved = 0
+        urls_skipped_dedupe = 0
 
         try:
             # Fetch the email
@@ -307,6 +311,11 @@ class EmailAgent:
                 })
                 return 0
 
+            # Initialize services
+            dedupe_service = DedupeService(output_dir)
+            adapter = FreelancerMapAdapter(provider_config['provider_id'], provider_config)
+            renderer = MarkdownRenderer()
+
             # Process each URL
             for url in urls:
                 try:
@@ -314,17 +323,38 @@ class EmailAgent:
                         'message_id': message_id
                     })
 
-                    # Parse project
-                    self.logger.debug("Calling parse_project", extra={'url': url})
-                    project_data = parse_project(url)
-                    self.logger.debug("parse_project completed", extra={'url': url, 'title': project_data.get('titel', 'N/A')})
+                    # Canonicalize URL for dedupe
+                    canonical_url = dedupe_service.canonicalize_url(url, provider_config['provider_id'])
 
-                    # Generate Markdown
-                    markdown_content = to_markdown(project_data)
+                    # Check if already processed
+                    if dedupe_service.already_processed(provider_config['provider_id'], canonical_url):
+                        urls_skipped_dedupe += 1
+                        self.logger.info("URL already processed, skipping", extra={
+                            'url': url,
+                            'canonical_url': canonical_url,
+                            'message_id': message_id
+                        })
+                        continue
+
+                    # Parse project via adapter
+                    self.logger.debug("Calling adapter.parse", extra={'url': url})
+                    schema = adapter.parse(url)
+                    self.logger.debug("adapter.parse completed", extra={'url': url, 'title': schema.get('title', 'N/A')})
+
+                    # Build provider metadata
+                    provider_meta = {
+                        'provider_id': provider_config['provider_id'],
+                        'provider_name': adapter.get_provider_name(),
+                        'collection_channel': 'email',
+                        'collected_at': datetime.now().isoformat()
+                    }
+
+                    # Render markdown
+                    markdown_content = renderer.render(schema, provider_meta)
 
                     # Create filename
                     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                    original_title = project_data.get('titel', 'project')
+                    original_title = schema.get('title', 'project')
                     filename = create_safe_filename(original_title, timestamp)
 
                     # Save file
@@ -334,17 +364,14 @@ class EmailAgent:
                     with open(filepath, 'w', encoding='utf-8') as f:
                         f.write(markdown_content)
 
-                    # Initialize state
+                    # Mark as processed
+                    dedupe_service.mark_processed(provider_config['provider_id'], canonical_url)
+
+                    # Initialize state (will merge with existing frontmatter)
                     state_manager = ProjectStateManager(output_dir)
                     metadata = {
-                        'title': project_data.get('titel', 'N/A'),
-                        'company': project_data.get('company', 'N/A'),
-                        'reference_id': project_data.get('projekt_id', 'N/A'),
                         'scraped_date': datetime.now().isoformat(),
-                        'source_url': url,
-                        'state': 'scraped',
-                        'provider_id': provider_config.get('provider_id', 'unknown'),
-                        'collection_channel': 'email'
+                        'source_url': url
                     }
 
                     success = state_manager.initialize_project(filepath, metadata)
@@ -354,6 +381,7 @@ class EmailAgent:
                         self.logger.info("Project saved", extra={
                             'filepath': filepath,
                             'url': url,
+                            'canonical_url': canonical_url,
                             'message_id': message_id
                         })
                     else:
@@ -382,6 +410,7 @@ class EmailAgent:
             self.logger.info("Email processing complete", extra={
                 'message_id': message_id,
                 'projects_saved': projects_saved,
+                'urls_skipped_dedupe': urls_skipped_dedupe,
                 'moved_to_processed': moved if move_processed else 'disabled'
             })
 
@@ -391,7 +420,10 @@ class EmailAgent:
                 'error': str(e)
             })
 
-        return projects_saved
+        return {
+            'projects_saved': projects_saved,
+            'urls_skipped_dedupe': urls_skipped_dedupe
+        }
 
     def run_once(self, provider_id: str, output_dir: str = 'projects', dry_run: bool = False) -> Dict[str, Any]:
         """
@@ -417,6 +449,7 @@ class EmailAgent:
             'emails_processed': 0,
             'emails_matched': 0,
             'urls_found': 0,
+            'urls_skipped_dedupe': 0,
             'projects_saved': 0,
             'errors': 0
         }
@@ -455,6 +488,7 @@ class EmailAgent:
                 summary['emails_processed'] = 0  # Unknown in dry run
                 summary['emails_matched'] = 0
                 summary['urls_found'] = 0
+                summary['urls_skipped_dedupe'] = 0
                 summary['projects_saved'] = 0
                 self.logger.info("Email ingestion dry run complete", extra=summary)
                 return summary
@@ -508,10 +542,13 @@ class EmailAgent:
             for message_id in message_ids:
                 summary['emails_processed'] += 1
                 try:
-                    projects_saved = self.process_email(mail, message_id, provider_config, output_dir)
-                    if projects_saved > 0:
+                    result = self.process_email(mail, message_id, provider_config, output_dir)
+                    projects_saved = result['projects_saved']
+                    urls_skipped = result['urls_skipped_dedupe']
+                    if projects_saved > 0 or urls_skipped > 0:
                         summary['emails_matched'] += 1
-                        summary['projects_saved'] += projects_saved
+                    summary['projects_saved'] += projects_saved
+                    summary['urls_skipped_dedupe'] += urls_skipped
                 except Exception as e:
                     summary['errors'] += 1
                     self.logger.error("Error processing email", extra={

@@ -1,0 +1,163 @@
+---
+company: Bosshard & Partner Unternehmensberatung AG
+reference_id: '2917925'
+scraped_date: '2025-09-10T19:02:26.618309'
+source_url: https://www.freelancermap.ch/projekt/it-governance-und-architecture-consultant-a-2917925?ref=rss
+state: rejected
+state_history:
+- note: 'LLM evaluation: 90% fit score'
+  state: accepted
+  timestamp: '2025-09-10T19:02:53.014243'
+- note: Nur vor Ort in der Schweiz.
+  override: true
+  state: rejected
+  timestamp: '2025-09-10T19:05:24.754737'
+  ui_context: true
+- note: Starting application generation
+  state: applied
+  timestamp: '2025-09-15T18:46:02.287957'
+- note: Sent from editor
+  override: true
+  state: sent
+  timestamp: '2025-09-15T18:49:12.080516'
+  ui_context: true
+- note: Ist bereits abgelaufen
+  override: true
+  state: rejected
+  timestamp: '2025-09-15T18:50:02.040989'
+  ui_context: true
+title: IT Governance & Architecture Consultant (A)
+---
+
+
+
+
+
+
+# IT Governance & Architecture Consultant (A)
+**URL:** [https://www.freelancermap.ch/projekt/it-governance-und-architecture-consultant-a-2917925?ref=rss](https://www.freelancermap.ch/projekt/it-governance-und-architecture-consultant-a-2917925?ref=rss)
+## Details
+- **Start:** 10.2025
+- **Von:** Bosshard & Partner Unternehmensberatung AG
+- **Eingestellt:** 10.09.2025
+- **Ansprechpartner:** Cloé Maglie
+- **Projekt-ID:** 2917925
+- **Vertragsart:** Freiberuflich
+
+## Schlagworte
+It-Governance, Künstliche Intelligenz, Architektur, Steuerung, Automatisierung, Informationssysteme, Data Governance, Softwareentwicklung, Stakeholder Management, Risikomanagement
+
+## Beschreibung
+We are currently looking for experienced IT Governance & Architecture Consultants (Senior and Mid-Level) for an exciting project based in Zurich and across Switzerland. Below you’ll find the project description and key details.
+
+**Tasks**
+
+- Establish an IT-wide Design Authority Board to ensure technical integrity and compliance with architectural principles and IT standards
+- Design and implement a lean Governance Assessment****process integrated into the software lifecycle, ideally leveraging AI for automation and speed. This process should ensure alignment with internal policies and strategic goals (e.g., business capabilities, third-party management, data protection, strategic platforms)
+- Review and refine existing architectural principles and IT standards based on the IT strategy, ensuring compliance and risk management
+
+**Requirements**
+
+- University degree in Computer Science, Information Systems, or a related field
+- Minimum 7 years (Senior) or 4 years (Mid-Level) of professional experience in IT governance, architecture, or related areas
+- Proven experience with strategic platforms, data governance, third-party management, and business capability alignment
+- Strong conceptual skills in designing and implementing governance processes, ideally with AI integration
+- Fluent in German and English
+
+**Soft Skills**
+
+- Strong communication and stakeholder management skills
+- Analytical thinking and conceptual strength
+- Independent, structured, and proactive working style
+
+---
+
+## 🤖 AI Evaluation Results
+
+**Evaluation Timestamp:** 2025-09-10T19:02:53.013261
+
+### Pre-Evaluation Phase
+- **Score:** 15/100
+- **Threshold:** 10/100
+- **Result:** ✅ Passed
+- **Rationale:** Score: 15%. Found tags: ['ai', 'ki', 'architect', 'architekt', 'architecture', 'architektur', 'automation', 'integration', 'compliance', 'lean', 'consultant', 'beratung', 'data', 'freelance', 'projekt', 'project', 'ant']
+
+### LLM Analysis Phase
+- **LLM Provider:** OpenAI
+- **LLM Model:** gpt-5-mini
+- **Fit Score:** 90/100
+- **Acceptance Threshold:** 85/100
+- **Final Decision:** ✅ ACCEPTED
+
+#### Detailed Rationale
+- Key requirements from the project offer:
+  - Establish a Design Authority Board and ensure compliance with architectural principles and IT standards
+  - Design & implement a lean Governance Assessment integrated into the software lifecycle, ideally leveraging AI for automation
+  - Review/refine architectural principles, IT standards, risk management, data governance, third-party management and business capability alignment
+  - University degree in CS/related, 7+ years (Senior) or 4+ years (Mid) experience
+  - Strong stakeholder management, communication, analytical thinking; fluent German & English
+
+- Strong matches in the CV:
+  - Education & experience: Diplom-Informatiker + ~30 years of IT (well above Senior threshold)
+  - Architecture & governance-relevant work: multiple enterprise architecture, Landing Zone and multi-account AWS designs, Control Tower/AWS Organizations, SAP-on-AWS reference architecture (shows governance & platform thinking)
+  - Automation & lifecycle integration: Infrastructure as Code (Terraform, CloudFormation), GitLab CI/CD/GitHub Copilot workflows, Live-scripting, automated patch & deployment processes — demonstrates ability to integrate governance into the software lifecycle
+  - AI & automation capability: recent projects (LibreChat, private AI, AWS Bedrock), AWS Certified AI Practitioner and GitHub Copilot cert — relevant for AI-enabled governance automation
+  - Data/platform exposure: SAP BW/4HANA design on AWS, broad AWS service knowledge (data services listed), familiarity with observability tools (Prometheus/Grafana) — useful for data governance and platform alignment
+  - Stakeholder & advisory experience: long consulting background, workshops, pre-sales, cross-organisational projects — strong stakeholder management and communication skills
+  - Languages: German native, English fluent
+
+- Gaps / potential risks:
+  - No explicit TOGAF/COBIT or formal IT governance framework certification mentioned (but practical governance work evident)
+  - Explicit “third-party management” and formal data governance frameworks are not strongly documented (experience suggests plausible capability, but not documented as such)
+  - No explicit mention of having set up a formal Design Authority Board (though CV contains many governance/standards and architecture-lead activities that imply capability)
+
+- Assessment summary / justification for score (90/100):
+  - The candidate ticks virtually all core boxes: required education, senior-level experience, broad architecture and cloud governance experience, strong automation/IaC skills, demonstrable AI-project work and certifications, and excellent stakeholder/consulting background.
+  - Small deduction for missing explicit certifications in formal governance frameworks (TOGAF/COBIT) and only implicit evidence for some specific items (formal Design Authority setup, named data-governance programs). These are minor because the CV shows strong practical experience designing standards, landing zones and automated lifecycle controls that map directly to the project needs.
+
+---
+
+## Generated Application
+**Generation Date**: 2025-09-15 18:46:37  
+**AI Provider**: ANTHROPIC  
+**Model**: claude-sonnet-4-20250514  
+**Tokens Used**: 702.0  
+**Estimated Cost**: $0.0038  
+
+MARKER_APPLICATION_START
+Position: IT Governance & Architecture Consultant (A)
+Referenznummer: 2917925
+
+Sehr geehrte Damen und Herren,
+
+mit großem Interesse bewerbe ich mich auf die ausgeschriebene Position als IT Governance & Architecture Consultant. Als Diplom-Informatiker mit fast 30 Jahren IT-Erfahrung bringe ich fundierte Expertise in der Konzeption, Architektur und Umsetzung komplexer IT-Lösungen mit. Meine aktuellen Zertifizierungen umfassen AWS Certified Solutions Architect Professional, AWS Certified AI Practitioner, HashiCorp Certified Terraform Associate sowie Kubernetes and Cloud Native Associate (KCNA), die meine Kompetenz in modernen Cloud-Technologien und KI-gestützten Lösungen belegen.
+
+**Universitätsabschluss in Informatik oder verwandtem Bereich**
+Ich verfüge über einen Abschluss als Diplom-Informatiker mit der Note "Sehr Gut" von der Technischen Universität Berlin (1994: Abschluss als Diplom-Informatiker). Diese fundierte akademische Ausbildung bildet die Basis für meine langjährige Tätigkeit in der IT-Beratung und Systemarchitektur.
+
+**Mindestens 7 Jahre Berufserfahrung in IT Governance, Architektur oder verwandten Bereichen**
+Mit fast 30 Jahren Berufserfahrung übersteige ich die Anforderungen deutlich. Meine Expertise umfasst umfangreiche Governance- und Architekturprojekte: (2021: Konzeption einer SAP BW/4HANA Cloud-Infrastruktur auf AWS), (2021: Landing Zone für AWS - Schnell-Start - Beratung und Implementierung), (2019: Migration Oracle Service Bus von OnPremise nach AWS Cloud), (2015-2017: Aufbau einer SOA-Infrastruktur). Diese Projekte demonstrieren meine Fähigkeit, komplexe IT-Landschaften zu strukturieren und Governance-Prozesse zu etablieren.
+
+**Nachgewiesene Erfahrung mit strategischen Plattformen, Data Governance, Third-Party Management und Business Capability Alignment**
+Meine Erfahrung mit strategischen Plattformen zeigt sich in mehreren AWS-Projekten: (2021: Landing Zone für AWS mit AWS Control Tower, AWS Organizations), (2021: SAP BW/4HANA Multi-Account-Architektur auf AWS), (2019: Migration Oracle Service Bus nach AWS Cloud mit automatisierten CI/CD-Prozessen). Data Governance-Aspekte habe ich in SAP-Projekten und durch meine AWS-Zertifizierungen abgedeckt, die umfangreiche Kenntnisse in AWS-Datenservices belegen (2024: AWS Certified Solutions Architect Professional). Third-Party Management und Business Capability Alignment sind in meinen Beratungsprojekten implizit enthalten, jedoch nicht explizit als separate Governance-Disziplinen dokumentiert.
+
+**Starke konzeptionelle Fähigkeiten im Design und der Implementierung von Governance-Prozessen, idealerweise mit KI-Integration**
+Meine konzeptionellen Fähigkeiten zeigen sich in der Entwicklung automatisierter Governance-Prozesse: (2019: Konzeption und Entwicklung automatisierter Funktions- und Verbindungstests mit GitLab CI/CD), (2021: Automatisierte Patch-Abläufe mit AWS Maintenance Window), (2015-2017: DevOps-Methoden "Infrastructure as Code" und Continuous Deployment). KI-Integration habe ich in aktuellen Projekten umgesetzt: (2025: KI-gestützte Freelance-Bewerbungsautomatisierung mit verschiedenen KI-Modellen), (2025: Sichere KI-Chat-Lösungen als Dienstleistungspaket), unterstützt durch meine Zertifizierung (2025: AWS Certified AI Practitioner).
+
+**Fließende Deutsch- und Englischkenntnisse**
+Als deutscher Muttersprachler mit fließenden Englischkenntnissen in Wort und Schrift erfülle ich die Sprachanforderungen vollständig. Dies wurde in zahlreichen internationalen Projekten unter Beweis gestellt (1998-2005: BEA Systems mit internationaler Kundenbetreuung), (2002: Competitive Benchmark in IBM-Montpellier und HP-Böblingen).
+
+Meine Arbeitsweise ist von Klarheit, Fokus und Ruhe geprägt – Prinzipien, die bei komplexen Governance-Herausforderungen den Überblick bewahren helfen. Als zertifizierter Trainer für "Cultivating Emotional Balance" fördere ich eine achtsame Arbeitsweise, die sich positiv auf Stakeholder-Management und Kommunikation auswirkt. Meine analytischen Fähigkeiten und strukturierte Herangehensweise haben sich in zahlreichen Architektur- und Beratungsprojekten bewährt.
+
+Zusammenfassend bringe ich die erforderliche akademische Ausbildung, umfangreiche Erfahrung in IT-Architektur und Governance sowie aktuelle Kenntnisse in KI-Integration mit. Meine Eignung für das Projekt bewerte ich mit 85%. Die Lücken liegen in der fehlenden expliziten Dokumentation formaler Data Governance-Programme und Third-Party Management-Prozesse, die ich jedoch durch meine breite Beratungserfahrung und schnelle Einarbeitung kompensieren kann.
+
+Verfügbarkeit: ab Oktober 2025, vollzeit, vor Ort in Zürich und der Schweiz
+Gehaltsvorstellung: 160,- CHF pro Stunde
+
+Mit freundlichen Grüßen
+Andreas Wittmann
+MARKER_APPLICATION_END
+
+
+---
+*Application generated automatically by Project Bot*
