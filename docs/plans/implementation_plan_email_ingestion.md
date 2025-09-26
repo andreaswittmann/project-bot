@@ -73,11 +73,12 @@ Simplicity Notes:
 ## Milestone 2 — Dedupe Service, Scraping Adapter Abstraction, Markdown Renderer (CLI only)
 
 Goal:
-- Introduce provider-aware dedupe, a minimal Scraping Adapter interface, and a dedicated Markdown Renderer.
+- Introduce provider-aware dedupe, a minimal Scraping Adapter interface, and a Markdown Renderer that adds consistent frontmatter while preserving existing body structure.
 
 Scope:
 - CLI-only refactor.
 - One working provider adapter (freelancermap) that wraps existing parsing.
+- Maintain backward compatibility with current markdown format.
 
 Planned Changes:
 - Dedupe Service (dedupe_service.py)
@@ -86,25 +87,22 @@ Planned Changes:
   - dedupe_service.mark_processed(provider_id, canonical_url)
 - Scraping Adapters
   - scraping_adapters/base.py: BaseAdapter.parse(url) -> normalized schema dict
-  - scraping_adapters/freelancermap.py: implement BaseAdapter using [parse_html.parse_project()](parse_html.py:140), normalize keys
+  - scraping_adapters/freelancermap.py: implement BaseAdapter using [parse_html.parse_project()](parse_html.py:140), normalize keys to unified schema
 - Markdown Renderer (markdown_renderer.py)
   - markdown_renderer.render(schema, provider_meta) -> Markdown
-  - Emit standardized sections aligned with application labels:
-    - Anforderungen
-    - Aufgaben
-    - Qualifikationen
-    - Rahmenbedingungen
-    - Kontakt
+  - Add frontmatter with provider_id, provider_name, collection_channel, collected_at
+  - Preserve existing body structure (Details, Schlagworte, Beschreibung sections)
+  - No restructuring of description content
 
 Acceptance Criteria:
 - CLI pipeline:
   - Skips duplicates via provider-aware dedupe
   - Produces normalized schema via adapter
-  - Emits standardized Markdown via renderer
+  - Emits Markdown with consistent frontmatter and unchanged body format
 
 Test Plan:
 - Repeat Milestone 1, with a duplicate run or duplicate email.
-- Confirm duplicates are skipped and Markdown section labels are standardized.
+- Confirm duplicates are skipped and frontmatter includes provider metadata fields.
 
 Simplicity Notes:
 - Keep BaseAdapter minimal; reuse [parse_html.py](parse_html.py) until diversity requires deeper specialization.
