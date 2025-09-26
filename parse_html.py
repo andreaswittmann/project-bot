@@ -1,5 +1,6 @@
 import argparse
 import datetime as dt
+import json
 import os
 import re
 from typing import Dict, List, Optional
@@ -19,6 +20,7 @@ HEADERS = {
 LABELS = [
     "Start", "Von", "Auslastung", "Eingestellt", "Ansprechpartner:",
     "Projekt-ID:", "Branche", "Vertragsart", "Einsatzart",
+    "Laufzeit", "Ort", "Sprachen",
 ]
 
 def fetch_html(url: str) -> str:
@@ -45,7 +47,23 @@ def html_to_markdown(tag: Tag) -> str:
     if tag.name == "ul":
         return f"\n{content.strip()}\n"
     if tag.name == "li":
-        return f"- {content.strip()}\n"
+        stripped = content.strip()
+        if stripped:
+            return f"- {stripped}\n"
+        else:
+            return ""
+    if tag.name == "div":
+        # For divs with multiple children, join with spaces to keep inline
+        if len(tag.contents) > 1:
+            child_contents = []
+            for child in tag.contents:
+                if isinstance(child, Tag):
+                    child_contents.append(html_to_markdown(child))
+                elif isinstance(child, str):
+                    child_contents.append(_normalize_ws(child))
+            return " ".join(child_contents).strip()
+        else:
+            return content
     
     # Convert inline tags
     if tag.name in ["strong", "b"]:
@@ -85,9 +103,9 @@ def get_heading_block(soup: BeautifulSoup, heading_text: str) -> Optional[str]:
 
     # Process each top-level tag under the heading
     markdown_parts = [html_to_markdown(tag) for tag in content_tags]
-    
-    # Clean up excessive newlines and join
-    full_text = "".join(markdown_parts).strip()
+
+    # Join with newlines to separate sections/lists
+    full_text = "\n".join(markdown_parts).strip()
     return re.sub(r'\n{3,}', '\n\n', full_text) or None
 
 def extract_kv_labels(soup: BeautifulSoup, labels: List[str]) -> Dict[str, str]:
@@ -112,9 +130,14 @@ def extract_kv_labels(soup: BeautifulSoup, labels: List[str]) -> Dict[str, str]:
             # prefer the immediate next non-empty token as the value
             if i + 1 < len(text_stream):
                 value = text_stream[i+1].strip()
-                # Skip obvious “placeholder” words that sometimes appear between label and value
+                # Skip obvious "placeholder" words that sometimes appear between label and value
                 if value in {"", ":", "•"} and i + 2 < len(text_stream):
                     value = text_stream[i+2].strip()
+                # Special handling for Ansprechpartner to include full name
+                if key == "Ansprechpartner" and i + 2 < len(text_stream):
+                    next_token = text_stream[i+2].strip()
+                    if next_token and next_token not in {"", ":", "•"} and next_token not in canonical:
+                        value += " " + next_token
                 if value:
                     out[key] = value
     return out
@@ -159,12 +182,41 @@ def parse_project(url: str) -> Dict:
     beschreibung = get_heading_block(soup, "Beschreibung")
 
     fields = extract_kv_labels(soup, LABELS)
+
+    # Extract company from "Eingestellt von" section
+    company_text = None
     
+    # First, try to find the div containing "Eingestellt von"
+    eingestellt_div = soup.find('div', class_='project-body-info-title', string=re.compile(r"Eingestellt von", re.IGNORECASE))
+    if eingestellt_div:
+        # The company is in the next sibling div
+        parent = eingestellt_div.parent
+        if parent:
+            # Look for the next div sibling that contains the company name
+            for sibling in eingestellt_div.next_siblings:
+                if hasattr(sibling, 'get_text'):
+                    company_text = sibling.get_text(strip=True)
+                    if company_text:  # Only take non-empty text
+                        break
+    
+    # Fallback to JSON-LD if DOM extraction fails
+    if not company_text:
+        json_scripts = soup.find_all('script', {'type': 'application/ld+json'})
+        for script in json_scripts:
+            try:
+                data = json.loads(script.string)
+                if data.get('@type') == 'Organization':
+                    company_text = data.get('name')
+                    break
+            except (json.JSONDecodeError, TypeError):
+                continue
+
     result = {
         "url": url,
         "titel": title_text,
         "beschreibung": beschreibung,
         "schlagworte": extract_keywords(soup),
+        "company": company_text,
         "start": fields.get("Start"),
         "von": fields.get("Von"),
         "auslastung": fields.get("Auslastung"),
@@ -216,7 +268,23 @@ def to_markdown(data: Dict) -> str:
 
     if data.get("beschreibung"):
         lines.append("\n## Beschreibung")
-        lines.append(data.get("beschreibung"))
+        # Post-process description to add line breaks and proper formatting
+        beschreibung = data.get("beschreibung")
+        # Fix bullet points: add space after - if missing (but don't break hyphens in words)
+        beschreibung = re.sub(r'(?<!\w)(-)(\w)', r'\1 \2', beschreibung)
+        # Remove empty bullet lines
+        beschreibung = re.sub(r'^\s*-\s*$', '', beschreibung, flags=re.MULTILINE)
+        # Convert • bullets to - bullets on separate lines
+        beschreibung = re.sub(r' • ', r'\n- ', beschreibung)
+        beschreibung = re.sub(r'^• ', r'- ', beschreibung, flags=re.MULTILINE)
+        # Convert - bullets to separate lines
+        beschreibung = re.sub(r' - ', r'\n- ', beschreibung)
+        beschreibung = re.sub(r'^ - ', r'- ', beschreibung, flags=re.MULTILINE)
+        # Split specific labels to new lines
+        beschreibung = re.sub(r' (Sprachen: )', r'\n\1', beschreibung)
+        # Clean up excessive newlines
+        beschreibung = re.sub(r'\n{3,}', '\n\n', beschreibung)
+        lines.append(beschreibung.strip())
 
     return "\n".join(lines)
 
@@ -261,7 +329,7 @@ def main():
     # Prepare metadata for frontmatter
     metadata = {
         'title': data.get('titel', 'N/A'),
-        'company': data.get('von', 'N/A'),
+        'company': data.get('company', 'N/A'),
         'reference_id': data.get('projekt_id', 'N/A'),
         'scraped_date': dt.datetime.now().isoformat(),
         'source_url': data.get('url', args.url),
