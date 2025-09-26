@@ -75,34 +75,52 @@
 
       <!-- Provider Filter -->
       <div class="filter-group">
-        <label for="provider-select" class="filter-label">Provider</label>
-        <select
-          id="provider-select"
-          v-model="localFilters.providers"
-          class="filter-select"
-          multiple
-          @change="applyFilters"
-        >
-          <option v-for="provider in availableProviders" :key="provider" :value="provider">
-            {{ provider }}
-          </option>
-        </select>
+        <label class="filter-label">Provider</label>
+        <div class="custom-multiselect" :class="{ active: showProviderDropdown }">
+          <div class="multiselect-trigger" @click="toggleProviderDropdown">
+            <span v-if="localFilters.providers.length === 0" class="placeholder">Select providers...</span>
+            <span v-else class="selected-summary">
+              {{ localFilters.providers.length }} selected
+            </span>
+            <span class="dropdown-arrow">▼</span>
+          </div>
+          <div v-if="showProviderDropdown" class="multiselect-dropdown">
+            <label v-for="provider in availableProviders" :key="provider" class="multiselect-option">
+              <input
+                type="checkbox"
+                :value="provider"
+                v-model="localFilters.providers"
+                @change="applyFilters"
+              />
+              <span class="option-text">{{ provider }}</span>
+            </label>
+          </div>
+        </div>
       </div>
 
       <!-- Channel Filter -->
       <div class="filter-group">
-        <label for="channel-select" class="filter-label">Channel</label>
-        <select
-          id="channel-select"
-          v-model="localFilters.channels"
-          class="filter-select"
-          multiple
-          @change="applyFilters"
-        >
-          <option v-for="channel in availableChannels" :key="channel" :value="channel">
-            {{ channel }}
-          </option>
-        </select>
+        <label class="filter-label">Channel</label>
+        <div class="custom-multiselect" :class="{ active: showChannelDropdown }">
+          <div class="multiselect-trigger" @click="toggleChannelDropdown">
+            <span v-if="localFilters.channels.length === 0" class="placeholder">Select channels...</span>
+            <span v-else class="selected-summary">
+              {{ localFilters.channels.length }} selected
+            </span>
+            <span class="dropdown-arrow">▼</span>
+          </div>
+          <div v-if="showChannelDropdown" class="multiselect-dropdown">
+            <label v-for="channel in availableChannels" :key="channel" class="multiselect-option">
+              <input
+                type="checkbox"
+                :value="channel"
+                v-model="localFilters.channels"
+                @change="applyFilters"
+              />
+              <span class="option-text">{{ channel }}</span>
+            </label>
+          </div>
+        </div>
       </div>
 
       <!-- Score Ranges -->
@@ -346,6 +364,8 @@ const localFilters = ref({
 })
 
 const selectedQuickDateRange = ref('')
+const showProviderDropdown = ref(false)
+const showChannelDropdown = ref(false)
 
 let debounceTimer = null
 
@@ -712,8 +732,48 @@ const getFilterTooltip = (filter) => {
   }
 }
 
+const toggleProviderDropdown = () => {
+  showProviderDropdown.value = !showProviderDropdown.value
+  showChannelDropdown.value = false // Close other dropdown
+}
+
+const toggleChannelDropdown = () => {
+  showChannelDropdown.value = !showChannelDropdown.value
+  showProviderDropdown.value = false // Close other dropdown
+}
+
+// Close dropdowns when clicking outside
+const closeDropdowns = () => {
+  showProviderDropdown.value = false
+  showChannelDropdown.value = false
+}
+
+// Add click outside listener
+onMounted(() => {
+  document.addEventListener('click', (e) => {
+    const target = e.target
+    const providerDropdown = target.closest('.custom-multiselect')
+    if (!providerDropdown) {
+      closeDropdowns()
+    }
+  })
+
+  // Sync with store on mount
+  localFilters.value = { ...projectsStore.filters };
+  projectsStore.fetchQuickFilters();
+})
+
 // Initialize
 onMounted(() => {
+  // Event listener for closing dropdowns when clicking outside
+  document.addEventListener('click', (e) => {
+    const target = e.target
+    const multiselect = target.closest('.custom-multiselect')
+    if (!multiselect) {
+      closeDropdowns()
+    }
+  })
+
   // Sync with store on mount
   localFilters.value = { ...projectsStore.filters };
   projectsStore.fetchQuickFilters();
@@ -1134,6 +1194,92 @@ onMounted(() => {
 
 .edit-filter-btn:hover {
   opacity: 1;
+}
+
+/* Custom Multi-Select Styles */
+.custom-multiselect {
+  position: relative;
+}
+
+.multiselect-trigger {
+  padding: 0.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  background: white;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.875rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  min-height: 2.5rem;
+}
+
+.multiselect-trigger:hover {
+  border-color: #9ca3af;
+}
+
+.multiselect-trigger:focus {
+  outline: none;
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.placeholder {
+  color: #9ca3af;
+}
+
+.selected-summary {
+  color: #374151;
+  font-weight: 500;
+}
+
+.dropdown-arrow {
+  color: #6b7280;
+  font-size: 0.75rem;
+  transition: transform 0.2s;
+}
+
+.custom-multiselect.active .dropdown-arrow {
+  transform: rotate(180deg);
+}
+
+.multiselect-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  max-height: 12rem;
+  overflow-y: auto;
+  margin-top: 0.25rem;
+}
+
+.multiselect-option {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  color: #374151;
+  transition: background-color 0.2s;
+}
+
+.multiselect-option:hover {
+  background: #f9fafb;
+}
+
+.multiselect-option input[type="checkbox"] {
+  margin-right: 0.5rem;
+  accent-color: #4f46e5;
+}
+
+.option-text {
+  user-select: none;
 }
 
 /* Responsive design */
