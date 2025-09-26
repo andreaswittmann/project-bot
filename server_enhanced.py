@@ -806,8 +806,7 @@ def reevaluate_project(project_id: str):
 
     try:
         # Execute the evaluation script for this specific project
-        import subprocess
-        import sys
+        # subprocess and sys already imported at module level
 
         # Build command with optional force flag
         cmd = [sys.executable, "evaluate_projects.py", str(project_file)]
@@ -909,8 +908,7 @@ def generate_application(project_id: str):
             ).model_dump()), 400
 
         # Execute the application generation for this specific project
-        import subprocess
-        import sys
+        # subprocess and sys already imported at module level
 
         # Prepare command
         cmd = [sys.executable, "main.py", "--generate-applications", str(project_file)]
@@ -1243,8 +1241,7 @@ def run_workflow(workflow_name: str):
 
         elif workflow_name == 'main':
             # Execute the main workflow (scrape → evaluate → generate applications)
-            import subprocess
-            import sys
+            # subprocess and sys already imported at module level
 
             # Run main.py with default parameters
             result = subprocess.run([
@@ -1270,8 +1267,7 @@ def run_workflow(workflow_name: str):
 
         elif workflow_name == 'evaluate':
             # Execute evaluation only
-            import subprocess
-            import sys
+            # subprocess and sys already imported at module level
 
             result = subprocess.run([
                 sys.executable, "evaluate_projects.py"
@@ -1296,8 +1292,7 @@ def run_workflow(workflow_name: str):
 
         elif workflow_name == 'generate':
             # Execute application generation only
-            import subprocess
-            import sys
+            # subprocess and sys already imported at module level
 
             result = subprocess.run([
                 sys.executable, "main.py", "--generate-applications", "--all-accepted"
