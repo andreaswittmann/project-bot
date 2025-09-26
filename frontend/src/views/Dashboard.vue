@@ -49,9 +49,11 @@
       <!-- Filters -->
       <ProjectFilters
         :available-companies="availableCompanies"
+        :available-providers="availableProviders"
         :is-workflow-running="isWorkflowRunning"
         @filters-changed="handleFiltersChanged"
         @run-workflow="runWorkflow"
+        @run-rss-ingest="runRssIngest"
       />
 
       <!-- Project Table -->
@@ -123,6 +125,7 @@ const projectsStore = useProjectsStore()
 
 // Local state
 const availableCompanies = ref([])
+const availableProviders = ref([])
 const recentActivity = ref([])
 const selectedProjectId = ref(null)
 const showProjectModal = ref(false)
@@ -358,6 +361,42 @@ const runWorkflow = async (workflowName) => {
   }
 }
 
+const runRssIngest = async () => {
+  if (isWorkflowRunning.value) return
+
+  isWorkflowRunning.value = true
+  currentWorkflow.value = 'rss_ingest'
+  workflowMessage.value = null
+  workflowMessageType.value = null
+
+  try {
+    const result = await projectsStore.runRssIngest()
+
+    workflowMessage.value = result.message || 'RSS ingestion completed successfully'
+    workflowMessageType.value = 'success'
+
+    // Refresh data after RSS ingestion completion
+    await projectsStore.fetchProjects()
+    await projectsStore.fetchStats()
+
+    // Update recent activity
+    recentActivity.value = projectsStore.stats.recent_activity || []
+  } catch (error) {
+    console.error('Failed to run RSS ingestion:', error)
+    workflowMessage.value = error.response?.data?.message || 'Failed to run RSS ingestion'
+    workflowMessageType.value = 'error'
+  } finally {
+    isWorkflowRunning.value = false
+    currentWorkflow.value = null
+
+    // Clear message after 5 seconds
+    setTimeout(() => {
+      workflowMessage.value = null
+      workflowMessageType.value = null
+    }, 5000)
+  }
+}
+
 const clearWorkflowMessage = () => {
   workflowMessage.value = null
   workflowMessageType.value = null
@@ -405,12 +444,17 @@ const initializeData = async () => {
 
     // Extract available companies from current projects
     const companies = new Set()
+    const providers = new Set()
     projectsStore.projects.forEach(project => {
       if (project.company) {
         companies.add(project.company)
       }
+      if (project.metadata?.provider_name) {
+        providers.add(project.metadata.provider_name)
+      }
     })
     availableCompanies.value = Array.from(companies).sort()
+    availableProviders.value = Array.from(providers).sort()
 
     // Get recent activity from stats
     recentActivity.value = projectsStore.stats.recent_activity || []

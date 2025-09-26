@@ -240,6 +240,9 @@ providers:
   #       max_age_days: 7
   #       max_emails: 50
   #       move_processed: true
+  #     rss:
+  #       feed_urls: ["https://www.freelancermap.de/feeds/projekte/de.xml"]
+  #       limit: 5
 
 # Configuration Notes:
 #
@@ -274,6 +277,10 @@ providers:
 # - max_age_days: Only process emails received within the last N days (default: 7)
 # - max_emails: Maximum number of emails to process per run (default: 50)
 # - move_processed: Whether to move processed emails to the processed folder (default: true)
+#
+# RSS Channel:
+# - feed_urls: List of RSS feed URLs to fetch from
+# - limit: Maximum number of entries to process per feed (default: 5)
 #
 # RSS Channel:
 # - enabled: Global enable/disable for RSS ingestion

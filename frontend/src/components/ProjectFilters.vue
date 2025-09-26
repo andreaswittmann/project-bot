@@ -19,6 +19,14 @@
           <span v-if="isWorkflowRunning" class="spinner">📧</span>
           {{ isWorkflowRunning ? 'Running...' : 'Run Email Ingest' }}
         </button>
+        <button
+          @click="handleRssIngest"
+          :disabled="isWorkflowRunning"
+          class="rss-ingest-btn"
+        >
+          <span v-if="isWorkflowRunning" class="spinner">📰</span>
+          {{ isWorkflowRunning ? 'Running...' : 'Run RSS Ingest' }}
+        </button>
         <button @click="resetFilters" class="reset-btn" :disabled="!hasActiveFilters">
           Reset All
         </button>
@@ -63,6 +71,38 @@
           :available-companies="availableCompanies"
           @update:modelValue="applyFilters"
         />
+      </div>
+
+      <!-- Provider Filter -->
+      <div class="filter-group">
+        <label class="filter-label">Provider</label>
+        <div class="checkbox-grid">
+          <label v-for="provider in availableProviders" :key="provider" class="checkbox-label">
+            <input
+              type="checkbox"
+              :value="provider"
+              v-model="localFilters.providers"
+              @change="applyFilters"
+            />
+            <span class="checkbox-text">{{ provider }}</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Channel Filter -->
+      <div class="filter-group">
+        <label class="filter-label">Channel</label>
+        <div class="checkbox-grid">
+          <label v-for="channel in availableChannels" :key="channel" class="checkbox-label">
+            <input
+              type="checkbox"
+              :value="channel"
+              v-model="localFilters.channels"
+              @change="applyFilters"
+            />
+            <span class="checkbox-text">{{ channel }}</span>
+          </label>
+        </div>
       </div>
 
       <!-- Score Ranges -->
@@ -201,6 +241,14 @@
           Company: {{ company }}
           <button @click="removeCompany(company)" class="tag-remove">×</button>
         </span>
+        <span v-for="provider in localFilters.providers" :key="provider" class="filter-tag">
+          Provider: {{ provider }}
+          <button @click="removeProvider(provider)" class="tag-remove">×</button>
+        </span>
+        <span v-for="channel in localFilters.channels" :key="channel" class="filter-tag">
+          Channel: {{ channel }}
+          <button @click="removeChannel(channel)" class="tag-remove">×</button>
+        </span>
         <span v-if="localFilters.pre_eval_score_min || localFilters.pre_eval_score_max" class="filter-tag">
           Pre-Eval Score: {{ localFilters.pre_eval_score_min || 0 }}% - {{ localFilters.pre_eval_score_max || 100 }}%
           <button @click="clearPreEvalScoreRange" class="tag-remove">×</button>
@@ -260,6 +308,14 @@ const props = defineProps({
     type: Array,
     default: () => []
   },
+  availableProviders: {
+    type: Array,
+    default: () => []
+  },
+  availableChannels: {
+    type: Array,
+    default: () => ['email', 'rss']
+  },
   isWorkflowRunning: {
     type: Boolean,
     default: false
@@ -267,7 +323,7 @@ const props = defineProps({
 })
 
 // Emits
-const emit = defineEmits(['filters-changed', 'run-workflow'])
+const emit = defineEmits(['filters-changed', 'run-workflow', 'run-rss-ingest'])
 
 // Store
 const projectsStore = useProjectsStore()
@@ -277,6 +333,8 @@ const localFilters = ref({
   search: '',
   statuses: [],
   companies: [],
+  providers: [],
+  channels: [],
   date_from: null,
   date_to: null,
   pre_eval_score_min: null,
@@ -296,6 +354,8 @@ const hasActiveFilters = computed(() => {
   return localFilters.value.search ||
           localFilters.value.statuses.length > 0 ||
           localFilters.value.companies.length > 0 ||
+          localFilters.value.providers.length > 0 ||
+          localFilters.value.channels.length > 0 ||
           localFilters.value.date_from ||
           localFilters.value.date_to ||
           localFilters.value.pre_eval_score_min !== null ||
@@ -333,6 +393,8 @@ const resetFilters = () => {
     search: '',
     statuses: [],
     companies: [],
+    providers: [],
+    channels: [],
     date_from: null,
     date_to: null,
     pre_eval_score_min: null,
@@ -363,6 +425,22 @@ const removeCompany = (company) => {
   const index = localFilters.value.companies.indexOf(company)
   if (index > -1) {
     localFilters.value.companies.splice(index, 1)
+    applyFilters()
+  }
+}
+
+const removeProvider = (provider) => {
+  const index = localFilters.value.providers.indexOf(provider)
+  if (index > -1) {
+    localFilters.value.providers.splice(index, 1)
+    applyFilters()
+  }
+}
+
+const removeChannel = (channel) => {
+  const index = localFilters.value.channels.indexOf(channel)
+  if (index > -1) {
+    localFilters.value.channels.splice(index, 1)
     applyFilters()
   }
 }
@@ -415,6 +493,8 @@ const applySavedFilter = (savedFilter) => {
     search: '',
     statuses: [],
     companies: [],
+    providers: [],
+    channels: [],
     date_from: null,
     date_to: null,
     pre_eval_score_min: null,
@@ -545,6 +625,10 @@ const handleWorkflowRun = () => {
 
 const handleEmailIngest = () => {
   emit('run-workflow', 'email_ingest')
+}
+
+const handleRssIngest = () => {
+  emit('run-rss-ingest')
 }
 
 const applyQuickDateRange = () => {
@@ -719,6 +803,34 @@ onMounted(() => {
 }
 
 .email-ingest-btn:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.rss-ingest-btn {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.rss-ingest-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #059669, #047857);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(16, 185, 129, 0.3);
+}
+
+.rss-ingest-btn:disabled {
   background: #9ca3af;
   cursor: not-allowed;
   transform: none;

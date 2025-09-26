@@ -84,58 +84,78 @@ class EmailAgent:
                 })
                 raise
 
-    def validate_config(self, provider_id: str) -> bool:
+    def validate_config(self, provider_id: str, channel: str = 'email') -> bool:
         """
-        Validate the configuration for the given provider.
+        Validate the configuration for the given provider and channel.
 
         Args:
             provider_id: Provider identifier
+            channel: Channel to validate ('email' or 'rss')
 
         Returns:
             True if config is valid, False otherwise
         """
-        self.logger.debug("Validating config", extra={'provider_id': provider_id, 'email_config_keys': list(self.email_config.keys())})
+        self.logger.debug("Validating config", extra={'provider_id': provider_id, 'channel': channel})
         errors = []
 
-        # Check email config
-        required_email = ['server', 'username', 'password']
-        for field in required_email:
-            if not self.email_config.get(field):
-                errors.append(f"Missing channels.email.{field}")
+        if channel == 'email':
+            # Check email config
+            required_email = ['server', 'username', 'password']
+            for field in required_email:
+                if not self.email_config.get(field):
+                    errors.append(f"Missing channels.email.{field}")
 
-        # Check provider config
-        provider_config = self.config.get('providers', {}).get(provider_id, {}).get('channels', {}).get('email', {})
-        self.logger.debug("Provider config", extra={'provider_config_keys': list(provider_config.keys())})
-        if not provider_config:
-            errors.append(f"No email config found for provider {provider_id}")
-            for error in errors:
-                self.logger.error(f"Config validation error: {error}")
-            return False
+            # Check provider email config
+            provider_config = self.config.get('providers', {}).get(provider_id, {}).get('channels', {}).get('email', {})
+            self.logger.debug("Provider email config", extra={'provider_config_keys': list(provider_config.keys())})
+            if not provider_config:
+                errors.append(f"No email config found for provider {provider_id}")
+                for error in errors:
+                    self.logger.error(f"Config validation error: {error}")
+                return False
 
-        required_provider = ['senders', 'subject_patterns', 'body_url_patterns']
-        for field in required_provider:
-            if not provider_config.get(field):
-                errors.append(f"Missing or empty providers.{provider_id}.channels.email.{field}")
+            required_provider = ['senders', 'subject_patterns', 'body_url_patterns']
+            for field in required_provider:
+                if not provider_config.get(field):
+                    errors.append(f"Missing or empty providers.{provider_id}.channels.email.{field}")
 
-        # Validate regex patterns
-        for pattern in provider_config.get('subject_patterns', []):
-            try:
-                re.compile(pattern)
-            except re.error as e:
-                errors.append(f"Invalid subject pattern '{pattern}': {e}")
+            # Validate regex patterns
+            for pattern in provider_config.get('subject_patterns', []):
+                try:
+                    re.compile(pattern)
+                except re.error as e:
+                    errors.append(f"Invalid subject pattern '{pattern}': {e}")
 
-        for pattern in provider_config.get('body_url_patterns', []):
-            try:
-                re.compile(pattern)
-            except re.error as e:
-                errors.append(f"Invalid body URL pattern '{pattern}': {e}")
+            for pattern in provider_config.get('body_url_patterns', []):
+                try:
+                    re.compile(pattern)
+                except re.error as e:
+                    errors.append(f"Invalid body URL pattern '{pattern}': {e}")
+
+        elif channel == 'rss':
+            # Check provider RSS config
+            provider_config = self.config.get('providers', {}).get(provider_id, {}).get('channels', {}).get('rss', {})
+            self.logger.debug("Provider RSS config", extra={'provider_config_keys': list(provider_config.keys())})
+            if not provider_config:
+                errors.append(f"No RSS config found for provider {provider_id}")
+                for error in errors:
+                    self.logger.error(f"Config validation error: {error}")
+                return False
+
+            required_provider = ['feed_urls']
+            for field in required_provider:
+                if not provider_config.get(field):
+                    errors.append(f"Missing or empty providers.{provider_id}.channels.rss.{field}")
+
+        else:
+            errors.append(f"Unknown channel: {channel}")
 
         if errors:
             for error in errors:
                 self.logger.error(f"Config validation error: {error}")
             return False
 
-        self.logger.info("Configuration validation passed")
+        self.logger.info("Configuration validation passed", extra={'channel': channel})
         return True
 
     def connect_imap(self) -> imaplib.IMAP4_SSL:
@@ -1028,6 +1048,268 @@ class EmailAgent:
         })
         return enabled_providers
 
+    def fetch_rss_feed(self, feed_url: str, limit: int = 5) -> List[Dict[str, Any]]:
+        """
+        Fetch and parse RSS feed entries.
+
+        Args:
+            feed_url: URL of the RSS feed
+            limit: Maximum number of entries to return
+
+        Returns:
+            List of feed entries with title, link, and published date
+        """
+        try:
+            import feedparser
+            self.logger.info("Fetching RSS feed", extra={'feed_url': feed_url, 'limit': limit})
+            feed = feedparser.parse(feed_url)
+
+            if feed.bozo:
+                self.logger.warning("RSS feed parsing error", extra={
+                    'feed_url': feed_url,
+                    'error': str(feed.bozo_exception)
+                })
+
+            entries = []
+            for entry in feed.entries[:limit]:
+                entry_data = {
+                    'title': entry.get('title', 'No Title'),
+                    'link': entry.get('link', ''),
+                    'published': entry.get('published_parsed'),
+                    'summary': entry.get('summary', ''),
+                    'id': entry.get('id', entry.get('link', ''))
+                }
+                entries.append(entry_data)
+
+            self.logger.info("RSS feed fetched successfully", extra={
+                'feed_url': feed_url,
+                'entries_found': len(entries)
+            })
+            return entries
+
+        except Exception as e:
+            self.logger.error("Failed to fetch RSS feed", extra={
+                'feed_url': feed_url,
+                'error': str(e)
+            })
+            raise
+
+    def process_rss_entries(self, entries: List[Dict[str, Any]], provider_config: Dict[str, Any], output_dir: str) -> Dict[str, int]:
+        """
+        Process RSS feed entries into projects.
+
+        Args:
+            entries: List of RSS feed entries
+            provider_config: Provider-specific configuration
+            output_dir: Directory to save project files
+
+        Returns:
+            Dict with processing results: projects_saved, urls_skipped_dedupe
+        """
+        projects_saved = 0
+        urls_skipped_dedupe = 0
+
+        # Initialize services
+        dedupe_service = DedupeService(output_dir)
+        adapter = self.load_adapter(provider_config['provider_id'], provider_config)
+        renderer = MarkdownRenderer()
+
+        for entry in entries:
+            try:
+                url = entry.get('link', '').strip()
+                if not url:
+                    continue
+
+                self.logger.debug("Processing RSS entry", extra={
+                    'title': entry.get('title'),
+                    'url': url
+                })
+
+                # Canonicalize URL for dedupe
+                canonical_url = dedupe_service.canonicalize_url(url, provider_config['provider_id'])
+
+                # Check if already processed
+                if dedupe_service.already_processed(provider_config['provider_id'], canonical_url):
+                    urls_skipped_dedupe += 1
+                    self.logger.info("URL already processed, skipping", extra={
+                        'url': url,
+                        'canonical_url': canonical_url
+                    })
+                    continue
+
+                # Parse project via adapter
+                parse_result = adapter.parse(url)
+
+                # Handle new return format with optional HTML
+                if isinstance(parse_result, dict) and 'schema' in parse_result:
+                    schema = parse_result['schema']
+                    html_content = parse_result.get('html')
+                else:
+                    schema = parse_result
+                    html_content = None
+
+                # Build provider metadata
+                provider_meta = {
+                    'provider_id': provider_config['provider_id'],
+                    'provider_name': adapter.get_provider_name(),
+                    'collection_channel': 'rss',
+                    'collected_at': datetime.now().isoformat()
+                }
+
+                # Render markdown
+                markdown_content = renderer.render(schema, provider_meta)
+
+                # Create filename
+                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                original_title = schema.get('title', 'project')
+                filename = create_safe_filename(original_title, timestamp)
+
+                # Save file
+                os.makedirs(output_dir, exist_ok=True)
+                filepath = os.path.join(output_dir, filename)
+
+                with open(filepath, 'w', encoding='utf-8') as f:
+                    f.write(markdown_content)
+
+                # Mark as processed
+                dedupe_service.mark_processed(provider_config['provider_id'], canonical_url)
+
+                # Initialize state
+                state_manager = ProjectStateManager(output_dir)
+                metadata = {
+                    'scraped_date': datetime.now().isoformat(),
+                    'source_url': url
+                }
+
+                success = state_manager.initialize_project(filepath, metadata)
+
+                if success:
+                    projects_saved += 1
+                    self.logger.info("Project saved from RSS", extra={
+                        'filepath': filepath,
+                        'url': url,
+                        'canonical_url': canonical_url,
+                        'title': entry.get('title')
+                    })
+                else:
+                    self.logger.warning("Failed to initialize project state", extra={
+                        'filepath': filepath
+                    })
+
+            except Exception as e:
+                import traceback
+                self.logger.error("Failed to process RSS entry", extra={
+                    'title': entry.get('title'),
+                    'url': entry.get('link'),
+                    'error': str(e),
+                    'traceback': traceback.format_exc()
+                })
+
+        self.logger.info("RSS entries processing complete", extra={
+            'entries_processed': len(entries),
+            'projects_saved': projects_saved,
+            'urls_skipped_dedupe': urls_skipped_dedupe
+        })
+
+        return {
+            'projects_saved': projects_saved,
+            'urls_skipped_dedupe': urls_skipped_dedupe
+        }
+
+    def run_rss_ingestion(self, provider_id: str, output_dir: str = 'projects', dry_run: bool = False) -> Dict[str, Any]:
+        """
+        Run RSS ingestion for the specified provider.
+
+        Args:
+            provider_id: Provider identifier (e.g., 'freelancermap')
+            output_dir: Directory to save project files
+            dry_run: If True, validate config and simulate operations without side effects
+
+        Returns:
+            Summary dictionary with processing results
+        """
+        self.logger.info("Starting RSS ingestion run", extra={
+            'provider_id': provider_id,
+            'output_dir': output_dir,
+            'dry_run': dry_run
+        })
+
+        summary = {
+            'provider_id': provider_id,
+            'dry_run': dry_run,
+            'entries_found': 0,
+            'projects_saved': 0,
+            'urls_skipped_dedupe': 0,
+            'errors': 0
+        }
+
+        try:
+            # Validate config for RSS channel
+            if not self.validate_config(provider_id, 'rss'):
+                self.logger.info("Configuration validation failed, aborting run", extra={'provider_id': provider_id})
+                summary['errors'] += 1
+                return summary
+
+            # Get provider config
+            provider_config = self.config.get('providers', {}).get(provider_id, {}).get('channels', {}).get('rss', {})
+            if not provider_config:
+                self.logger.error("No RSS config found for provider", extra={'provider_id': provider_id})
+                summary['errors'] += 1
+                return summary
+
+            provider_config['provider_id'] = provider_id
+
+            if dry_run:
+                # Simulate operations
+                feed_urls = provider_config.get('feed_urls', [])
+                limit = provider_config.get('limit', 5)
+                self.logger.info("DRY RUN: Would fetch RSS feeds", extra={
+                    'feed_urls': feed_urls,
+                    'limit': limit
+                })
+                self.logger.info("DRY RUN: Would process entries and save projects", extra={
+                    'output_dir': output_dir
+                })
+                summary['entries_found'] = 0  # Unknown in dry run
+                summary['projects_saved'] = 0
+                summary['urls_skipped_dedupe'] = 0
+                self.logger.info("RSS ingestion dry run complete", extra=summary)
+                return summary
+
+            # Actual run
+            feed_urls = provider_config.get('feed_urls', [])
+            limit = provider_config.get('limit', 5)
+
+            all_entries = []
+            for feed_url in feed_urls:
+                try:
+                    entries = self.fetch_rss_feed(feed_url, limit)
+                    all_entries.extend(entries)
+                except Exception as e:
+                    self.logger.error("Failed to fetch feed", extra={
+                        'feed_url': feed_url,
+                        'error': str(e)
+                    })
+                    summary['errors'] += 1
+
+            summary['entries_found'] = len(all_entries)
+
+            if all_entries:
+                result = self.process_rss_entries(all_entries, provider_config, output_dir)
+                summary['projects_saved'] = result['projects_saved']
+                summary['urls_skipped_dedupe'] = result['urls_skipped_dedupe']
+
+            self.logger.info("RSS ingestion run complete", extra=summary)
+
+        except Exception as e:
+            summary['errors'] += 1
+            self.logger.error("RSS ingestion run failed", extra={
+                'error': str(e),
+                'summary': summary
+            })
+
+        return summary
+
     def run_all_providers(self, output_dir: str = 'projects', dry_run: bool = False) -> Dict[str, Any]:
         """
         Run email ingestion for all enabled providers.
@@ -1217,6 +1499,58 @@ def run_email_ingestion(provider_ids: str, config: Dict[str, Any], output_dir: s
     else:
         # Single provider
         return agent.run_once(provider_ids, output_dir, dry_run)
+
+def run_rss_ingestion(provider_ids: str, config: Dict[str, Any], output_dir: str = 'projects', dry_run: bool = False) -> Dict[str, Any]:
+    """
+    Convenience function to run RSS ingestion for one or more providers.
+
+    Args:
+        provider_ids: Provider identifier(s) - single provider, "all", or comma-separated list
+        config: Full configuration dictionary
+        output_dir: Output directory for project files
+        dry_run: If True, validate config and simulate without side effects
+
+    Returns:
+        Summary of the ingestion run(s)
+    """
+    agent = EmailAgent(config)
+
+    # Handle different provider_id formats
+    if provider_ids == "all":
+        # For RSS, we need to run for all providers that have RSS config
+        providers_with_rss = []
+        for provider_id, provider_config in config.get('providers', {}).items():
+            if provider_config.get('channels', {}).get('rss'):
+                providers_with_rss.append(provider_id)
+
+        results = []
+        for provider_id in providers_with_rss:
+            result = agent.run_rss_ingestion(provider_id, output_dir, dry_run)
+            results.append(result)
+
+        return {
+            'providers': providers_with_rss,
+            'results': results,
+            'total_projects_saved': sum(r.get('projects_saved', 0) for r in results),
+            'total_errors': sum(r.get('errors', 0) for r in results)
+        }
+    elif "," in provider_ids:
+        # Multiple providers specified
+        provider_list = [p.strip() for p in provider_ids.split(",")]
+        results = []
+        for provider_id in provider_list:
+            result = agent.run_rss_ingestion(provider_id, output_dir, dry_run)
+            results.append(result)
+        # Aggregate results (simplified)
+        return {
+            'providers': provider_list,
+            'results': results,
+            'total_projects_saved': sum(r.get('projects_saved', 0) for r in results),
+            'total_errors': sum(r.get('errors', 0) for r in results)
+        }
+    else:
+        # Single provider
+        return agent.run_rss_ingestion(provider_ids, output_dir, dry_run)
 
 def run_rss_ingestion(provider_ids: str, config: Dict[str, Any], output_dir: str = 'projects', dry_run: bool = False) -> Dict[str, Any]:
     """

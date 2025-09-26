@@ -64,6 +64,8 @@ class ProjectFilters(BaseModel):
     search: Optional[str] = None
     statuses: List[str] = []
     companies: List[str] = []
+    providers: List[str] = []
+    channels: List[str] = []
     date_from: Optional[str] = None
     date_to: Optional[str] = None
     pre_eval_score_min: Optional[int] = None
@@ -387,6 +389,15 @@ def parse_project_file(file_path: str) -> Dict[str, Any]:
         # Extract latest scores from content (handle multiple evaluations)
         metadata["pre_eval_score"], metadata["llm_score"] = extract_latest_scores(content)
 
+        # Extract provider and channel metadata for UI display
+        metadata["metadata"] = {
+            "provider_id": frontmatter.get("provider_id"),
+            "provider_name": frontmatter.get("provider_name"),
+            "collection_channel": frontmatter.get("collection_channel"),
+            "collected_at": frontmatter.get("collected_at"),
+            "reference_id": frontmatter.get("reference_id")
+        }
+
         return metadata
 
     except Exception as e:
@@ -423,7 +434,7 @@ def get_projects_with_filters(filters: ProjectFilters) -> List[Dict[str, Any]]:
         all_projects.append(project_data)
 
     logger.info(f"📊 Total projects loaded: {len(all_projects)}")
-    logger.info(f"🔍 Applied filters: search={filters.search}, statuses={filters.statuses}, companies={filters.companies}, date_from={filters.date_from}, date_to={filters.date_to}, pre_eval_score_min={filters.pre_eval_score_min}, pre_eval_score_max={filters.pre_eval_score_max}, llm_score_min={filters.llm_score_min}, llm_score_max={filters.llm_score_max}")
+    logger.info(f"🔍 Applied filters: search={filters.search}, statuses={filters.statuses}, companies={filters.companies}, providers={filters.providers}, channels={filters.channels}, date_from={filters.date_from}, date_to={filters.date_to}, pre_eval_score_min={filters.pre_eval_score_min}, pre_eval_score_max={filters.pre_eval_score_max}, llm_score_min={filters.llm_score_min}, llm_score_max={filters.llm_score_max}")
 
     # Apply filters
     filtered_projects = []
@@ -449,6 +460,16 @@ def get_projects_with_filters(filters: ProjectFilters) -> List[Dict[str, Any]]:
         # Company filter
         if filters.companies and project.get("company") not in filters.companies:
             logger.debug(f"❌ Project {project_id} filtered out by company")
+            continue
+
+        # Provider filter
+        if filters.providers and project.get("metadata", {}).get("provider_name") not in filters.providers:
+            logger.debug(f"❌ Project {project_id} filtered out by provider")
+            continue
+
+        # Channel filter
+        if filters.channels and project.get("metadata", {}).get("collection_channel") not in filters.channels:
+            logger.debug(f"❌ Project {project_id} filtered out by channel")
             continue
 
         # Date filters
@@ -629,6 +650,8 @@ def get_projects():
             "search": request.args.get("search"),
             "statuses": request.args.getlist("statuses"),
             "companies": request.args.getlist("companies"),
+            "providers": request.args.getlist("providers"),
+            "channels": request.args.getlist("channels"),
             "date_from": request.args.get("date_from"),
             "date_to": request.args.get("date_to"),
             "pre_eval_score_min": int(request.args.get("pre_eval_score_min")) if request.args.get("pre_eval_score_min") else None,
@@ -1312,6 +1335,38 @@ def run_workflow(workflow_name: str):
                     message=f"Workflow '{workflow_name}' failed",
                     code=500,
                     details={"stdout": result.stdout, "stderr": result.stderr},
+                    timestamp=datetime.now().isoformat()
+                ).model_dump()), 500
+
+        elif workflow_name == 'rss_ingest':
+            # Execute RSS ingestion
+            from email_agent import run_rss_ingestion
+            import yaml
+
+            # Load config
+            with open('config.yaml', 'r') as f:
+                config = yaml.safe_load(f)
+
+            # Get provider from request data
+            data = request.get_json() or {}
+            provider_id = data.get('provider_id', 'freelancermap')
+
+            # Run RSS ingestion
+            result = run_rss_ingestion(provider_id, config, output_dir='projects')
+
+            if result.get('errors', 0) == 0:
+                return jsonify({
+                    "success": True,
+                    "message": f"RSS ingestion completed for provider '{provider_id}'",
+                    "summary": result,
+                    "timestamp": datetime.now().isoformat()
+                })
+            else:
+                return jsonify(APIErrorResponse(
+                    error="RssIngestionError",
+                    message=f"RSS ingestion failed for provider '{provider_id}'",
+                    code=500,
+                    details=result,
                     timestamp=datetime.now().isoformat()
                 ).model_dump()), 500
 

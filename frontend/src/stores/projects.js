@@ -8,6 +8,8 @@ export const useProjectsStore = defineStore('projects', {
       search: '',
       statuses: [],
       companies: [],
+      providers: [],
+      channels: [],
       date_from: null,
       date_to: null,
       pre_eval_score_min: null,
@@ -54,6 +56,12 @@ export const useProjectsStore = defineStore('projects', {
         }
         if (this.filters.companies.length > 0) {
           this.filters.companies.forEach(company => params.append('companies', company))
+        }
+        if (this.filters.providers.length > 0) {
+          this.filters.providers.forEach(provider => params.append('providers', provider))
+        }
+        if (this.filters.channels.length > 0) {
+          this.filters.channels.forEach(channel => params.append('channels', channel))
         }
         if (this.filters.date_from) params.append('date_from', this.filters.date_from)
         if (this.filters.date_to) params.append('date_to', this.filters.date_to)
@@ -174,6 +182,17 @@ export const useProjectsStore = defineStore('projects', {
       }
     },
 
+    async runRssIngest() {
+      try {
+        const response = await api.post('/api/v1/workflows/rss_ingest/run', {})
+        console.log('RSS ingestion executed successfully')
+        return response.data
+      } catch (error) {
+        console.error('Error running RSS ingestion:', error)
+        throw error
+      }
+    },
+
     async getWorkflowStatus(workflowName) {
       try {
         const response = await api.get(`/api/v1/workflows/${workflowName}/status`)
@@ -197,6 +216,8 @@ export const useProjectsStore = defineStore('projects', {
         search: '',
         statuses: [],
         companies: [],
+        providers: [],
+        channels: [],
         date_from: null,
         date_to: null,
         pre_eval_score_min: null,

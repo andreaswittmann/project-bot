@@ -55,6 +55,18 @@
                 {{ sortOrder === 'asc' ? '↑' : '↓' }}
               </span>
             </th>
+            <th @click="sortBy('provider_name')" class="sortable">
+              Provider
+              <span v-if="sortField === 'provider_name'" class="sort-indicator">
+                {{ sortOrder === 'asc' ? '↑' : '↓' }}
+              </span>
+            </th>
+            <th @click="sortBy('collection_channel')" class="sortable">
+              Channel
+              <span v-if="sortField === 'collection_channel'" class="sort-indicator">
+                {{ sortOrder === 'asc' ? '↑' : '↓' }}
+              </span>
+            </th>
             <th @click="sortBy('status')" class="sortable">
               Status
               <span v-if="sortField === 'status'" class="sort-indicator">
@@ -87,6 +99,12 @@
                 {{ project.llm_score }}%
               </span>
               <span v-else class="no-score">N/A</span>
+            </td>
+            <td>{{ project.metadata?.provider_name || 'N/A' }}</td>
+            <td>
+              <span :class="`channel-badge channel-${project.metadata?.collection_channel || 'unknown'}`">
+                {{ project.metadata?.collection_channel || 'unknown' }}
+              </span>
             </td>
             <td>
               <span :class="`status-badge status-${project.status}`">
@@ -189,8 +207,16 @@ const sortedProjects = computed(() => {
   if (!props.projects.length) return []
 
   return [...props.projects].sort((a, b) => {
-    let aVal = a[sortField.value] || ''
-    let bVal = b[sortField.value] || ''
+    let aVal, bVal
+
+    // Handle nested metadata fields
+    if (sortField.value === 'provider_name' || sortField.value === 'collection_channel') {
+      aVal = a.metadata?.[sortField.value] || ''
+      bVal = b.metadata?.[sortField.value] || ''
+    } else {
+      aVal = a[sortField.value] || ''
+      bVal = b[sortField.value] || ''
+    }
 
     // Handle null/undefined values
     if (aVal === null || aVal === undefined) aVal = ''
@@ -457,6 +483,19 @@ const retry = () => {
 .status-archived { background: #f3f4f6; color: #374151; }
 .status-scraped { background: #fef3c7; color: #92400e; }
 .status-empty { background: #f9fafb; color: #6b7280; }
+
+.channel-badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.channel-email { background: #dbeafe; color: #1e40af; }
+.channel-rss { background: #dcfce7; color: #166534; }
+.channel-unknown { background: #f3f4f6; color: #6b7280; }
 
 .actions {
   display: flex;
