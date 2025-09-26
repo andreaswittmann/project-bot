@@ -75,34 +75,34 @@
 
       <!-- Provider Filter -->
       <div class="filter-group">
-        <label class="filter-label">Provider</label>
-        <div class="checkbox-grid">
-          <label v-for="provider in availableProviders" :key="provider" class="checkbox-label">
-            <input
-              type="checkbox"
-              :value="provider"
-              v-model="localFilters.providers"
-              @change="applyFilters"
-            />
-            <span class="checkbox-text">{{ provider }}</span>
-          </label>
-        </div>
+        <label for="provider-select" class="filter-label">Provider</label>
+        <select
+          id="provider-select"
+          v-model="localFilters.providers"
+          class="filter-select"
+          multiple
+          @change="applyFilters"
+        >
+          <option v-for="provider in availableProviders" :key="provider" :value="provider">
+            {{ provider }}
+          </option>
+        </select>
       </div>
 
       <!-- Channel Filter -->
       <div class="filter-group">
-        <label class="filter-label">Channel</label>
-        <div class="checkbox-grid">
-          <label v-for="channel in availableChannels" :key="channel" class="checkbox-label">
-            <input
-              type="checkbox"
-              :value="channel"
-              v-model="localFilters.channels"
-              @change="applyFilters"
-            />
-            <span class="checkbox-text">{{ channel }}</span>
-          </label>
-        </div>
+        <label for="channel-select" class="filter-label">Channel</label>
+        <select
+          id="channel-select"
+          v-model="localFilters.channels"
+          class="filter-select"
+          multiple
+          @change="applyFilters"
+        >
+          <option v-for="channel in availableChannels" :key="channel" :value="channel">
+            {{ channel }}
+          </option>
+        </select>
       </div>
 
       <!-- Score Ranges -->
@@ -314,7 +314,7 @@ const props = defineProps({
   },
   availableChannels: {
     type: Array,
-    default: () => ['email', 'rss']
+    default: () => []
   },
   isWorkflowRunning: {
     type: Boolean,
@@ -895,6 +895,12 @@ onMounted(() => {
   border-radius: 0.375rem;
   font-size: 0.875rem;
   transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.filter-select[multiple] {
+  min-height: 2.5rem;
+  max-height: 8rem;
+  overflow-y: auto;
 }
 
 .filter-input:focus, .filter-select:focus {

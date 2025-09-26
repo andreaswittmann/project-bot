@@ -32,6 +32,10 @@ export const useProjectsStore = defineStore('projects', {
     quickFilters: [],
     loadingQuickFilters: false,
     quickFiltersError: null,
+    availableProviders: [],
+    availableChannels: [],
+    loadingConfigFilters: false,
+    configFiltersError: null,
   }),
 
   getters: {
@@ -302,6 +306,25 @@ export const useProjectsStore = defineStore('projects', {
       } catch (error) {
         console.error('Error creating manual project:', error);
         throw error;
+      }
+    },
+
+    async fetchConfigFilters() {
+      this.loadingConfigFilters = true;
+      this.configFiltersError = null;
+      try {
+        const response = await api.get('/api/v1/config/filters');
+        this.availableProviders = response.data.providers || [];
+        this.availableChannels = response.data.channels || [];
+        console.log('Config filters loaded:', { providers: this.availableProviders, channels: this.availableChannels });
+      } catch (error) {
+        this.configFiltersError = error.response?.data?.message || error.message;
+        console.error('Error fetching config filters:', error);
+        // Set fallback empty arrays to prevent UI breakage
+        this.availableProviders = [];
+        this.availableChannels = [];
+      } finally {
+        this.loadingConfigFilters = false;
       }
     },
   }

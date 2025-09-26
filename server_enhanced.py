@@ -462,10 +462,19 @@ def get_projects_with_filters(filters: ProjectFilters) -> List[Dict[str, Any]]:
             logger.debug(f"❌ Project {project_id} filtered out by company")
             continue
 
-        # Provider filter
-        if filters.providers and project.get("metadata", {}).get("provider_name") not in filters.providers:
-            logger.debug(f"❌ Project {project_id} filtered out by provider")
-            continue
+        # Provider filter (case-insensitive)
+        # Default to 'freelancermap' for projects without provider metadata (backward compatibility)
+        project_provider = project.get("metadata", {}).get("provider_name") or "freelancermap"
+        if filters.providers:
+            # Convert both to lowercase for comparison
+            project_provider_lower = project_provider.lower()
+            filter_providers_lower = [p.lower() for p in filters.providers]
+            logger.debug(f"Provider filter check: project={project_provider} ({project_provider_lower}), filters={filters.providers} ({filter_providers_lower})")
+            if project_provider_lower not in filter_providers_lower:
+                logger.debug(f"Project {project_id} filtered out by provider")
+                continue
+            else:
+                logger.debug(f"Project {project_id} passed provider filter")
 
         # Channel filter
         if filters.channels and project.get("metadata", {}).get("collection_channel") not in filters.channels:
@@ -1759,6 +1768,63 @@ def get_scheduler_status():
     )
 
     return jsonify(response.model_dump())
+
+# API Endpoints for Config Filters
+
+@app.route('/api/v1/config/filters', methods=['GET'])
+@handle_api_errors
+def get_config_filters():
+    """Get available providers and channels from configuration"""
+    try:
+        import yaml
+
+        # Load config
+        with open('config.yaml', 'r') as f:
+            config = yaml.safe_load(f)
+
+        providers = []
+        channels = set()
+
+        # Extract enabled providers and their channels
+        if 'providers' in config:
+            for provider_id, provider_config in config['providers'].items():
+                if provider_config.get('enabled', False):
+                    providers.append(provider_id)
+                    # Extract channels for this provider
+                    if 'channels' in provider_config:
+                        channels.update(provider_config['channels'].keys())
+
+        # Sort for consistent ordering
+        providers.sort()
+        channels_list = sorted(list(channels))
+
+        return jsonify({
+            "providers": providers,
+            "channels": channels_list
+        })
+
+    except FileNotFoundError:
+        return jsonify(APIErrorResponse(
+            error="ConfigNotFound",
+            message="config.yaml file not found",
+            code=404,
+            timestamp=datetime.now().isoformat()
+        ).model_dump()), 404
+    except yaml.YAMLError as e:
+        return jsonify(APIErrorResponse(
+            error="ConfigParseError",
+            message=f"Failed to parse config.yaml: {str(e)}",
+            code=500,
+            timestamp=datetime.now().isoformat()
+        ).model_dump()), 500
+    except Exception as e:
+        logger.error(f"Error getting config filters: {e}")
+        return jsonify(APIErrorResponse(
+            error="InternalServerError",
+            message=f"Failed to get config filters: {str(e)}",
+            code=500,
+            timestamp=datetime.now().isoformat()
+        ).model_dump()), 500
 
 # API Endpoints for Log Viewer
 

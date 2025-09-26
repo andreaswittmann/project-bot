@@ -49,7 +49,8 @@
       <!-- Filters -->
       <ProjectFilters
         :available-companies="availableCompanies"
-        :available-providers="availableProviders"
+        :available-providers="projectsStore.availableProviders"
+        :available-channels="projectsStore.availableChannels"
         :is-workflow-running="isWorkflowRunning"
         @filters-changed="handleFiltersChanged"
         @run-workflow="runWorkflow"
@@ -125,7 +126,6 @@ const projectsStore = useProjectsStore()
 
 // Local state
 const availableCompanies = ref([])
-const availableProviders = ref([])
 const recentActivity = ref([])
 const selectedProjectId = ref(null)
 const showProjectModal = ref(false)
@@ -436,6 +436,9 @@ const initializeData = async () => {
   try {
     console.log('Initializing dashboard data...')
 
+    // Fetch config filters first
+    await projectsStore.fetchConfigFilters()
+
     // Fetch initial projects
     await projectsStore.fetchProjects()
 
@@ -444,17 +447,12 @@ const initializeData = async () => {
 
     // Extract available companies from current projects
     const companies = new Set()
-    const providers = new Set()
     projectsStore.projects.forEach(project => {
       if (project.company) {
         companies.add(project.company)
       }
-      if (project.metadata?.provider_name) {
-        providers.add(project.metadata.provider_name)
-      }
     })
     availableCompanies.value = Array.from(companies).sort()
-    availableProviders.value = Array.from(providers).sort()
 
     // Get recent activity from stats
     recentActivity.value = projectsStore.stats.recent_activity || []
