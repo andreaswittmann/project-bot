@@ -27,6 +27,13 @@
     </header>
 
     <main class="main-content">
+      <!-- Workflow Messages -->
+      <div v-if="workflowMessage" :class="['workflow-message', `message-${workflowMessageType}`]">
+        <span class="message-icon">{{ workflowMessageType === 'success' ? '✅' : workflowMessageType === 'error' ? '❌' : '⚠️' }}</span>
+        <span class="message-text">{{ workflowMessage }}</span>
+        <button @click="clearWorkflowMessage" class="message-close">×</button>
+      </div>
+
       <!-- Dashboard Stats -->
       <div class="stats-section">
         <div class="stat-card stat-total">
@@ -310,21 +317,29 @@ const refreshData = async () => {
 
 const runWorkflow = async (workflowName) => {
   if (isWorkflowRunning.value) return
-  
+
   isWorkflowRunning.value = true
   currentWorkflow.value = workflowName
   workflowMessage.value = null
   workflowMessageType.value = null
-  
+
   try {
     const result = await projectsStore.runWorkflow(workflowName)
-    workflowMessage.value = result.message || `Workflow '${workflowName}' completed successfully`
-    workflowMessageType.value = 'success'
-    
+
+    if (workflowName === 'email_ingest' && result.summary) {
+      // Special handling for email ingestion results
+      const summary = result.summary
+      workflowMessage.value = `Email ingestion completed: ${summary.projects_saved} projects saved, ${summary.urls_found} URLs found, ${summary.urls_skipped_dedupe} deduped`
+      workflowMessageType.value = summary.errors > 0 ? 'warning' : 'success'
+    } else {
+      workflowMessage.value = result.message || `Workflow '${workflowName}' completed successfully`
+      workflowMessageType.value = 'success'
+    }
+
     // Refresh data after workflow completion
     await projectsStore.fetchProjects()
     await projectsStore.fetchStats()
-    
+
     // Update recent activity
     recentActivity.value = projectsStore.stats.recent_activity || []
   } catch (error) {
@@ -334,13 +349,18 @@ const runWorkflow = async (workflowName) => {
   } finally {
     isWorkflowRunning.value = false
     currentWorkflow.value = null
-    
+
     // Clear message after 5 seconds
     setTimeout(() => {
       workflowMessage.value = null
       workflowMessageType.value = null
     }, 5000)
   }
+}
+
+const clearWorkflowMessage = () => {
+  workflowMessage.value = null
+  workflowMessageType.value = null
 }
 
 const formatTime = (timestamp) => {
@@ -520,6 +540,77 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: 2rem;
+}
+
+.workflow-message {
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-weight: 500;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  animation: slideIn 0.3s ease-out;
+}
+
+.message-success {
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+
+.message-error {
+  background: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+.message-warning {
+  background: #fffbeb;
+  color: #92400e;
+  border: 1px solid #fde68a;
+}
+
+.message-icon {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.message-text {
+  flex: 1;
+  font-size: 0.95rem;
+}
+
+.message-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  opacity: 0.7;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s;
+}
+
+.message-close:hover {
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.1);
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .stats-section {

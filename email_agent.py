@@ -261,7 +261,11 @@ class EmailAgent:
                     'message_id': message_id,
                     'status': status
                 })
-                return 0
+                return {
+                    'projects_saved': 0,
+                    'urls_skipped_dedupe': 0,
+                    'urls_found': 0
+                }
 
             email_body = msg_data[0][1]
             message = email.message_from_bytes(email_body)
@@ -293,7 +297,11 @@ class EmailAgent:
                     'senders_config': senders,
                     'subject_patterns_config': subject_patterns
                 })
-                return 0
+                return {
+                    'projects_saved': 0,
+                    'urls_skipped_dedupe': 0,
+                    'urls_found': 0
+                }
 
             self.logger.info("Processing matching email", extra={
                 'message_id': message_id,
@@ -309,7 +317,11 @@ class EmailAgent:
                 self.logger.info("No URLs found in email", extra={
                     'message_id': message_id
                 })
-                return 0
+                return {
+                    'projects_saved': 0,
+                    'urls_skipped_dedupe': 0,
+                    'urls_found': 0
+                }
 
             # Initialize services
             dedupe_service = DedupeService(output_dir)
@@ -422,7 +434,8 @@ class EmailAgent:
 
         return {
             'projects_saved': projects_saved,
-            'urls_skipped_dedupe': urls_skipped_dedupe
+            'urls_skipped_dedupe': urls_skipped_dedupe,
+            'urls_found': len(urls) if 'urls' in locals() else 0
         }
 
     def run_once(self, provider_id: str, output_dir: str = 'projects', dry_run: bool = False) -> Dict[str, Any]:
@@ -545,12 +558,17 @@ class EmailAgent:
                     result = self.process_email(mail, message_id, provider_config, output_dir)
                     projects_saved = result['projects_saved']
                     urls_skipped = result['urls_skipped_dedupe']
+                    urls_found = result.get('urls_found', 0)
                     if projects_saved > 0 or urls_skipped > 0:
                         summary['emails_matched'] += 1
                     summary['projects_saved'] += projects_saved
                     summary['urls_skipped_dedupe'] += urls_skipped
+                    summary['urls_found'] += urls_found
                 except Exception as e:
                     summary['errors'] += 1
+                    print(f"DEBUG: Error processing email {message_id.decode()}: {str(e)}")
+                    import traceback
+                    print(f"DEBUG: Traceback: {traceback.format_exc()}")
                     self.logger.error("Error processing email", extra={
                         'message_id': message_id.decode(),
                         'error': str(e)

@@ -11,6 +11,14 @@
           <span v-if="isWorkflowRunning" class="spinner">⏳</span>
           {{ isWorkflowRunning ? 'Running...' : 'Run Full Workflow' }}
         </button>
+        <button
+          @click="handleEmailIngest"
+          :disabled="isWorkflowRunning"
+          class="email-ingest-btn"
+        >
+          <span v-if="isWorkflowRunning" class="spinner">📧</span>
+          {{ isWorkflowRunning ? 'Running...' : 'Run Email Ingest' }}
+        </button>
         <button @click="resetFilters" class="reset-btn" :disabled="!hasActiveFilters">
           Reset All
         </button>
@@ -535,6 +543,10 @@ const handleWorkflowRun = () => {
   emit('run-workflow', 'main')
 }
 
+const handleEmailIngest = () => {
+  emit('run-workflow', 'email_ingest')
+}
+
 const applyQuickDateRange = () => {
   const range = selectedQuickDateRange.value;
   if (range) {
@@ -683,6 +695,34 @@ onMounted(() => {
 
 .workflow-btn .spinner {
   font-size: 1rem;
+}
+
+.email-ingest-btn {
+  background: linear-gradient(135deg, #059669, #0d9488);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.email-ingest-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #047857, #0f766e);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(5, 150, 105, 0.3);
+}
+
+.email-ingest-btn:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 .reset-btn {

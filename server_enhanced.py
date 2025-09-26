@@ -1209,7 +1209,39 @@ def run_workflow(workflow_name: str):
     try:
         logger.info(f"Starting workflow execution: {workflow_name}")
 
-        if workflow_name == 'main':
+        if workflow_name == 'email_ingest':
+            # Execute email ingestion
+            from email_agent import run_email_ingestion
+            import yaml
+
+            # Load config
+            with open('config.yaml', 'r') as f:
+                config = yaml.safe_load(f)
+
+            # Get provider from request data
+            data = request.get_json() or {}
+            provider_id = data.get('provider_id', 'freelancermap')
+
+            # Run email ingestion
+            result = run_email_ingestion(provider_id, config, output_dir='projects')
+
+            if result.get('errors', 0) == 0:
+                return jsonify({
+                    "success": True,
+                    "message": f"Email ingestion completed for provider '{provider_id}'",
+                    "summary": result,
+                    "timestamp": datetime.now().isoformat()
+                })
+            else:
+                return jsonify(APIErrorResponse(
+                    error="EmailIngestionError",
+                    message=f"Email ingestion failed for provider '{provider_id}'",
+                    code=500,
+                    details=result,
+                    timestamp=datetime.now().isoformat()
+                ).model_dump()), 500
+
+        elif workflow_name == 'main':
             # Execute the main workflow (scrape → evaluate → generate applications)
             import subprocess
             import sys
