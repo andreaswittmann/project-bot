@@ -578,7 +578,7 @@ def handle_relative_dates(filters: ProjectFilters) -> ProjectFilters:
     return filters
 
 def generate_manual_project_template(project_id: str, title: str, company: Optional[str] = None,
-                                   description: Optional[str] = None, scraped_date: str = None) -> str:
+                                    description: Optional[str] = None, scraped_date: str = None) -> str:
     """Generate template content for manual project creation"""
     if not scraped_date:
         scraped_date = datetime.now().isoformat()
@@ -587,7 +587,11 @@ def generate_manual_project_template(project_id: str, title: str, company: Optio
     clean_title = re.sub(r'[^\w\s-]', '', title).strip().replace(' ', '_')
 
     template = f"""---
+collected_at: '{scraped_date}'
+collection_channel: manual
 company: {company or 'Your Company Name'}
+provider_id: manual
+provider_name: manual
 reference_id: '{project_id}'
 scraped_date: '{scraped_date}'
 source_url: https://manual-entry.com/project/{project_id}
@@ -618,31 +622,6 @@ To be determined, manual, project
 
 ## Beschreibung
 {description or 'Please provide a detailed project description here. Include requirements, responsibilities, skills needed, and any other relevant information.'}
-
----
-
-## 🤖 AI Evaluation Results
-
-**Evaluation Timestamp:** {scraped_date}
-
-### Pre-Evaluation Phase
-- **Score:** 0/100
-- **Threshold:** 10/100
-- **Result:** ⏳ PENDING
-- **Rationale:** Manual project - evaluation pending
-
-### LLM Analysis Phase
-- **Fit Score:** 0/100
-- **Acceptance Threshold:** 85/100
-- **Final Decision:** ⏳ PENDING
-
-#### Detailed Rationale
-- **Skills and Technologies Required**: To be determined
-- **Skills and Technologies Matched**: To be evaluated
-- **Key Gaps**: To be determined
-- **Next Steps**: Please fill out the project details and run evaluation
-
----
 """
 
     return template
@@ -1793,6 +1772,12 @@ def get_config_filters():
                     # Extract channels for this provider
                     if 'channels' in provider_config:
                         channels.update(provider_config['channels'].keys())
+
+        # Add manual provider and channel for manually created projects
+        if "manual" not in providers:
+            providers.append("manual")
+        if "manual" not in channels:
+            channels.add("manual")
 
         # Sort for consistent ordering
         providers.sort()
