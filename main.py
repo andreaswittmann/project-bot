@@ -423,6 +423,12 @@ Examples:
 4. Run email ingestion for freelancermap provider:
    python main.py --email-ingest --provider freelancermap
 
+5. Run email ingestion for all enabled providers:
+   python main.py --email-ingest --provider all
+
+6. Run email ingestion for multiple specific providers:
+   python main.py --email-ingest --provider freelancermap,otherprovider
+
 5. Save output to a custom directory:
    python main.py -o ./output_folder
 """
@@ -473,7 +479,7 @@ Examples:
     parser.add_argument("--email-ingest", action="store_true",
                         help="Run email ingestion instead of RSS")
     parser.add_argument("--provider", default="freelancermap",
-                        help="Provider for email ingestion (default: freelancermap)")
+                        help="Provider(s) for email ingestion. Use 'all' for all enabled providers, comma-separated list for multiple, or single provider name (default: freelancermap)")
     parser.add_argument("--dry-run", action="store_true",
                         help="Validate configuration and simulate email ingestion without actual operations")
 

@@ -212,6 +212,23 @@ providers:
         max_emails: 50   # Maximum number of emails to process per run (default: 50)
         move_processed: true  # Move processed emails to processed folder (default: true)
 
+  # Example of another provider (solcom)
+  solcom:
+    enabled: true
+    channels:
+      email:
+        senders: ["no-reply@solcom.de"]
+        subject_patterns: ["Neues Projekt", "SOLCOM Projekt Alert"]
+        body_url_patterns: ["https://www\\.solcom\\.de/de/projektportal/projektangebote/[a-z-]+-\\d+.*"]
+        source_folder: INBOX
+        processed_folder: Processed/Solcom
+        max_age_days: 7
+        max_emails: 50
+        move_processed: true
+  #       max_age_days: 7
+  #       max_emails: 50
+  #       move_processed: true
+
 # Configuration Notes:
 #
 # LLM Providers:

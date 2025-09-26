@@ -19,8 +19,8 @@ from parse_html import parse_project, to_markdown
 from state_manager import ProjectStateManager
 from rss_helper import create_safe_filename
 from dedupe_service import DedupeService
-from scraping_adapters.freelancermap import FreelancerMapAdapter
 from markdown_renderer import MarkdownRenderer
+import importlib
 
 logger = logging.getLogger(__name__)
 
@@ -39,6 +39,49 @@ class EmailAgent:
         self.config = config
         self.email_config = config.get('channels', {}).get('email', {})
         self.logger = logger
+
+    def load_adapter(self, provider_id: str, provider_config: Dict[str, Any]):
+        """
+        Dynamically load and instantiate the appropriate scraping adapter for a provider.
+
+        Args:
+            provider_id: Provider identifier
+            provider_config: Provider-specific configuration
+
+        Returns:
+            Instantiated adapter instance
+
+        Raises:
+            ImportError: If adapter module cannot be imported
+            AttributeError: If adapter class cannot be found
+        """
+        # Try to import provider-specific adapter
+        try:
+            module_name = f"scraping_adapters.{provider_id}"
+            module = importlib.import_module(module_name)
+            adapter_class_name = f"{provider_id.title()}Adapter"
+            adapter_class = getattr(module, adapter_class_name)
+            adapter = adapter_class(provider_id, provider_config)
+            self.logger.debug(f"Loaded provider-specific adapter: {adapter_class_name}")
+            return adapter
+        except (ImportError, AttributeError) as e:
+            self.logger.warning(f"Provider-specific adapter not found for {provider_id}, falling back to default", extra={
+                'provider_id': provider_id,
+                'error': str(e)
+            })
+
+            # Fallback to default adapter
+            try:
+                from scraping_adapters.default import DefaultAdapter
+                adapter = DefaultAdapter(provider_id, provider_config)
+                self.logger.debug("Loaded default adapter")
+                return adapter
+            except Exception as fallback_error:
+                self.logger.error("Failed to load default adapter", extra={
+                    'provider_id': provider_id,
+                    'error': str(fallback_error)
+                })
+                raise
 
     def validate_config(self, provider_id: str) -> bool:
         """
@@ -323,9 +366,18 @@ class EmailAgent:
                     'urls_found': 0
                 }
 
+            # Limit URLs per email for testing
+            max_urls_per_email = provider_config.get('max_urls_per_email', 50)  # Default to 50
+            if len(urls) > max_urls_per_email:
+                urls = urls[:max_urls_per_email]
+                self.logger.info(f"Limited URLs per email to {max_urls_per_email}", extra={
+                    'original_count': len(urls),
+                    'limited_to': max_urls_per_email
+                })
+
             # Initialize services
             dedupe_service = DedupeService(output_dir)
-            adapter = FreelancerMapAdapter(provider_config['provider_id'], provider_config)
+            adapter = self.load_adapter(provider_config['provider_id'], provider_config)
             renderer = MarkdownRenderer()
 
             # Process each URL
@@ -350,7 +402,17 @@ class EmailAgent:
 
                     # Parse project via adapter
                     self.logger.debug("Calling adapter.parse", extra={'url': url})
-                    schema = adapter.parse(url)
+                    parse_result = adapter.parse(url)
+
+                    # Handle new return format with optional HTML
+                    if isinstance(parse_result, dict) and 'schema' in parse_result:
+                        schema = parse_result['schema']
+                        html_content = parse_result.get('html')
+                    else:
+                        # Backward compatibility for adapters that return schema directly
+                        schema = parse_result
+                        html_content = None
+
                     self.logger.debug("adapter.parse completed", extra={'url': url, 'title': schema.get('title', 'N/A')})
 
                     # Build provider metadata
@@ -375,6 +437,13 @@ class EmailAgent:
 
                     with open(filepath, 'w', encoding='utf-8') as f:
                         f.write(markdown_content)
+
+                    # Save HTML content if available (for debugging)
+                    if html_content:
+                        html_filepath = filepath.replace('.md', '.html')
+                        with open(html_filepath, 'w', encoding='utf-8') as f:
+                            f.write(html_content)
+                        self.logger.debug("Saved HTML file", extra={'html_filepath': html_filepath})
 
                     # Mark as processed
                     dedupe_service.mark_processed(provider_config['provider_id'], canonical_url)
@@ -588,18 +657,138 @@ class EmailAgent:
 
         return summary
 
-def run_email_ingestion(provider_id: str, config: Dict[str, Any], output_dir: str = 'projects', dry_run: bool = False) -> Dict[str, Any]:
+    def get_enabled_providers(self) -> List[str]:
+        """
+        Get list of enabled providers from configuration.
+
+        Returns:
+            List of provider IDs that are enabled
+        """
+        providers = self.config.get('providers', {})
+        enabled_providers = []
+
+        for provider_id, provider_config in providers.items():
+            if provider_config.get('enabled', True):  # Default to enabled
+                # Check if email channel is configured
+                if provider_config.get('channels', {}).get('email'):
+                    enabled_providers.append(provider_id)
+
+        self.logger.info("Found enabled providers with email channels", extra={
+            'enabled_providers': enabled_providers
+        })
+        return enabled_providers
+
+    def run_all_providers(self, output_dir: str = 'projects', dry_run: bool = False) -> Dict[str, Any]:
+        """
+        Run email ingestion for all enabled providers.
+
+        Args:
+            output_dir: Directory to save project files
+            dry_run: If True, validate configs and simulate operations without side effects
+
+        Returns:
+            Aggregated summary dictionary with results from all providers
+        """
+        self.logger.info("Starting multi-provider email ingestion run", extra={
+            'output_dir': output_dir,
+            'dry_run': dry_run
+        })
+
+        # Get enabled providers
+        enabled_providers = self.get_enabled_providers()
+        if not enabled_providers:
+            self.logger.warning("No enabled providers found with email channels")
+            return {
+                'providers_processed': 0,
+                'total_emails_processed': 0,
+                'total_emails_matched': 0,
+                'total_urls_found': 0,
+                'total_urls_skipped_dedupe': 0,
+                'total_projects_saved': 0,
+                'total_errors': 0,
+                'provider_summaries': {}
+            }
+
+        # Run for each provider
+        provider_summaries = {}
+        total_summary = {
+            'providers_processed': 0,
+            'total_emails_processed': 0,
+            'total_emails_matched': 0,
+            'total_urls_found': 0,
+            'total_urls_skipped_dedupe': 0,
+            'total_projects_saved': 0,
+            'total_errors': 0,
+            'provider_summaries': provider_summaries
+        }
+
+        for provider_id in enabled_providers:
+            try:
+                self.logger.info(f"Processing provider: {provider_id}")
+                summary = self.run_once(provider_id, output_dir, dry_run)
+                provider_summaries[provider_id] = summary
+
+                # Aggregate totals
+                total_summary['providers_processed'] += 1
+                total_summary['total_emails_processed'] += summary.get('emails_processed', 0)
+                total_summary['total_emails_matched'] += summary.get('emails_matched', 0)
+                total_summary['total_urls_found'] += summary.get('urls_found', 0)
+                total_summary['total_urls_skipped_dedupe'] += summary.get('urls_skipped_dedupe', 0)
+                total_summary['total_projects_saved'] += summary.get('projects_saved', 0)
+                total_summary['total_errors'] += summary.get('errors', 0)
+
+            except Exception as e:
+                self.logger.error(f"Failed to process provider {provider_id}", extra={
+                    'provider_id': provider_id,
+                    'error': str(e)
+                })
+                provider_summaries[provider_id] = {
+                    'provider_id': provider_id,
+                    'dry_run': dry_run,
+                    'emails_processed': 0,
+                    'emails_matched': 0,
+                    'urls_found': 0,
+                    'urls_skipped_dedupe': 0,
+                    'projects_saved': 0,
+                    'errors': 1
+                }
+                total_summary['total_errors'] += 1
+
+        self.logger.info("Multi-provider email ingestion run complete", extra=total_summary)
+        return total_summary
+
+def run_email_ingestion(provider_ids: str, config: Dict[str, Any], output_dir: str = 'projects', dry_run: bool = False) -> Dict[str, Any]:
     """
-    Convenience function to run email ingestion.
+    Convenience function to run email ingestion for one or more providers.
 
     Args:
-        provider_id: Provider identifier
+        provider_ids: Provider identifier(s) - single provider, "all", or comma-separated list
         config: Full configuration dictionary
         output_dir: Output directory for project files
         dry_run: If True, validate config and simulate without side effects
 
     Returns:
-        Summary of the ingestion run
+        Summary of the ingestion run(s)
     """
     agent = EmailAgent(config)
-    return agent.run_once(provider_id, output_dir, dry_run)
+
+    # Handle different provider_id formats
+    if provider_ids == "all":
+        return agent.run_all_providers(output_dir, dry_run)
+    elif "," in provider_ids:
+        # Multiple providers specified
+        provider_list = [p.strip() for p in provider_ids.split(",")]
+        results = []
+        for provider_id in provider_list:
+            result = agent.run_once(provider_id, output_dir, dry_run)
+            results.append(result)
+        # Aggregate results (simplified)
+        return {
+            'providers': provider_list,
+            'results': results,
+            'total_projects_saved': sum(r.get('projects_saved', 0) for r in results),
+            'total_errors': sum(r.get('errors', 0) for r in results)
+        }
+    else:
+        # Single provider
+        return agent.run_once(provider_ids, output_dir, dry_run)

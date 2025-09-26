@@ -160,20 +160,22 @@ def extract_keywords(soup: BeautifulSoup) -> List[str]:
     # Return the list of non-empty keywords
     return [kw for kw in keywords if kw]
 
-def parse_project(url: str) -> Dict:
+def parse_project(url: str, html: Optional[str] = None) -> Dict:
     """
     Parse a FreelancerMap project page and extract structured data.
-    
+
     Args:
         url: URL of the project page to parse
-        
+        html: Optional pre-fetched HTML content to avoid re-fetching
+
     Returns:
         Dictionary containing project metadata and content
-        
+
     Raises:
         requests.RequestException: If HTML fetching fails
     """
-    html = fetch_html(url)
+    if html is None:
+        html = fetch_html(url)
     soup = BeautifulSoup(html, "lxml")
 
     title = soup.find("h1")
