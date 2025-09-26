@@ -170,7 +170,7 @@ class EmailAgent:
             })
             raise
 
-    def extract_urls_from_email(self, message: email.message.EmailMessage, url_patterns: List[str]) -> List[str]:
+    def extract_urls_from_email(self, message: email.message.EmailMessage, url_patterns: List[str], provider_config: Dict[str, Any]) -> List[str]:
         """
         Extract URLs from email message body using regex patterns.
         Handles both text/plain and text/html parts.
@@ -238,11 +238,55 @@ class EmailAgent:
                             'error': str(e)
                         })
 
-        # Clean and deduplicate URLs
-        cleaned_urls = [url.strip() for url in urls]
-        unique_urls = list(set(cleaned_urls))
+        # Filter URLs to only include those matching the patterns
+        filtered_urls = []
+        for url in urls:
+            url = url.strip()
+            if url:
+                # Check if URL matches any of the patterns
+                matches_pattern = False
+                for pattern in url_patterns:
+                    try:
+                        if re.search(pattern, url, re.IGNORECASE):
+                            matches_pattern = True
+                            break
+                    except re.error as e:
+                        self.logger.warning("Invalid regex pattern", extra={
+                            'pattern': pattern,
+                            'error': str(e)
+                        })
+                if matches_pattern:
+                    filtered_urls.append(url)
+
+        # Apply exclude patterns to filter out unwanted URLs
+        exclude_patterns = provider_config.get('url_exclude_patterns', [])
+        if exclude_patterns:
+            excluded_urls = []
+            for url in filtered_urls:
+                should_exclude = False
+                for pattern in exclude_patterns:
+                    try:
+                        if re.search(pattern, url, re.IGNORECASE):
+                            should_exclude = True
+                            self.logger.debug("Excluding URL due to exclude pattern", extra={
+                                'url': url,
+                                'pattern': pattern
+                            })
+                            break
+                    except re.error as e:
+                        self.logger.warning("Invalid exclude regex pattern", extra={
+                            'pattern': pattern,
+                            'error': str(e)
+                        })
+                if not should_exclude:
+                    excluded_urls.append(url)
+            filtered_urls = excluded_urls
+
+        # Deduplicate filtered URLs
+        unique_urls = list(set(filtered_urls))
         self.logger.info("URLs extracted from email", extra={
-            'total_urls': len(unique_urls),
+            'total_raw_urls': len(urls),
+            'total_filtered_urls': len(unique_urls),
             'urls': unique_urls[:5]  # Log first 5 for debugging
         })
 
@@ -317,7 +361,7 @@ class EmailAgent:
             email_date = message.get('Date', 'No Date')
             sender = message.get('From', '')
             subject = message.get('Subject', '')
-            self.logger.debug("Email metadata", extra={
+            self.logger.info("Email metadata", extra={
                 'message_id': message_id,
                 'email_date': email_date,
                 'sender': sender,
@@ -334,8 +378,17 @@ class EmailAgent:
             sender_match = any(s in sender for s in senders)
             subject_match = any(re.search(pattern, subject, re.IGNORECASE) for pattern in subject_patterns)
 
+            # Add detailed logging for debugging
+            self.logger.info(f"Email matching check: sender='{sender}', subject='{subject}'", extra={
+                'message_id': message_id,
+                'sender_match': sender_match,
+                'subject_match': subject_match,
+                'senders_config': senders,
+                'subject_patterns_config': subject_patterns
+            })
+
             if not (sender_match and subject_match):
-                self.logger.debug(f"Email filtered out: {sender} - {subject} (sender_match: {sender_match}, subject_match: {subject_match})", extra={
+                self.logger.warning(f"Email filtered out: sender='{sender}' subject='{subject}' (sender_match: {sender_match}, subject_match: {subject_match})", extra={
                     'message_id': message_id,
                     'senders_config': senders,
                     'subject_patterns_config': subject_patterns
@@ -354,7 +407,7 @@ class EmailAgent:
 
             # Extract URLs
             url_patterns = provider_config.get('body_url_patterns', [])
-            urls = self.extract_urls_from_email(message, url_patterns)
+            urls = self.extract_urls_from_email(message, url_patterns, provider_config)
 
             if not urls:
                 self.logger.info("No URLs found in email", extra={
@@ -438,13 +491,6 @@ class EmailAgent:
                     with open(filepath, 'w', encoding='utf-8') as f:
                         f.write(markdown_content)
 
-                    # Save HTML content if available (for debugging)
-                    if html_content:
-                        html_filepath = filepath.replace('.md', '.html')
-                        with open(html_filepath, 'w', encoding='utf-8') as f:
-                            f.write(html_content)
-                        self.logger.debug("Saved HTML file", extra={'html_filepath': html_filepath})
-
                     # Mark as processed
                     dedupe_service.mark_processed(provider_config['provider_id'], canonical_url)
 
@@ -496,9 +542,14 @@ class EmailAgent:
             })
 
         except Exception as e:
+            import traceback
+            tb = traceback.format_exc()
+            print(f"DEBUG: Failed to process email {message_id}: {str(e)}")
+            print(f"DEBUG: Traceback: {tb}")
             self.logger.error("Failed to process email", extra={
                 'message_id': message_id,
-                'error': str(e)
+                'error': str(e),
+                'traceback': tb
             })
 
         return {

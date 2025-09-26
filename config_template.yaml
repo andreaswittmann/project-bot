@@ -220,6 +220,7 @@ providers:
         senders: ["no-reply@solcom.de"]
         subject_patterns: ["Neues Projekt", "SOLCOM Projekt Alert"]
         body_url_patterns: ["https://www\\.solcom\\.de/de/projektportal/projektangebote/[a-z-]+-\\d+.*"]
+        url_exclude_patterns: []  # Optional: List of regex patterns to exclude specific URLs
         source_folder: INBOX
         processed_folder: Processed/Solcom
         max_age_days: 7
@@ -257,6 +258,7 @@ providers:
 # - senders: List of email addresses that are allowed
 # - subject_patterns: List of regex patterns that subject must match
 # - body_url_patterns: List of regex patterns to extract project URLs from email body
+# - url_exclude_patterns: Optional list of regex patterns to exclude specific URLs after extraction
 # - source_folder/processed_folder: Can override per provider
 # - max_age_days: Only process emails received within the last N days (default: 7)
 # - max_emails: Maximum number of emails to process per run (default: 50)

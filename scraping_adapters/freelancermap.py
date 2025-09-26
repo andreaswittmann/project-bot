@@ -10,7 +10,7 @@ from scraping_adapters.base import BaseAdapter
 from parse_html import parse_project
 
 
-class FreelancerMapAdapter(BaseAdapter):
+class FreelancermapAdapter(BaseAdapter):
     """
     Scraping adapter for FreelancerMap provider.
 

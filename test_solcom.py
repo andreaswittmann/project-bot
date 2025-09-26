@@ -39,11 +39,18 @@ def main():
         print(f"❌ Failed to load configuration: {e}")
         return 1
 
-    # Clear projects directory
+    # Clear projects directory but preserve deduplication state
     projects_dir = "projects"
-    print(f"🗑️  Clearing {projects_dir} directory...")
+    print(f"🗑️  Clearing {projects_dir} directory (preserving deduplication state)...")
 
     if os.path.exists(projects_dir):
+        # Preserve the processed URLs file
+        processed_file = None
+        processed_file_path = os.path.join(projects_dir, ".processed_urls.json")
+        if os.path.exists(processed_file_path):
+            with open(processed_file_path, 'r', encoding='utf-8') as f:
+                processed_file = f.read()
+
         # Remove all files but keep the directory
         for filename in os.listdir(projects_dir):
             file_path = os.path.join(projects_dir, filename)
@@ -54,6 +61,13 @@ def main():
                     shutil.rmtree(file_path)
             except Exception as e:
                 print(f"⚠️  Failed to delete {file_path}: {e}")
+
+        # Restore the processed URLs file
+        if processed_file:
+            with open(processed_file_path, 'w', encoding='utf-8') as f:
+                f.write(processed_file)
+            print(f"✅ Preserved deduplication state ({processed_file_path})")
+
         print(f"✅ Cleared {projects_dir} directory")
     else:
         os.makedirs(projects_dir, exist_ok=True)
