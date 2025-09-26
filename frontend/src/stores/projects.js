@@ -165,7 +165,7 @@ export const useProjectsStore = defineStore('projects', {
 
     async runWorkflow(workflowName) {
       try {
-        const response = await api.post(`/api/v1/workflows/${workflowName}/run`)
+        const response = await api.post(`/api/v1/workflows/${workflowName}/run`, {})
         console.log(`Workflow ${workflowName} executed successfully`)
         return response.data
       } catch (error) {
