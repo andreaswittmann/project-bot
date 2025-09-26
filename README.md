@@ -545,7 +545,6 @@ project-bot/
 │   └── LICENSING_REVIEW.md   # Comprehensive licensing review
 ├── main.py                    # Main CLI orchestrator for scraping, evaluation, generation
 ├── server_enhanced.py         # Flask backend API server
-├── rss_helper.py             # RSS feed processing and project scraping
 ├── evaluate_projects.py      # AI-powered project evaluation
 ├── application_generator.py  # Automated application generation
 ├── state_manager.py          # Project lifecycle state management

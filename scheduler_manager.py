@@ -48,7 +48,7 @@ class Schedule:
     name: str
     description: str
     enabled: bool
-    workflow_type: str  # main, evaluate, generate, email_ingest, rss_ingest
+    workflow_type: str  # evaluate, generate, email_ingest, rss_ingest, full_workflow
     parameters: Dict[str, Any]
     cron_schedule: str
     timezone: str
@@ -355,7 +355,7 @@ class SchedulerManager:
 
     def _validate_provider_config(self, workflow_type: str, parameters: Dict[str, Any]) -> bool:
         """Validate provider configuration for ingestion workflows"""
-        if workflow_type not in ("email_ingest", "rss_ingest"):
+        if workflow_type not in ("email_ingest", "rss_ingest", "full_workflow"):
             return True  # No validation needed for other workflows
 
         provider = parameters.get("provider")
@@ -484,11 +484,11 @@ class SchedulerManager:
     def _build_workflow_command(self, workflow_type: str, parameters: Dict[str, Any]) -> List[str]:
         """Build the command to execute for a workflow type"""
         base_commands = {
-            "main": ["python", "main.py"],
             "evaluate": ["python", "evaluate_projects.py"],
             "generate": ["python", "main.py", "--generate-applications"],
             "email_ingest": ["python", "main.py", "--email-ingest"],
-            "rss_ingest": ["python", "main.py", "--rss-ingest"]
+            "rss_ingest": ["python", "main.py", "--rss-ingest"],
+            "full_workflow": ["python", "main.py", "--full-workflow"]
         }
 
         if workflow_type not in base_commands:
@@ -497,22 +497,7 @@ class SchedulerManager:
         command = base_commands[workflow_type].copy()
 
         # Add parameters based on workflow type
-        if workflow_type == "main":
-            if "number" in parameters:
-                command.extend(["-n", str(parameters["number"])])
-            if "regions" in parameters:
-                if isinstance(parameters["regions"], list):
-                    command.extend(["-r"] + parameters["regions"])
-                else:
-                    command.extend(["-r", parameters["regions"]])
-            if "output_dir" in parameters:
-                command.extend(["-o", parameters["output_dir"]])
-            if parameters.get("no_applications"):
-                command.append("--no-applications")
-            if parameters.get("no_purge"):
-                command.append("--no-purge")
-
-        elif workflow_type == "evaluate":
+        if workflow_type == "evaluate":
             if parameters.get("pre_eval_only"):
                 command.append("--pre-eval-only")
 

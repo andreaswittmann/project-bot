@@ -4,12 +4,12 @@
       <h3>Filters & Search</h3>
       <div class="header-actions">
         <button
-          @click="handleWorkflowRun"
+          @click="handleRssIngest"
           :disabled="isWorkflowRunning"
-          class="workflow-btn"
+          class="rss-ingest-btn"
         >
-          <span v-if="isWorkflowRunning" class="spinner">⏳</span>
-          {{ isWorkflowRunning ? 'Running...' : 'Run Full Workflow' }}
+          <span v-if="isWorkflowRunning" class="spinner">📰</span>
+          {{ isWorkflowRunning ? 'Running...' : 'Run RSS Ingest' }}
         </button>
         <button
           @click="handleEmailIngest"
@@ -20,12 +20,12 @@
           {{ isWorkflowRunning ? 'Running...' : 'Run Email Ingest' }}
         </button>
         <button
-          @click="handleRssIngest"
+          @click="handleFullWorkflow"
           :disabled="isWorkflowRunning"
-          class="rss-ingest-btn"
+          class="full-workflow-btn"
         >
-          <span v-if="isWorkflowRunning" class="spinner">📰</span>
-          {{ isWorkflowRunning ? 'Running...' : 'Run RSS Ingest' }}
+          <span v-if="isWorkflowRunning" class="spinner">🚀</span>
+          {{ isWorkflowRunning ? 'Running...' : 'Run Full Workflow' }}
         </button>
         <button @click="resetFilters" class="reset-btn" :disabled="!hasActiveFilters">
           Reset All
@@ -341,7 +341,7 @@ const props = defineProps({
 })
 
 // Emits
-const emit = defineEmits(['filters-changed', 'run-workflow', 'run-rss-ingest'])
+const emit = defineEmits(['filters-changed', 'run-workflow', 'run-rss-ingest', 'run-full-workflow'])
 
 // Store
 const projectsStore = useProjectsStore()
@@ -639,9 +639,6 @@ const updateFilter = async (filter) => {
   }
 };
 
-const handleWorkflowRun = () => {
-  emit('run-workflow', 'main')
-}
 
 const handleEmailIngest = () => {
   emit('run-workflow', 'email_ingest')
@@ -649,6 +646,10 @@ const handleEmailIngest = () => {
 
 const handleRssIngest = () => {
   emit('run-rss-ingest')
+}
+
+const handleFullWorkflow = () => {
+  emit('run-full-workflow')
 }
 
 const applyQuickDateRange = () => {
@@ -891,6 +892,34 @@ onMounted(() => {
 }
 
 .rss-ingest-btn:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.full-workflow-btn {
+  background: linear-gradient(135deg, #7c3aed, #a855f7);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.full-workflow-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #6d28d9, #9333ea);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(124, 58, 237, 0.3);
+}
+
+.full-workflow-btn:disabled {
   background: #9ca3af;
   cursor: not-allowed;
   transform: none;

@@ -198,12 +198,6 @@ channels:
     source_folder: INBOX         # Folder to poll for new emails
     processed_folder: Processed  # Base folder for processed emails
 
-  # RSS Ingestion Configuration (Milestone 5)
-  rss:
-    enabled: true                # Global RSS channel enable/disable
-    default_limit: 5             # Default number of entries to process per feed
-    max_age_days: 7              # Only process entries from the last N days (default: 7)
-
 providers:
   freelancermap:
     enabled: true
@@ -282,11 +276,7 @@ providers:
 # - feed_urls: List of RSS feed URLs to fetch from
 # - limit: Maximum number of entries to process per feed (default: 5)
 #
-# RSS Channel:
-# - enabled: Global enable/disable for RSS ingestion
-# - default_limit: Default number of RSS entries to process per feed
-# - max_age_days: Only process RSS entries published within the last N days (default: 7)
-# - Provider-specific settings under providers.<provider_id>.channels.rss
+# Provider-specific settings under providers.<provider_id>.channels.rss
 # - feed_urls: List of RSS feed URLs to fetch from
-# - limit: Number of entries to process per feed (overrides global default_limit)
-# - max_age_days: Only process entries from the last N days (overrides global max_age_days)
+# - limit: Number of entries to process per feed (default: 5)
+# - max_age_days: Only process entries from the last N days (default: 7)

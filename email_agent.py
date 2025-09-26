@@ -18,7 +18,7 @@ import feedparser
 from bs4 import BeautifulSoup
 from parse_html import parse_project, to_markdown
 from state_manager import ProjectStateManager
-from rss_helper import create_safe_filename
+from utils.filename import create_safe_filename
 from dedupe_service import DedupeService
 from markdown_renderer import MarkdownRenderer
 import importlib
@@ -1464,6 +1464,60 @@ class EmailAgent:
         self.logger.info("Multi-provider RSS ingestion run complete", extra=total_summary)
         return total_summary
 
+    def run_full_workflow(self, output_dir: str = 'projects', dry_run: bool = False) -> Dict[str, Any]:
+        """
+        Run the complete workflow: RSS ingestion followed by email ingestion for all enabled providers.
+
+        Args:
+            output_dir: Directory to save project files
+            dry_run: If True, validate configs and simulate operations without side effects
+
+        Returns:
+            Aggregated summary dictionary with results from both RSS and email ingestion
+        """
+        self.logger.info("Starting full workflow run (RSS + Email)", extra={
+            'output_dir': output_dir,
+            'dry_run': dry_run
+        })
+
+        total_summary = {
+            'workflow_type': 'full_workflow',
+            'dry_run': dry_run,
+            'rss_summary': {},
+            'email_summary': {},
+            'total_projects_saved': 0,
+            'total_errors': 0,
+            'completed_at': None
+        }
+
+        try:
+            # Step 1: Run RSS ingestion for all enabled providers
+            self.logger.info("Step 1: Running RSS ingestion for all enabled providers")
+            rss_summary = self.run_all_providers_rss(output_dir, dry_run)
+            total_summary['rss_summary'] = rss_summary
+            total_summary['total_projects_saved'] += rss_summary.get('total_projects_saved', 0)
+            total_summary['total_errors'] += rss_summary.get('total_errors', 0)
+
+            # Step 2: Run email ingestion for all enabled providers
+            self.logger.info("Step 2: Running email ingestion for all enabled providers")
+            email_summary = self.run_all_providers(output_dir, dry_run)
+            total_summary['email_summary'] = email_summary
+            total_summary['total_projects_saved'] += email_summary.get('total_projects_saved', 0)
+            total_summary['total_errors'] += email_summary.get('total_errors', 0)
+
+            total_summary['completed_at'] = datetime.now().isoformat()
+            self.logger.info("Full workflow run complete", extra=total_summary)
+
+        except Exception as e:
+            total_summary['total_errors'] += 1
+            total_summary['completed_at'] = datetime.now().isoformat()
+            self.logger.error("Full workflow run failed", extra={
+                'error': str(e),
+                'summary': total_summary
+            })
+
+        return total_summary
+
 def run_email_ingestion(provider_ids: str, config: Dict[str, Any], output_dir: str = 'projects', dry_run: bool = False) -> Dict[str, Any]:
     """
     Convenience function to run email ingestion for one or more providers.
@@ -1552,6 +1606,21 @@ def run_rss_ingestion(provider_ids: str, config: Dict[str, Any], output_dir: str
         # Single provider
         return agent.run_rss_ingestion(provider_ids, output_dir, dry_run)
 
+def run_full_workflow(config: Dict[str, Any], output_dir: str = 'projects', dry_run: bool = False) -> Dict[str, Any]:
+    """
+    Convenience function to run the complete workflow (RSS + Email ingestion for all enabled providers).
+
+    Args:
+        config: Full configuration dictionary
+        output_dir: Output directory for project files
+        dry_run: If True, validate configs and simulate operations without side effects
+
+    Returns:
+        Summary of the full workflow run
+    """
+    agent = EmailAgent(config)
+    return agent.run_full_workflow(output_dir, dry_run)
+
 def run_rss_ingestion(provider_ids: str, config: Dict[str, Any], output_dir: str = 'projects', dry_run: bool = False) -> Dict[str, Any]:
     """
     Convenience function to run RSS ingestion for one or more providers.
@@ -1587,3 +1656,43 @@ def run_rss_ingestion(provider_ids: str, config: Dict[str, Any], output_dir: str
     else:
         # Single provider
         return agent.run_rss_ingestion(provider_ids, output_dir, dry_run)
+
+def run_full_workflow(config: Dict[str, Any], output_dir: str = 'projects', dry_run: bool = False) -> Dict[str, Any]:
+    """
+    Run complete workflow: RSS ingestion followed by email ingestion for all enabled providers.
+
+    Args:
+        config: Full configuration dictionary
+        output_dir: Output directory for project files
+        dry_run: If True, validate config and simulate without side effects
+
+    Returns:
+        Summary of the complete workflow run
+    """
+    agent = EmailAgent(config)
+
+    # Run RSS ingestion for all providers
+    rss_result = agent.run_all_providers_rss(output_dir, dry_run)
+
+    # Run email ingestion for all providers
+    email_result = agent.run_all_providers(output_dir, dry_run)
+
+    # Aggregate results
+    total_projects_saved = rss_result.get('total_projects_saved', 0) + email_result.get('total_projects_saved', 0)
+    total_entries_found = rss_result.get('total_entries_found', 0)
+    total_emails_processed = email_result.get('total_emails_processed', 0)
+    total_urls_found = email_result.get('total_urls_found', 0)
+    total_urls_skipped_dedupe = rss_result.get('total_urls_skipped_dedupe', 0) + email_result.get('total_urls_skipped_dedupe', 0)
+    total_errors = rss_result.get('total_errors', 0) + email_result.get('total_errors', 0)
+
+    return {
+        'dry_run': dry_run,
+        'total_projects_saved': total_projects_saved,
+        'total_entries_found': total_entries_found,
+        'total_emails_processed': total_emails_processed,
+        'total_urls_found': total_urls_found,
+        'total_urls_skipped_dedupe': total_urls_skipped_dedupe,
+        'total_errors': total_errors,
+        'rss_summary': rss_result,
+        'email_summary': email_result
+    }

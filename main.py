@@ -6,12 +6,11 @@ import os
 import logging
 from datetime import datetime
 from pathlib import Path
-from rss_helper import generate_rss_urls, fetch_and_process_rss
 import evaluate_projects
 from application_generator import create_application_generator, load_application_config
 from file_purger import FilePurger
 from state_manager import ProjectStateManager
-from email_agent import run_email_ingestion, run_rss_ingestion
+from email_agent import run_email_ingestion, run_rss_ingestion, run_full_workflow
 
 # Import centralized logging
 from logging_config import setup_logging
@@ -435,6 +434,9 @@ if __name__ == "__main__":
 8. Run RSS ingestion for all enabled providers:
    python main.py --rss-ingest --provider all
 
+9. Run complete workflow (RSS + Email for all enabled providers):
+   python main.py --full-workflow
+
 9. Save output to a custom directory:
    python main.py -o ./output_folder
 """
@@ -481,11 +483,13 @@ if __name__ == "__main__":
     parser.add_argument("--state-report", action="store_true",
                         help="Generate project state report")
 
-    # Email ingestion arguments (Milestone 1)
+    # Ingestion arguments (Milestone 1 & 5)
     parser.add_argument("--email-ingest", action="store_true",
-                        help="Run email ingestion instead of RSS")
+                        help="Run email ingestion for all enabled providers")
     parser.add_argument("--rss-ingest", action="store_true",
-                        help="Run RSS ingestion instead of legacy RSS")
+                        help="Run RSS ingestion for all enabled providers")
+    parser.add_argument("--full-workflow", action="store_true",
+                        help="Run complete workflow: RSS ingestion followed by email ingestion for all enabled providers")
     parser.add_argument("--provider", default="freelancermap",
                         help="Provider(s) for ingestion. Use 'all' for all enabled providers, comma-separated list for multiple, or single provider name (default: freelancermap)")
     parser.add_argument("--dry-run", action="store_true",
@@ -523,27 +527,30 @@ if __name__ == "__main__":
     # Load configuration for email ingestion or application generation
     config = load_application_config(args.config)
 
-    if args.email_ingest:
-        # Email ingestion instead of RSS
+    if args.full_workflow:
+        # Complete workflow: RSS + Email ingestion
+        mode = "DRY RUN" if args.dry_run else "LIVE"
+        print(f"🚀 Running complete workflow (RSS + Email) ({mode})...")
+        summary = run_full_workflow(config, args.output_dir, args.dry_run)
+        print(f"📊 Full workflow summary: {summary}")
+    elif args.email_ingest:
+        # Email ingestion for all enabled providers
         mode = "DRY RUN" if args.dry_run else "LIVE"
         print(f"📧 Running email ingestion ({mode})...")
-        summary = run_email_ingestion(args.provider, config, args.output_dir, args.dry_run)
+        summary = run_email_ingestion("all", config, args.output_dir, args.dry_run)
         print(f"📊 Email ingestion summary: {summary}")
     elif args.rss_ingest:
-        # RSS ingestion instead of legacy RSS
+        # RSS ingestion for all enabled providers
+        mode = "DRY RUN" if args.dry_run else "LIVE"
+        print(f"📰 Running RSS ingestion ({mode})...")
+        summary = run_rss_ingestion("all", config, args.output_dir, args.dry_run)
+        print(f"📊 RSS ingestion summary: {summary}")
+    else:
+        # Default to RSS ingestion workflow (replaces legacy RSS)
         mode = "DRY RUN" if args.dry_run else "LIVE"
         print(f"📰 Running RSS ingestion ({mode})...")
         summary = run_rss_ingestion(args.provider, config, args.output_dir, args.dry_run)
         print(f"📊 RSS ingestion summary: {summary}")
-    else:
-        # Original RSS workflow
-        if "all" in args.regions:
-            regions = ["international", "austria", "switzerland", "germany"]
-        else:
-            regions = args.regions
-
-        rss_urls = generate_rss_urls(regions)
-        fetch_and_process_rss(rss_urls, args.number, args.output_dir)
 
     # After fetching projects, run the evaluation
     print("\nStarting project evaluation...")

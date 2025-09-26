@@ -144,7 +144,7 @@ class ScheduleCreateRequest(BaseModel):
     def __init__(self, **data):
         super().__init__(**data)
         # Validate workflow_type
-        valid_types = {"main", "evaluate", "generate", "email_ingest", "rss_ingest"}
+        valid_types = {"main", "evaluate", "generate", "email_ingest", "rss_ingest", "full_workflow"}
         if self.workflow_type not in valid_types:
             raise ValueError(f"Invalid workflow_type '{self.workflow_type}'. Valid types: {', '.join(sorted(valid_types))}")
 
@@ -1360,6 +1360,34 @@ def run_workflow(workflow_name: str):
                 return jsonify(APIErrorResponse(
                     error="RssIngestionError",
                     message=f"RSS ingestion failed for provider '{provider_id}'",
+                    code=500,
+                    details=result,
+                    timestamp=datetime.now().isoformat()
+                ).model_dump()), 500
+
+        elif workflow_name == 'full_workflow':
+            # Execute full workflow (RSS + Email ingestion)
+            from email_agent import run_full_workflow
+            import yaml
+
+            # Load config
+            with open('config.yaml', 'r') as f:
+                config = yaml.safe_load(f)
+
+            # Run full workflow
+            result = run_full_workflow(config, output_dir='projects')
+
+            if result.get('total_errors', 0) == 0:
+                return jsonify({
+                    "success": True,
+                    "message": "Full workflow completed successfully",
+                    "summary": result,
+                    "timestamp": datetime.now().isoformat()
+                })
+            else:
+                return jsonify(APIErrorResponse(
+                    error="FullWorkflowError",
+                    message="Full workflow failed",
                     code=500,
                     details=result,
                     timestamp=datetime.now().isoformat()

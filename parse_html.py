@@ -308,7 +308,7 @@ def main():
     markdown_content = to_markdown(data)
 
     # Create filename with validation and fallbacks
-    from rss_helper import create_safe_filename
+    from utils.filename import create_safe_filename
     timestamp = dt.datetime.now().strftime("%Y%m%d_%H%M%S")
     original_title = data.get("titel", "project")
     filename = create_safe_filename(original_title, timestamp)

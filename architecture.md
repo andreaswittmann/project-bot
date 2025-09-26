@@ -20,7 +20,6 @@ graph TB
     subgraph "⚙️ Backend (Python/Flask)"
         Server[server_enhanced.py<br/>Flask API Server]
         Main[main.py<br/>CLI Orchestrator]
-        RSSHelper[rss_helper.py<br/>RSS Fetching & Processing]
         Evaluator[evaluate_projects.py<br/>Project Evaluation]
         Generator[application_generator.py<br/>Application Generation]
         StateMgr[state_manager.py<br/>State Management]
@@ -43,13 +42,12 @@ graph TB
         Logs[logs/<br/>Application Logs]
     end
 
-    RSS --> RSSHelper
-    RSSHelper --> Projects
+    RSS --> Main
+    Main --> Projects
     Projects --> Evaluator
     Evaluator --> StateMgr
     StateMgr --> Generator
     Generator --> Projects
-    Main --> RSSHelper
     Main --> Evaluator
     Main --> Generator
     Main --> StateMgr
@@ -72,7 +70,7 @@ graph TB
 
     %% Apply styles
     class RSS,CV,Config dataSource
-    class Server,Main,RSSHelper,Evaluator,Generator,StateMgr,Scheduler,Purger backend
+    class Server,Main,Evaluator,Generator,StateMgr,Scheduler,Purger backend
     class Dashboard,ScheduleMgr,MarkdownEditor,Store,API frontend
     class Projects,Schedules,QuickFilters,Logs storage
 ```
@@ -101,7 +99,6 @@ graph TB
     subgraph "Core Components"
         Server[Flask API Server]
         CLI[CLI Orchestrator]
-        RSSProc[RSS Processor]
         ProjEval[Project Evaluator]
         AppGen[Application Generator]
     end
@@ -164,7 +161,6 @@ graph TB
 
 - **Flask API Server (server_enhanced.py)**: RESTful backend API handling frontend requests and CLI coordination
 - **CLI Orchestrator (main.py)**: Central command-line interface for workflow execution
-- **RSS Processor (rss_helper.py)**: Fetches and processes FreelancerMap RSS feeds
 - **HTML Parser (parse_html.py)**: Extracts project details from HTML pages
 - **Project Evaluator (evaluate_projects.py)**: AI-powered fit assessment using OpenAI/Anthropic/Google Gemini
 - **Application Generator (application_generator.py)**: Generates professional German job applications

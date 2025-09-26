@@ -47,7 +47,6 @@
             :class="{ 'error': errors.workflow_type }"
           >
             <option value="">Select workflow type...</option>
-            <option value="main">Full Workflow (scrape → evaluate → generate → dashboard)</option>
             <option value="email_ingest">Email Ingestion (provider-specific email scraping)</option>
             <option value="rss_ingest">RSS Ingestion (provider-specific RSS scraping)</option>
             <option value="evaluate">Evaluation Only</option>
@@ -60,56 +59,6 @@
         <div v-if="formData.workflow_type" class="parameters-section">
           <h5>Parameters</h5>
 
-          <!-- Main Workflow Parameters -->
-          <div v-if="formData.workflow_type === 'main'" class="parameter-grid">
-            <div class="form-group">
-              <label for="number">Number of Projects</label>
-              <input
-                id="number"
-                v-model.number="formData.parameters.number"
-                type="number"
-                min="1"
-                max="50"
-                placeholder="10"
-              />
-            </div>
-
-            <div class="form-group">
-              <label for="regions">Regions</label>
-              <select
-                id="regions"
-                v-model="selectedRegions"
-                multiple
-                size="4"
-              >
-                <option value="germany">Germany</option>
-                <option value="austria">Austria</option>
-                <option value="switzerland">Switzerland</option>
-                <option value="international">International</option>
-              </select>
-              <small class="help-text">Hold Ctrl/Cmd to select multiple regions</small>
-            </div>
-
-            <div class="checkbox-group">
-              <label class="checkbox-label">
-                <input
-                  v-model="formData.parameters.no_applications"
-                  type="checkbox"
-                />
-                Skip application generation
-              </label>
-            </div>
-
-            <div class="checkbox-group">
-              <label class="checkbox-label">
-                <input
-                  v-model="formData.parameters.no_purge"
-                  type="checkbox"
-                />
-                Skip file purging
-              </label>
-            </div>
-          </div>
 
           <!-- Email Ingestion Parameters -->
           <div v-if="formData.workflow_type === 'email_ingest'" class="parameter-grid">
@@ -320,14 +269,8 @@ watch(() => props.schedule, (newSchedule) => {
     formData.value.cron_schedule = newSchedule.cron_schedule || ''
     formData.value.timezone = newSchedule.timezone || 'Europe/Berlin'
 
-    // Handle regions for main workflow
-    if (newSchedule.workflow_type === 'main' && newSchedule.parameters?.regions) {
-      selectedRegions.value = Array.isArray(newSchedule.parameters.regions)
-        ? newSchedule.parameters.regions
-        : [newSchedule.parameters.regions]
-    } else {
-      selectedRegions.value = []
-    }
+    // Handle regions for main workflow (removed)
+    selectedRegions.value = []
 
     // Reset errors when editing
     errors.value = {}
@@ -336,9 +279,7 @@ watch(() => props.schedule, (newSchedule) => {
 }, { immediate: true })
 
 watch(selectedRegions, (newRegions) => {
-  if (formData.value.workflow_type === 'main') {
-    formData.value.parameters.regions = newRegions.length > 0 ? newRegions : undefined
-  }
+  // Regions handling removed for main workflow
 }, { deep: true })
 
 // Methods
@@ -390,14 +331,7 @@ const handleSubmit = async () => {
 
   try {
     // Ensure parameters are properly set based on workflow type
-    if (formData.value.workflow_type === 'main') {
-      formData.value.parameters = {
-        number: formData.value.parameters.number || 10,
-        regions: selectedRegions.value.length > 0 ? selectedRegions.value : ['germany'],
-        no_applications: formData.value.parameters.no_applications || false,
-        no_purge: formData.value.parameters.no_purge || false
-      }
-    } else if (formData.value.workflow_type === 'email_ingest') {
+    if (formData.value.workflow_type === 'email_ingest') {
       if (!formData.value.parameters.provider) {
         errors.value.provider = 'Provider is required for email ingestion'
         loading.value = false

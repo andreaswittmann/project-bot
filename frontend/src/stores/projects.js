@@ -197,6 +197,17 @@ export const useProjectsStore = defineStore('projects', {
       }
     },
 
+    async runFullWorkflow() {
+      try {
+        const response = await api.post('/api/v1/workflows/full_workflow/run', {})
+        console.log('Full workflow executed successfully')
+        return response.data
+      } catch (error) {
+        console.error('Error running full workflow:', error)
+        throw error
+      }
+    },
+
     async getWorkflowStatus(workflowName) {
       try {
         const response = await api.get(`/api/v1/workflows/${workflowName}/status`)
