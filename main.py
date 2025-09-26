@@ -11,7 +11,7 @@ import evaluate_projects
 from application_generator import create_application_generator, load_application_config
 from file_purger import FilePurger
 from state_manager import ProjectStateManager
-from email_agent import run_email_ingestion
+from email_agent import run_email_ingestion, run_rss_ingestion
 
 # Import centralized logging
 from logging_config import setup_logging
@@ -406,10 +406,10 @@ def handle_state_report(args) -> None:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="Project Bot: Scrape project details from providers either via RSS feeds or email ingestion.",
+        description="Project Bot: Scrape project details from providers via RSS feeds, email ingestion, or RSS ingestion.",
         formatter_class=argparse.RawTextHelpFormatter,
         epilog="""
-Examples:
+ Examples:
 
 1. Search for projects with RSS and scrape the top 5 from Germany:
    python main.py
@@ -429,7 +429,13 @@ Examples:
 6. Run email ingestion for multiple specific providers:
    python main.py --email-ingest --provider freelancermap,otherprovider
 
-5. Save output to a custom directory:
+7. Run RSS ingestion for freelancermap provider:
+   python main.py --rss-ingest --provider freelancermap
+
+8. Run RSS ingestion for all enabled providers:
+   python main.py --rss-ingest --provider all
+
+9. Save output to a custom directory:
    python main.py -o ./output_folder
 """
     )
@@ -478,10 +484,12 @@ Examples:
     # Email ingestion arguments (Milestone 1)
     parser.add_argument("--email-ingest", action="store_true",
                         help="Run email ingestion instead of RSS")
+    parser.add_argument("--rss-ingest", action="store_true",
+                        help="Run RSS ingestion instead of legacy RSS")
     parser.add_argument("--provider", default="freelancermap",
-                        help="Provider(s) for email ingestion. Use 'all' for all enabled providers, comma-separated list for multiple, or single provider name (default: freelancermap)")
+                        help="Provider(s) for ingestion. Use 'all' for all enabled providers, comma-separated list for multiple, or single provider name (default: freelancermap)")
     parser.add_argument("--dry-run", action="store_true",
-                        help="Validate configuration and simulate email ingestion without actual operations")
+                        help="Validate configuration and simulate ingestion without actual operations")
 
     args = parser.parse_args()
 
@@ -521,6 +529,12 @@ Examples:
         print(f"📧 Running email ingestion ({mode})...")
         summary = run_email_ingestion(args.provider, config, args.output_dir, args.dry_run)
         print(f"📊 Email ingestion summary: {summary}")
+    elif args.rss_ingest:
+        # RSS ingestion instead of legacy RSS
+        mode = "DRY RUN" if args.dry_run else "LIVE"
+        print(f"📰 Running RSS ingestion ({mode})...")
+        summary = run_rss_ingestion(args.provider, config, args.output_dir, args.dry_run)
+        print(f"📊 RSS ingestion summary: {summary}")
     else:
         # Original RSS workflow
         if "all" in args.regions:

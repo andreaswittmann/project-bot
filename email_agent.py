@@ -14,6 +14,7 @@ from typing import List, Dict, Any
 from datetime import datetime
 import os
 
+import feedparser
 from bs4 import BeautifulSoup
 from parse_html import parse_project, to_markdown
 from state_manager import ProjectStateManager
@@ -708,24 +709,322 @@ class EmailAgent:
 
         return summary
 
-    def get_enabled_providers(self) -> List[str]:
+    def fetch_rss_feed(self, feed_url: str, limit: int = 5, max_age_days: int = 7) -> List[Dict[str, Any]]:
         """
-        Get list of enabled providers from configuration.
+        Fetch and parse RSS feed, filtering by age and limit.
+
+        Args:
+            feed_url: RSS feed URL to fetch
+            limit: Maximum number of entries to return
+            max_age_days: Only include entries from the last N days
 
         Returns:
-            List of provider IDs that are enabled
+            List of filtered RSS entries with metadata
+        """
+        try:
+            self.logger.info("Fetching RSS feed", extra={
+                'feed_url': feed_url,
+                'limit': limit,
+                'max_age_days': max_age_days
+            })
+
+            feed = feedparser.parse(feed_url)
+
+            if feed.bozo:
+                self.logger.warning("RSS feed parsing error", extra={
+                    'feed_url': feed_url,
+                    'error': str(feed.bozo_exception)
+                })
+                return []
+
+            # Calculate cutoff date
+            from datetime import timedelta
+            cutoff_date = datetime.now() - timedelta(days=max_age_days)
+
+            filtered_entries = []
+            for entry in feed.entries[:limit]:
+                # Parse entry date
+                entry_date = None
+                if hasattr(entry, 'published_parsed') and entry.published_parsed:
+                    entry_date = datetime(*entry.published_parsed[:6])
+                elif hasattr(entry, 'updated_parsed') and entry.updated_parsed:
+                    entry_date = datetime(*entry.updated_parsed[:6])
+
+                # Skip if too old
+                if entry_date and entry_date < cutoff_date:
+                    continue
+
+                # Extract URL
+                url = getattr(entry, 'link', '')
+                if not url:
+                    continue
+
+                filtered_entries.append({
+                    'title': getattr(entry, 'title', 'Untitled'),
+                    'url': url,
+                    'published_date': entry_date.isoformat() if entry_date else None,
+                    'feed_url': feed_url
+                })
+
+            self.logger.info("RSS feed fetched successfully", extra={
+                'feed_url': feed_url,
+                'total_entries': len(feed.entries),
+                'filtered_entries': len(filtered_entries)
+            })
+
+            return filtered_entries
+
+        except Exception as e:
+            self.logger.error("Failed to fetch RSS feed", extra={
+                'feed_url': feed_url,
+                'error': str(e)
+            })
+            return []
+
+    def process_rss_entries(self, entries: List[Dict[str, Any]], provider_config: Dict[str, Any], output_dir: str) -> Dict[str, int]:
+        """
+        Process RSS entries: extract URLs, scrape projects, save to files.
+
+        Args:
+            entries: List of RSS entries to process
+            provider_config: Provider-specific RSS config
+            output_dir: Directory to save project files
+
+        Returns:
+            Dict with processing results: projects_saved, urls_skipped_dedupe
+        """
+        projects_saved = 0
+        urls_skipped_dedupe = 0
+
+        # Initialize services
+        dedupe_service = DedupeService(output_dir)
+        adapter = self.load_adapter(provider_config['provider_id'], provider_config)
+        renderer = MarkdownRenderer()
+
+        for entry in entries:
+            try:
+                url = entry['url']
+                self.logger.debug("Processing RSS entry", extra={
+                    'title': entry['title'],
+                    'url': url,
+                    'feed_url': entry['feed_url']
+                })
+
+                # Canonicalize URL for dedupe
+                canonical_url = dedupe_service.canonicalize_url(url, provider_config['provider_id'])
+
+                # Check if already processed
+                if dedupe_service.already_processed(provider_config['provider_id'], canonical_url):
+                    urls_skipped_dedupe += 1
+                    self.logger.info("URL already processed, skipping", extra={
+                        'url': url,
+                        'canonical_url': canonical_url,
+                        'title': entry['title']
+                    })
+                    continue
+
+                # Parse project via adapter
+                self.logger.debug("Calling adapter.parse", extra={'url': url})
+                parse_result = adapter.parse(url)
+
+                # Handle new return format with optional HTML
+                if isinstance(parse_result, dict) and 'schema' in parse_result:
+                    schema = parse_result['schema']
+                    html_content = parse_result.get('html')
+                else:
+                    # Backward compatibility for adapters that return schema directly
+                    schema = parse_result
+                    html_content = None
+
+                self.logger.debug("adapter.parse completed", extra={'url': url, 'title': schema.get('title', 'N/A')})
+
+                # Build provider metadata
+                provider_meta = {
+                    'provider_id': provider_config['provider_id'],
+                    'provider_name': adapter.get_provider_name(),
+                    'collection_channel': 'rss',
+                    'collected_at': datetime.now().isoformat(),
+                    'feed_url': entry['feed_url'],
+                    'published_date': entry['published_date']
+                }
+
+                # Render markdown
+                markdown_content = renderer.render(schema, provider_meta)
+
+                # Create filename
+                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                original_title = schema.get('title', 'project')
+                filename = create_safe_filename(original_title, timestamp)
+
+                # Save file
+                os.makedirs(output_dir, exist_ok=True)
+                filepath = os.path.join(output_dir, filename)
+
+                with open(filepath, 'w', encoding='utf-8') as f:
+                    f.write(markdown_content)
+
+                # Mark as processed
+                dedupe_service.mark_processed(provider_config['provider_id'], canonical_url)
+
+                # Initialize state (will merge with existing frontmatter)
+                state_manager = ProjectStateManager(output_dir)
+                metadata = {
+                    'scraped_date': datetime.now().isoformat(),
+                    'source_url': url
+                }
+
+                success = state_manager.initialize_project(filepath, metadata)
+
+                if success:
+                    projects_saved += 1
+                    self.logger.info("Project saved from RSS", extra={
+                        'filepath': filepath,
+                        'url': url,
+                        'canonical_url': canonical_url,
+                        'title': entry['title'],
+                        'feed_url': entry['feed_url']
+                    })
+                else:
+                    self.logger.warning("Failed to initialize project state", extra={
+                        'filepath': filepath
+                    })
+
+            except Exception as e:
+                import traceback
+                self.logger.error("Failed to process RSS entry", extra={
+                    'url': entry.get('url', 'N/A'),
+                    'title': entry.get('title', 'N/A'),
+                    'feed_url': entry.get('feed_url', 'N/A'),
+                    'error': str(e),
+                    'traceback': traceback.format_exc()
+                })
+
+        self.logger.info("RSS entries processing complete", extra={
+            'entries_processed': len(entries),
+            'projects_saved': projects_saved,
+            'urls_skipped_dedupe': urls_skipped_dedupe
+        })
+
+        return {
+            'projects_saved': projects_saved,
+            'urls_skipped_dedupe': urls_skipped_dedupe
+        }
+
+    def run_rss_ingestion(self, provider_id: str, output_dir: str = 'projects', dry_run: bool = False) -> Dict[str, Any]:
+        """
+        Run RSS ingestion for the specified provider.
+
+        Args:
+            provider_id: Provider identifier (e.g., 'freelancermap')
+            output_dir: Directory to save project files
+            dry_run: If True, validate config and simulate operations without side effects
+
+        Returns:
+            Summary dictionary with processing results
+        """
+        self.logger.info("Starting RSS ingestion run", extra={
+            'provider_id': provider_id,
+            'output_dir': output_dir,
+            'dry_run': dry_run
+        })
+
+        summary = {
+            'provider_id': provider_id,
+            'dry_run': dry_run,
+            'entries_found': 0,
+            'entries_processed': 0,
+            'urls_skipped_dedupe': 0,
+            'projects_saved': 0,
+            'errors': 0
+        }
+
+        try:
+            # Get provider config
+            provider_config = self.config.get('providers', {}).get(provider_id, {}).get('channels', {}).get('rss', {})
+            if not provider_config:
+                self.logger.error("No RSS config found for provider", extra={'provider_id': provider_id})
+                summary['errors'] += 1
+                return summary
+
+            provider_config['provider_id'] = provider_id
+
+            # Get feed URLs
+            feed_urls = provider_config.get('feed_urls', [])
+            if not feed_urls:
+                self.logger.error("No feed URLs configured for provider", extra={'provider_id': provider_id})
+                summary['errors'] += 1
+                return summary
+
+            # Get limits
+            limit = provider_config.get('limit', self.config.get('channels', {}).get('rss', {}).get('default_limit', 5))
+            max_age_days = provider_config.get('max_age_days', self.config.get('channels', {}).get('rss', {}).get('max_age_days', 7))
+
+            if dry_run:
+                # Simulate operations
+                self.logger.info("DRY RUN: Would fetch RSS feeds", extra={
+                    'feed_urls': feed_urls,
+                    'limit': limit,
+                    'max_age_days': max_age_days
+                })
+                self.logger.info("DRY RUN: Would process RSS entries", extra={
+                    'output_dir': output_dir
+                })
+                summary['entries_found'] = 0  # Unknown in dry run
+                summary['entries_processed'] = 0
+                summary['urls_skipped_dedupe'] = 0
+                summary['projects_saved'] = 0
+                self.logger.info("RSS ingestion dry run complete", extra=summary)
+                return summary
+
+            # Actual run
+            all_entries = []
+            for feed_url in feed_urls:
+                entries = self.fetch_rss_feed(feed_url, limit, max_age_days)
+                all_entries.extend(entries)
+
+            summary['entries_found'] = len(all_entries)
+
+            if all_entries:
+                result = self.process_rss_entries(all_entries, provider_config, output_dir)
+                summary['entries_processed'] = len(all_entries)
+                summary['urls_skipped_dedupe'] = result['urls_skipped_dedupe']
+                summary['projects_saved'] = result['projects_saved']
+            else:
+                self.logger.info("No RSS entries to process", extra={'provider_id': provider_id})
+
+            self.logger.info("RSS ingestion run complete", extra=summary)
+
+        except Exception as e:
+            summary['errors'] += 1
+            self.logger.error("RSS ingestion run failed", extra={
+                'error': str(e),
+                'summary': summary
+            })
+
+        return summary
+
+    def get_enabled_providers(self, channel: str = 'email') -> List[str]:
+        """
+        Get list of enabled providers from configuration for a specific channel.
+
+        Args:
+            channel: Channel type ('email' or 'rss')
+
+        Returns:
+            List of provider IDs that are enabled for the specified channel
         """
         providers = self.config.get('providers', {})
         enabled_providers = []
 
         for provider_id, provider_config in providers.items():
             if provider_config.get('enabled', True):  # Default to enabled
-                # Check if email channel is configured
-                if provider_config.get('channels', {}).get('email'):
+                # Check if specified channel is configured
+                if provider_config.get('channels', {}).get(channel):
                     enabled_providers.append(provider_id)
 
-        self.logger.info("Found enabled providers with email channels", extra={
-            'enabled_providers': enabled_providers
+        self.logger.info(f"Found enabled providers with {channel} channels", extra={
+            'enabled_providers': enabled_providers,
+            'channel': channel
         })
         return enabled_providers
 
@@ -808,6 +1107,81 @@ class EmailAgent:
         self.logger.info("Multi-provider email ingestion run complete", extra=total_summary)
         return total_summary
 
+    def run_all_providers_rss(self, output_dir: str = 'projects', dry_run: bool = False) -> Dict[str, Any]:
+        """
+        Run RSS ingestion for all enabled providers.
+
+        Args:
+            output_dir: Directory to save project files
+            dry_run: If True, validate configs and simulate operations without side effects
+
+        Returns:
+            Aggregated summary dictionary with results from all providers
+        """
+        self.logger.info("Starting multi-provider RSS ingestion run", extra={
+            'output_dir': output_dir,
+            'dry_run': dry_run
+        })
+
+        # Get enabled providers for RSS
+        enabled_providers = self.get_enabled_providers('rss')
+        if not enabled_providers:
+            self.logger.warning("No enabled providers found with RSS channels")
+            return {
+                'providers_processed': 0,
+                'total_entries_found': 0,
+                'total_entries_processed': 0,
+                'total_urls_skipped_dedupe': 0,
+                'total_projects_saved': 0,
+                'total_errors': 0,
+                'provider_summaries': {}
+            }
+
+        # Run for each provider
+        provider_summaries = {}
+        total_summary = {
+            'providers_processed': 0,
+            'total_entries_found': 0,
+            'total_entries_processed': 0,
+            'total_urls_skipped_dedupe': 0,
+            'total_projects_saved': 0,
+            'total_errors': 0,
+            'provider_summaries': provider_summaries
+        }
+
+        for provider_id in enabled_providers:
+            try:
+                self.logger.info(f"Processing RSS provider: {provider_id}")
+                summary = self.run_rss_ingestion(provider_id, output_dir, dry_run)
+                provider_summaries[provider_id] = summary
+
+                # Aggregate totals
+                total_summary['providers_processed'] += 1
+                total_summary['total_entries_found'] += summary.get('entries_found', 0)
+                total_summary['total_entries_processed'] += summary.get('entries_processed', 0)
+                total_summary['total_urls_skipped_dedupe'] += summary.get('urls_skipped_dedupe', 0)
+                total_summary['total_projects_saved'] += summary.get('projects_saved', 0)
+                total_summary['total_errors'] += summary.get('errors', 0)
+
+            except Exception as e:
+                self.logger.error(f"Failed to process RSS provider {provider_id}", extra={
+                    'provider_id': provider_id,
+                    'error': str(e)
+                })
+                provider_summaries[provider_id] = {
+                    'provider_id': provider_id,
+                    'dry_run': dry_run,
+                    'entries_found': 0,
+                    'entries_processed': 0,
+                    'urls_skipped_dedupe': 0,
+                    'projects_saved': 0,
+                    'errors': 1
+                }
+                total_summary['total_errors'] += 1
+
+        self.logger.info("Multi-provider RSS ingestion run complete", extra=total_summary)
+        return total_summary
+
 def run_email_ingestion(provider_ids: str, config: Dict[str, Any], output_dir: str = 'projects', dry_run: bool = False) -> Dict[str, Any]:
     """
     Convenience function to run email ingestion for one or more providers.
@@ -843,3 +1217,39 @@ def run_email_ingestion(provider_ids: str, config: Dict[str, Any], output_dir: s
     else:
         # Single provider
         return agent.run_once(provider_ids, output_dir, dry_run)
+
+def run_rss_ingestion(provider_ids: str, config: Dict[str, Any], output_dir: str = 'projects', dry_run: bool = False) -> Dict[str, Any]:
+    """
+    Convenience function to run RSS ingestion for one or more providers.
+
+    Args:
+        provider_ids: Provider identifier(s) - single provider, "all", or comma-separated list
+        config: Full configuration dictionary
+        output_dir: Output directory for project files
+        dry_run: If True, validate config and simulate without side effects
+
+    Returns:
+        Summary of the ingestion run(s)
+    """
+    agent = EmailAgent(config)
+
+    # Handle different provider_id formats
+    if provider_ids == "all":
+        return agent.run_all_providers_rss(output_dir, dry_run)
+    elif "," in provider_ids:
+        # Multiple providers specified
+        provider_list = [p.strip() for p in provider_ids.split(",")]
+        results = []
+        for provider_id in provider_list:
+            result = agent.run_rss_ingestion(provider_id, output_dir, dry_run)
+            results.append(result)
+        # Aggregate results (simplified)
+        return {
+            'providers': provider_list,
+            'results': results,
+            'total_projects_saved': sum(r.get('projects_saved', 0) for r in results),
+            'total_errors': sum(r.get('errors', 0) for r in results)
+        }
+    else:
+        # Single provider
+        return agent.run_rss_ingestion(provider_ids, output_dir, dry_run)

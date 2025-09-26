@@ -146,18 +146,35 @@ Acceptance Criteria:
 
 ---
 
-## Milestone 5 — Optional: RSS Channel (Unavailable for Testing)
+## Milestone 5 — Optional: RSS Channel (Now Available for Testing)
 
 Goal:
-- Restore RSS channel behind the new orchestrator.
+- Restore RSS channel behind the new orchestrator, integrating with the new architecture (scraping adapters, dedupe service, markdown renderer).
 
 Constraints:
-- RSS is switched off by provider, so no end-to-end testing.
-- Keep implementation as close to original as possible.
+- RSS feed is now available at www.freelancermap.de/feeds/projekte/de.xml?p=kbZGfgs2Gz6KrSGjCgRb, enabling end-to-end testing.
+- Keep implementation aligned with original logic in [rss_helper.fetch_and_process_rss()](rss_helper.py:125) but integrate with new components.
+
+Planned Changes:
+- Extend EmailAgent to support RSS channel:
+  - Add RSS channel configuration under providers.<provider_id>.channels.rss: feed_urls[], limit, max_age_days
+  - Create RSS ingestion method that fetches feeds and extracts URLs
+  - Integrate with existing scraping adapters, dedupe service, and markdown renderer
+  - Use provider-aware dedupe and structured logging
+- Update CLI to support RSS ingestion: --rss-ingest --provider freelancermap
+- Ensure RSS produces projects with consistent frontmatter (provider_id, collection_channel: 'rss')
 
 Acceptance Criteria:
 - Orchestrator supports channels.email and channels.rss.
-- RSS code aligns with original logic in [rss_helper.fetch_and_process_rss()](rss_helper.py:125) and compiles; add unit/mocks where feasible.
+- RSS ingestion fetches from provided URL, processes projects via scraping adapters, applies dedupe, and saves with proper metadata.
+- End-to-end testing possible with the provided RSS feed.
+- Logs include RSS-specific context fields (feed_url, entries_found, etc.)
+
+Test Plan:
+- Configure RSS channel for freelancermap with the provided feed URL.
+- Run: python main.py --rss-ingest --provider freelancermap -o projects
+- Verify: New projects created in projects/ with rss collection_channel, dedupe works, logs show structured events.
+- Compare output with original RSS workflow to ensure compatibility.
 
 ---
 
