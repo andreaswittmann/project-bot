@@ -1,5 +1,58 @@
 # Release Notes
 
+## v1.6.0 (2025-09-27) - Enhanced Dashboard for 4K Monitors and Mobile Devices
+
+### 🎉 New Features
+
+#### 4K Monitor Support
+- **Ultra-wide display optimization**: Dashboard now utilizes full width (3200px) on 4K and ultra-wide monitors
+- **Enhanced spacing**: Improved padding and margins for better space utilization on large screens
+- **Progressive breakpoints**: Responsive design that scales from mobile to 4K displays
+
+#### Responsive Card Layout for Mobile/Tablet
+- **Dual-layout system**: Traditional table view for desktop (≥768px), card layout for mobile (<768px)
+- **Mobile-first design**: Projects displayed as clean, organized cards on small screens
+- **Touch-friendly interface**: Adequate button sizes and spacing for mobile interaction
+- **All data preserved**: Same information available in both layouts
+
+#### Compact Action Buttons
+- **Icon-only mode**: Action buttons show only icons in card view to save space
+- **Eliminated scrollbars**: No horizontal scrolling required on mobile devices
+- **Consistent functionality**: All actions (view, edit, generate, status, reevaluate, delete) work identically
+- **Accessibility maintained**: Tooltips and proper touch targets preserved
+
+### 🔧 Technical Improvements
+
+#### Frontend Enhancements
+- **Responsive breakpoints**: Progressive enhancement from 480px to 2560px+
+- **Component architecture**: Added `compact` prop to ProjectActions for flexible button display
+- **Mobile detection**: Reactive screen size detection with proper cleanup
+- **CSS optimization**: Efficient responsive styles with minimal redundancy
+
+#### User Experience Improvements
+- **No horizontal scrolling**: Card layout eliminates cramped table display on mobile
+- **Better information hierarchy**: Card layout organizes data more intuitively on small screens
+- **Consistent behavior**: Same functionality across all device types
+- **Performance optimized**: Conditional rendering prevents unnecessary DOM elements
+
+### 📋 Files Modified
+- `frontend/src/views/Dashboard.vue`: 4K monitor support and enhanced responsive spacing
+- `frontend/src/components/ProjectTable.vue`: Dual-layout system with card view for mobile
+- `frontend/src/components/ProjectActions.vue`: Compact mode for icon-only buttons
+
+### 📱 User Experience Highlights
+- **4K displays**: Full utilization of ultra-wide screens with enhanced spacing
+- **Tablet/Mobile**: Clean card-based layout with no horizontal scrollbars
+- **Desktop**: Traditional table view with full sorting and filtering capabilities
+- **Touch devices**: Adequate button sizes (2rem × 2rem) for comfortable interaction
+
+### 🆕 New Components/Features
+- **Mobile Card Layout**: New responsive card design for project display
+- **Compact Button Mode**: Icon-only action buttons for space-constrained layouts
+- **4K Optimization**: Enhanced dashboard layout for ultra-wide displays
+
+---
+
 ## v1.2.0 (2025-09-16) - Daily Log Rotation and UI Log Viewer
 
 ### 🎉 New Features
