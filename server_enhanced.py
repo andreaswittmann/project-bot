@@ -1543,6 +1543,49 @@ def get_schedule_runs(schedule_id: str):
 
     return jsonify(history)
 
+@app.route('/api/v1/schedules/<schedule_id>/runs/<run_id>', methods=['GET'])
+@handle_api_errors
+def get_schedule_run(schedule_id: str, run_id: str):
+    """Get detailed information for a specific execution run"""
+    schedule = scheduler_manager.get_schedule(schedule_id)
+
+    if not schedule:
+        return jsonify(APIErrorResponse(
+            error="NotFound",
+            message=f"Schedule {schedule_id} not found",
+            code=404,
+            timestamp=datetime.now().isoformat()
+        ).model_dump()), 404
+
+    # Find the specific run
+    target_run = None
+    for result in schedule.execution_history:
+        if result.run_id == run_id:
+            target_run = result
+            break
+
+    if not target_run:
+        return jsonify(APIErrorResponse(
+            error="NotFound",
+            message=f"Run {run_id} not found for schedule {schedule_id}",
+            code=404,
+            timestamp=datetime.now().isoformat()
+        ).model_dump()), 404
+
+    # Convert to detailed response format
+    run_details = {
+        "run_id": target_run.run_id,
+        "started_at": target_run.started_at,
+        "completed_at": target_run.completed_at,
+        "status": target_run.status,
+        "output": target_run.output,
+        "error": target_run.error,
+        "exit_code": target_run.exit_code,
+        "step_results": target_run.step_results if hasattr(target_run, 'step_results') else []
+    }
+
+    return jsonify(run_details)
+
 @app.route('/api/v1/schedules/status', methods=['GET'])
 @handle_api_errors
 def get_scheduler_status():

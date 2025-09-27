@@ -109,6 +109,8 @@
               :key="run.run_id"
               class="history-item"
               :class="`status-${run.status}`"
+              @click="viewExecutionDetail(run.run_id)"
+              style="cursor: pointer;"
             >
               <div class="history-header">
                 <span class="run-id">{{ run.run_id.slice(-8) }}</span>
@@ -138,9 +140,12 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { schedulesApi, workflowApi } from '../services/api.js'
 import ScheduleCard from '../components/ScheduleCard.vue'
 import ScheduleFormEnhanced from '../components/ScheduleFormEnhanced.vue'
+
+const router = useRouter()
 
 // Reactive data
 const schedules = ref([])
@@ -231,6 +236,11 @@ const viewExecutionHistory = async (scheduleId) => {
     console.error('Failed to load execution history:', err)
     error.value = err.response?.data?.message || 'Failed to load execution history'
   }
+}
+
+const viewExecutionDetail = (runId) => {
+  // Navigate to execution detail page
+  router.push(`/schedules/${selectedScheduleId.value}/runs/${runId}`)
 }
 
 const saveSchedule = async (scheduleData) => {

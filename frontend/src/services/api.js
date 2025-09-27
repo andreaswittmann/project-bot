@@ -133,6 +133,11 @@ export const schedulesApi = {
     return response.data;
   },
 
+  async getScheduleRun(scheduleId, runId) {
+    const response = await api.get(`/api/v1/schedules/${scheduleId}/runs/${runId}`);
+    return response.data;
+  },
+
   async getSchedulerStatus() {
     const response = await api.get('/api/v1/schedules/status');
     return response.data;
