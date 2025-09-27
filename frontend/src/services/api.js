@@ -139,4 +139,45 @@ export const schedulesApi = {
   },
 };
 
+// Enhanced Workflow API
+export const workflowApi = {
+  async validateWorkflowConfig(config) {
+    const response = await api.post('/api/v1/workflows/validate', config);
+    return response.data;
+  },
+
+  async getWorkflowExamples() {
+    const response = await api.get('/api/v1/workflows/examples');
+    return response.data;
+  },
+
+  async getNamedWorkflows() {
+    const response = await api.get('/api/v1/workflows/named');
+    return response.data;
+  },
+
+  async validateCliCommand(command, context = {}) {
+    const response = await api.post('/api/v1/workflows/commands/validate', {
+      command,
+      context
+    });
+    return response.data;
+  },
+
+  async getProviderStatus() {
+    const response = await api.get('/api/v1/workflows/providers/status');
+    return response.data;
+  },
+
+  async createCliSchedule(scheduleData) {
+    const response = await api.post('/api/v1/schedules/cli', scheduleData);
+    return response.data;
+  },
+
+  async runNamedWorkflow(workflowId) {
+    const response = await api.post(`/api/v1/schedules/${workflowId}/run`);
+    return response.data;
+  }
+};
+
 export default api

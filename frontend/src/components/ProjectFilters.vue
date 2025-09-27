@@ -3,30 +3,6 @@
     <div class="filters-header">
       <h3>Filters & Search</h3>
       <div class="header-actions">
-        <button
-          @click="handleRssIngest"
-          :disabled="isWorkflowRunning"
-          class="rss-ingest-btn"
-        >
-          <span v-if="isWorkflowRunning" class="spinner">📰</span>
-          {{ isWorkflowRunning ? 'Running...' : 'Run RSS Ingest' }}
-        </button>
-        <button
-          @click="handleEmailIngest"
-          :disabled="isWorkflowRunning"
-          class="email-ingest-btn"
-        >
-          <span v-if="isWorkflowRunning" class="spinner">📧</span>
-          {{ isWorkflowRunning ? 'Running...' : 'Run Email Ingest' }}
-        </button>
-        <button
-          @click="handleFullWorkflow"
-          :disabled="isWorkflowRunning"
-          class="full-workflow-btn"
-        >
-          <span v-if="isWorkflowRunning" class="spinner">🚀</span>
-          {{ isWorkflowRunning ? 'Running...' : 'Run Full Workflow' }}
-        </button>
         <button @click="resetFilters" class="reset-btn" :disabled="!hasActiveFilters">
           Reset All
         </button>
@@ -333,15 +309,11 @@ const props = defineProps({
   availableChannels: {
     type: Array,
     default: () => []
-  },
-  isWorkflowRunning: {
-    type: Boolean,
-    default: false
   }
 })
 
 // Emits
-const emit = defineEmits(['filters-changed', 'run-workflow', 'run-rss-ingest', 'run-full-workflow'])
+const emit = defineEmits(['filters-changed'])
 
 // Store
 const projectsStore = useProjectsStore()
@@ -638,19 +610,6 @@ const updateFilter = async (filter) => {
     });
   }
 };
-
-
-const handleEmailIngest = () => {
-  emit('run-workflow', 'email_ingest')
-}
-
-const handleRssIngest = () => {
-  emit('run-rss-ingest')
-}
-
-const handleFullWorkflow = () => {
-  emit('run-full-workflow')
-}
 
 const applyQuickDateRange = () => {
   const range = selectedQuickDateRange.value;
@@ -1321,11 +1280,7 @@ onMounted(() => {
 
   .header-actions {
     width: 100%;
-    justify-content: space-between;
-  }
-
-  .workflow-btn {
-    flex: 1;
+    justify-content: flex-end;
   }
 
   .filters-grid {

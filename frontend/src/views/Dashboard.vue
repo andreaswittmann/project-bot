@@ -46,16 +46,19 @@
         </div>
       </div>
 
+      <!-- Named Workflows -->
+      <WorkflowButtons
+        @workflow-started="handleWorkflowStarted"
+        @workflow-completed="handleWorkflowCompleted"
+        @workflow-error="handleWorkflowError"
+      />
+
       <!-- Filters -->
       <ProjectFilters
         :available-companies="availableCompanies"
         :available-providers="projectsStore.availableProviders"
         :available-channels="projectsStore.availableChannels"
-        :is-workflow-running="isWorkflowRunning"
         @filters-changed="handleFiltersChanged"
-        @run-workflow="runWorkflow"
-        @run-rss-ingest="runRssIngest"
-        @run-full-workflow="runFullWorkflow"
       />
 
       <!-- Project Table -->
@@ -113,6 +116,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useProjectsStore } from '../stores/projects'
+import WorkflowButtons from '../components/WorkflowButtons.vue'
 import ProjectFilters from '../components/ProjectFilters.vue'
 import ProjectTable from '../components/ProjectTable.vue'
 import ProjectDetailsModal from '../components/ProjectDetailsModal.vue'
@@ -131,8 +135,6 @@ const recentActivity = ref([])
 const selectedProjectId = ref(null)
 const showProjectModal = ref(false)
 const selectedProjectForTransition = ref(null)
-const isWorkflowRunning = ref(false)
-const currentWorkflow = ref(null)
 const workflowMessage = ref(null)
 const workflowMessageType = ref(null)
 
@@ -319,125 +321,45 @@ const refreshData = async () => {
   }
 }
 
-const runWorkflow = async (workflowName) => {
-  if (isWorkflowRunning.value) return
-
-  isWorkflowRunning.value = true
-  currentWorkflow.value = workflowName
-  workflowMessage.value = null
-  workflowMessageType.value = null
-
-  try {
-    const result = await projectsStore.runWorkflow(workflowName)
-
-    if (workflowName === 'email_ingest' && result.summary) {
-      // Special handling for email ingestion results
-      const summary = result.summary
-      workflowMessage.value = `Email ingestion completed: ${summary.projects_saved} projects saved, ${summary.urls_found} URLs found, ${summary.urls_skipped_dedupe} deduped`
-      workflowMessageType.value = summary.errors > 0 ? 'warning' : 'success'
-    } else {
-      workflowMessage.value = result.message || `Workflow '${workflowName}' completed successfully`
-      workflowMessageType.value = 'success'
-    }
-
-    // Refresh data after workflow completion
-    await projectsStore.fetchProjects()
-    await projectsStore.fetchStats()
-
-    // Update recent activity
-    recentActivity.value = projectsStore.stats.recent_activity || []
-  } catch (error) {
-    console.error(`Failed to run workflow ${workflowName}:`, error)
-    workflowMessage.value = error.response?.data?.message || `Failed to run workflow '${workflowName}'`
-    workflowMessageType.value = 'error'
-  } finally {
-    isWorkflowRunning.value = false
-    currentWorkflow.value = null
-
-    // Clear message after 5 seconds
-    setTimeout(() => {
-      workflowMessage.value = null
-      workflowMessageType.value = null
-    }, 5000)
-  }
+const handleWorkflowStarted = (workflow) => {
+  console.log('Workflow started:', workflow.name)
+  workflowMessage.value = `Starting workflow: ${workflow.name}...`
+  workflowMessageType.value = 'info'
 }
 
-const runRssIngest = async () => {
-  if (isWorkflowRunning.value) return
+const handleWorkflowCompleted = async (data) => {
+  console.log('Workflow completed:', data.workflow.name)
+  workflowMessage.value = `Workflow '${data.workflow.name}' completed successfully`
+  workflowMessageType.value = 'success'
 
-  isWorkflowRunning.value = true
-  currentWorkflow.value = 'rss_ingest'
-  workflowMessage.value = null
-  workflowMessageType.value = null
-
+  // Refresh data after workflow completion
   try {
-    const result = await projectsStore.runRssIngest()
-
-    workflowMessage.value = result.message || 'RSS ingestion completed successfully'
-    workflowMessageType.value = 'success'
-
-    // Refresh data after RSS ingestion completion
     await projectsStore.fetchProjects()
     await projectsStore.fetchStats()
-
+    
     // Update recent activity
     recentActivity.value = projectsStore.stats.recent_activity || []
   } catch (error) {
-    console.error('Failed to run RSS ingestion:', error)
-    workflowMessage.value = error.response?.data?.message || 'Failed to run RSS ingestion'
-    workflowMessageType.value = 'error'
-  } finally {
-    isWorkflowRunning.value = false
-    currentWorkflow.value = null
-
-    // Clear message after 5 seconds
-    setTimeout(() => {
-      workflowMessage.value = null
-      workflowMessageType.value = null
-    }, 5000)
+    console.error('Failed to refresh data after workflow:', error)
   }
+
+  // Clear message after 5 seconds
+  setTimeout(() => {
+    workflowMessage.value = null
+    workflowMessageType.value = null
+  }, 5000)
 }
 
-const runFullWorkflow = async () => {
-  if (isWorkflowRunning.value) return
+const handleWorkflowError = (data) => {
+  console.error('Workflow error:', data.workflow.name, data.error)
+  workflowMessage.value = `Workflow '${data.workflow.name}' failed: ${data.error.response?.data?.message || data.error.message}`
+  workflowMessageType.value = 'error'
 
-  isWorkflowRunning.value = true
-  currentWorkflow.value = 'full_workflow'
-  workflowMessage.value = null
-  workflowMessageType.value = null
-
-  try {
-    const result = await projectsStore.runFullWorkflow()
-
-    if (result.summary) {
-      const summary = result.summary
-      workflowMessage.value = `Full workflow completed: ${summary.total_projects_saved} projects saved, ${summary.total_errors} errors`
-      workflowMessageType.value = summary.total_errors > 0 ? 'warning' : 'success'
-    } else {
-      workflowMessage.value = result.message || 'Full workflow completed successfully'
-      workflowMessageType.value = 'success'
-    }
-
-    // Refresh data after full workflow completion
-    await projectsStore.fetchProjects()
-    await projectsStore.fetchStats()
-
-    // Update recent activity
-    recentActivity.value = projectsStore.stats.recent_activity || []
-  } catch (error) {
-    console.error('Failed to run full workflow:', error)
-    workflowMessage.value = error.response?.data?.message || 'Failed to run full workflow'
-    workflowMessageType.value = 'error'
-  } finally {
-    isWorkflowRunning.value = false
-    currentWorkflow.value = null
-
-    // Clear message after 5 seconds
-    setTimeout(() => {
-      workflowMessage.value = null
-      workflowMessageType.value = null
-    }, 5000)
-  }
+  // Clear message after 7 seconds for errors
+  setTimeout(() => {
+    workflowMessage.value = null
+    workflowMessageType.value = null
+  }, 7000)
 }
 
 const clearWorkflowMessage = () => {

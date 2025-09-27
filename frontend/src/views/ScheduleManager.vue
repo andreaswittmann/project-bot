@@ -83,8 +83,8 @@
 
     <!-- Create/Edit Schedule Modal -->
     <div v-if="showCreateForm || editingSchedule" class="modal-overlay" @click="closeModal">
-      <div class="modal-content" @click.stop>
-        <ScheduleForm
+      <div class="modal-content enhanced-modal" @click.stop>
+        <ScheduleFormEnhanced
           :schedule="editingSchedule"
           @save="saveSchedule"
           @cancel="closeModal"
@@ -138,9 +138,9 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { schedulesApi } from '../services/api.js'
+import { schedulesApi, workflowApi } from '../services/api.js'
 import ScheduleCard from '../components/ScheduleCard.vue'
-import ScheduleForm from '../components/ScheduleForm.vue'
+import ScheduleFormEnhanced from '../components/ScheduleFormEnhanced.vue'
 
 // Reactive data
 const schedules = ref([])
@@ -239,8 +239,12 @@ const saveSchedule = async (scheduleData) => {
       // Update existing schedule
       await schedulesApi.updateSchedule(editingSchedule.value.id, scheduleData)
     } else {
-      // Create new schedule
-      await schedulesApi.createSchedule(scheduleData)
+      // Create new schedule - use CLI endpoint if it's a CLI sequence
+      if (scheduleData.workflow_type === 'cli_sequence') {
+        await workflowApi.createCliSchedule(scheduleData)
+      } else {
+        await schedulesApi.createSchedule(scheduleData)
+      }
     }
 
     closeModal()
@@ -531,6 +535,11 @@ onMounted(() => {
   width: 90%;
   max-height: 90vh;
   overflow-y: auto;
+}
+
+.enhanced-modal {
+  max-width: 900px;
+  width: 95%;
 }
 
 .history-modal {

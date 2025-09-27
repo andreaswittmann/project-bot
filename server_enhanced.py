@@ -1783,6 +1783,167 @@ def get_scheduler_status():
 
     return jsonify(response.model_dump())
 
+# New API Endpoints for Enhanced Workflow System
+
+@app.route('/api/v1/workflows/validate', methods=['POST'])
+@handle_api_errors
+def validate_workflow_config():
+    """Validate workflow configuration"""
+    data = request.get_json()
+    if not data:
+        raise ValidationError("No JSON data provided")
+
+    validation_result = scheduler_manager.validate_workflow_config(data)
+    
+    return jsonify({
+        'valid': validation_result.valid,
+        'errors': validation_result.errors,
+        'warnings': validation_result.warnings,
+        'success_messages': validation_result.success_messages,
+        'timestamp': datetime.now().isoformat()
+    })
+
+@app.route('/api/v1/workflows/examples', methods=['GET'])
+@handle_api_errors
+def get_workflow_examples():
+    """Get workflow configuration examples"""
+    examples = scheduler_manager.get_workflow_examples()
+    return jsonify(examples)
+
+@app.route('/api/v1/workflows/named', methods=['GET'])
+@handle_api_errors
+def get_named_workflows():
+    """Get workflows configured for dashboard buttons"""
+    named_workflows = scheduler_manager.get_named_workflows()
+    return jsonify(named_workflows)
+
+@app.route('/api/v1/workflows/commands/validate', methods=['POST'])
+@handle_api_errors
+def validate_cli_command():
+    """Validate a single CLI command"""
+    data = request.get_json()
+    if not data or 'command' not in data:
+        raise ValidationError("Command is required")
+
+    command = data['command']
+    context = data.get('context', {})
+    
+    validation_result = scheduler_manager.validate_cli_command(command, context)
+    
+    return jsonify({
+        'valid': validation_result.valid,
+        'errors': validation_result.errors,
+        'warnings': validation_result.warnings,
+        'success_messages': validation_result.success_messages,
+        'timestamp': datetime.now().isoformat()
+    })
+
+@app.route('/api/v1/workflows/providers/status', methods=['GET'])
+@handle_api_errors
+def get_provider_status():
+    """Get status of all providers (enabled/disabled)"""
+    try:
+        import yaml
+        
+        # Load config
+        with open('config.yaml', 'r') as f:
+            config = yaml.safe_load(f)
+
+        provider_status = {}
+        providers = config.get('providers', {})
+        
+        for provider_id, provider_config in providers.items():
+            enabled = provider_config.get('enabled', False)
+            channels = list(provider_config.get('channels', {}).keys())
+            
+            provider_status[provider_id] = {
+                'enabled': enabled,
+                'channels': channels,
+                'has_email': 'email' in channels,
+                'has_rss': 'rss' in channels
+            }
+
+        return jsonify({
+            'providers': provider_status,
+            'timestamp': datetime.now().isoformat()
+        })
+
+    except Exception as e:
+        logger.error(f"Error getting provider status: {e}")
+        return jsonify(APIErrorResponse(
+            error="InternalServerError",
+            message=f"Failed to get provider status: {str(e)}",
+            code=500,
+            timestamp=datetime.now().isoformat()
+        ).model_dump()), 500
+
+# Enhanced schedule creation endpoint for CLI sequences
+@app.route('/api/v1/schedules/cli', methods=['POST'])
+@handle_api_errors
+def create_cli_schedule():
+    """Create a new CLI sequence schedule"""
+    data = request.get_json()
+    if not data:
+        raise ValidationError("No JSON data provided")
+
+    # Validate required fields
+    required_fields = ['name', 'description', 'cli_commands']
+    for field in required_fields:
+        if field not in data:
+            return jsonify(APIErrorResponse(
+                error="ValidationError",
+                message=f"Missing required field: {field}",
+                code=400,
+                timestamp=datetime.now().isoformat()
+            ).model_dump()), 400
+
+    # Validate the workflow configuration
+    validation_result = scheduler_manager.validate_workflow_config(data)
+    if not validation_result.valid:
+        return jsonify(APIErrorResponse(
+            error="ValidationError",
+            message="Workflow configuration is invalid",
+            code=400,
+            details={
+                'errors': validation_result.errors,
+                'warnings': validation_result.warnings
+            },
+            timestamp=datetime.now().isoformat()
+        ).model_dump()), 400
+
+    try:
+        schedule = scheduler_manager.create_schedule(
+            name=data['name'],
+            description=data['description'],
+            workflow_type='cli_sequence',
+            cli_commands=data['cli_commands'],
+            cron_schedule=data.get('cron_schedule', '0 9 * * 1-5'),
+            timezone=data.get('timezone', 'Europe/Berlin'),
+            metadata=data.get('metadata', {})
+        )
+
+        # Get next run time
+        next_run = None
+        if schedule.enabled:
+            job_id = f"job_{schedule.id}"
+            job = scheduler_manager.scheduler.get_job(job_id)
+            if job and job.next_run_time:
+                next_run = job.next_run_time.isoformat()
+
+        response_dict = asdict(schedule)
+        response_dict['next_run'] = next_run
+
+        return jsonify(response_dict), 201
+
+    except Exception as e:
+        logger.error(f"Error creating CLI schedule: {e}")
+        return jsonify(APIErrorResponse(
+            error="CreationError",
+            message=f"Failed to create CLI schedule: {str(e)}",
+            code=500,
+            timestamp=datetime.now().isoformat()
+        ).model_dump()), 500
+
 # API Endpoints for Config Filters
 
 @app.route('/api/v1/config/filters', methods=['GET'])

