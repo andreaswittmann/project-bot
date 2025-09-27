@@ -9,6 +9,7 @@ import json
 import uuid
 import subprocess
 import logging
+import sys
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Dict, List, Optional, Any, Tuple
@@ -434,6 +435,21 @@ class SchedulerManager:
 
             # Build command
             command = self._build_workflow_command(schedule.workflow_type, schedule.parameters)
+            working_dir = os.path.dirname(os.path.abspath(__file__))
+
+            logger.debug(f"Executing command: {' '.join(command)}")
+            logger.debug(f"Working directory: {working_dir}")
+
+            # Check if the script exists
+            script_path = os.path.join(working_dir, command[1]) if len(command) > 1 else None
+            if script_path and not os.path.exists(script_path):
+                logger.error(f"Script not found: {script_path}")
+                result.status = "failed"
+                result.completed_at = datetime.now().isoformat()
+                result.error = f"Script not found: {script_path}"
+                schedule.last_status = "failed"
+                self._save_schedules()
+                return
 
             # Execute command
             process = subprocess.Popen(
@@ -441,7 +457,7 @@ class SchedulerManager:
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 text=True,
-                cwd=os.getcwd()
+                cwd=working_dir
             )
 
             try:
@@ -457,10 +473,18 @@ class SchedulerManager:
                     result.status = "success"
                     schedule.last_status = "success"
                     logger.info(f"Workflow completed successfully: {schedule.name}")
+                    if stdout.strip():
+                        logger.info(f"Workflow output: {stdout.strip()}")
+                    if stderr.strip():
+                        logger.warning(f"Workflow stderr: {stderr.strip()}")
                 else:
                     result.status = "failed"
                     schedule.last_status = "failed"
                     logger.error(f"Workflow failed: {schedule.name} (exit code: {process.returncode})")
+                    if stdout.strip():
+                        logger.info(f"Workflow stdout: {stdout.strip()}")
+                    if stderr.strip():
+                        logger.error(f"Workflow stderr: {stderr.strip()}")
 
             except subprocess.TimeoutExpired:
                 process.kill()
@@ -483,12 +507,13 @@ class SchedulerManager:
 
     def _build_workflow_command(self, workflow_type: str, parameters: Dict[str, Any]) -> List[str]:
         """Build the command to execute for a workflow type"""
+        python_exe = sys.executable
         base_commands = {
-            "evaluate": ["python", "evaluate_projects.py"],
-            "generate": ["python", "main.py", "--generate-applications"],
-            "email_ingest": ["python", "main.py", "--email-ingest"],
-            "rss_ingest": ["python", "main.py", "--rss-ingest"],
-            "full_workflow": ["python", "main.py", "--full-workflow"]
+            "evaluate": [python_exe, "evaluate_projects.py"],
+            "generate": [python_exe, "main.py", "--generate-applications"],
+            "email_ingest": [python_exe, "main.py", "--email-ingest"],
+            "rss_ingest": [python_exe, "main.py", "--rss-ingest"],
+            "full_workflow": [python_exe, "main.py", "--full-workflow"]
         }
 
         if workflow_type not in base_commands:
