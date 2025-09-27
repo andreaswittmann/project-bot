@@ -4,7 +4,7 @@
       <div class="breadcrumb">
         <router-link to="/">Dashboard</router-link> →
         <router-link :to="`/schedules`">Schedules</router-link> →
-        <router-link :to="`/schedules/${scheduleId}/runs`">{{ scheduleName }}</router-link> →
+        <router-link :to="`/schedules/${scheduleId}/runs`">{{ scheduleName || scheduleId }}</router-link> →
         Run {{ runId.slice(-8) }}
       </div>
       <div class="execution-summary">

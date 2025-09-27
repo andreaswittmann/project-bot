@@ -426,8 +426,8 @@ def parse_project_file(file_path: str) -> Dict[str, Any]:
 
 def get_projects_with_filters(filters: ProjectFilters) -> List[Dict[str, Any]]:
     """Get projects with filtering and pagination"""
-    
-    filters = handle_relative_dates(filters) # Add this line
+
+    filters = handle_relative_dates(filters)
 
     projects_dir = Path("projects")
     if not projects_dir.exists():

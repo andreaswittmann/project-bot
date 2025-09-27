@@ -801,6 +801,31 @@ onMounted(() => {
   }
 }
 
+/* 4K Monitor optimization */
+@media (min-width: 2560px) {
+  .main-content {
+    max-width: 3200px;
+    padding: 4rem;
+  }
+
+  .stats-section {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .stat-card {
+    padding: 1.25rem;
+  }
+
+  .stat-number {
+    font-size: 1.75rem;
+  }
+
+  .stat-label {
+    font-size: 1rem;
+  }
+}
+
 
 /* Responsive design */
 @media (max-width: 768px) {

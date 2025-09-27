@@ -3,67 +3,67 @@
     <!-- View Project Button -->
     <button
       @click="viewProject"
-      class="action-btn view-btn"
+      :class="['action-btn view-btn', { 'compact': compact }]"
       title="View Project Details"
     >
       <span class="btn-icon">👁️</span>
-      <span class="btn-text">View</span>
+      <span v-if="!compact" class="btn-text">View</span>
     </button>
 
     <!-- Edit Markdown Button -->
     <button
       @click="editProject"
-      class="action-btn edit-btn"
+      :class="['action-btn edit-btn', { 'compact': compact }]"
       title="Edit Markdown File"
     >
       <span class="btn-icon">✏️</span>
-      <span class="btn-text">Edit</span>
+      <span v-if="!compact" class="btn-text">Edit</span>
     </button>
 
     <!-- Generate Application Button -->
     <button
       v-if="canGenerateApplication"
       @click="generateApplication"
-      class="action-btn generate-btn"
+      :class="['action-btn generate-btn', { 'compact': compact }]"
       :disabled="isGenerating"
       :title="isGenerating ? 'Generating application...' : 'Generate Application'"
     >
       <span class="btn-icon" v-if="isGenerating">⏳</span>
       <span class="btn-icon" v-else>📄</span>
-      <span class="btn-text">{{ isGenerating ? 'Generating...' : 'Generate' }}</span>
+      <span v-if="!compact" class="btn-text">{{ isGenerating ? 'Generating...' : 'Generate' }}</span>
     </button>
 
     <!-- State Transition Button -->
     <button
       v-if="canTransition"
       @click="showTransitionModal = true"
-      class="action-btn transition-btn"
+      :class="['action-btn transition-btn', { 'compact': compact }]"
       title="Change Project Status"
     >
       <span class="btn-icon">🔄</span>
-      <span class="btn-text">Status</span>
+      <span v-if="!compact" class="btn-text">Status</span>
     </button>
 
     <!-- Re-evaluate Button -->
     <button
       @click="reevaluateProject"
-      class="action-btn reevaluate-btn"
+      :class="['action-btn reevaluate-btn', { 'compact': compact }]"
       :disabled="isReevaluating"
       :title="isReevaluating ? 'Re-evaluating project...' : 'Re-evaluate Project'"
     >
       <span class="btn-icon" v-if="isReevaluating">⏳</span>
       <span class="btn-icon" v-else>🔍</span>
-      <span class="btn-text">{{ isReevaluating ? 'Re-evaluating...' : 'Re-evaluate' }}</span>
+      <span v-if="!compact" class="btn-text">{{ isReevaluating ? 'Re-evaluating...' : 'Re-evaluate' }}</span>
     </button>
 
     <!-- Delete Button -->
     <button
       @click="deleteProject"
-      class="action-btn delete-btn"
+      :class="['action-btn delete-btn', { 'compact': compact }]"
       title="Delete Project"
     >
       <span class="btn-icon">🗑️</span>
-      <span class="btn-text">Delete</span>
+      <span v-if="!compact" class="btn-text">Delete</span>
     </button>
   </div>
 
@@ -145,6 +145,10 @@ const props = defineProps({
   project: {
     type: Object,
     required: true
+  },
+  compact: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -323,7 +327,7 @@ watch(() => props.project, (newProject) => {
   display: flex;
   gap: 0.5rem;
   align-items: center;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
 
 .action-btn {
@@ -367,6 +371,14 @@ watch(() => props.project, (newProject) => {
   line-height: 1;
 }
 
+.action-btn.compact {
+  padding: 0.25rem;
+  min-width: 2rem;
+  width: 2rem;
+  height: 2rem;
+  justify-content: center;
+}
+
 @media (max-width: 768px) {
   .btn-text {
     display: none;
@@ -376,6 +388,11 @@ watch(() => props.project, (newProject) => {
     padding: 0.5rem;
     min-width: 2.5rem;
     justify-content: center;
+  }
+
+  .project-actions {
+    flex-wrap: wrap;
+    gap: 0.25rem;
   }
 }
 
