@@ -93,9 +93,8 @@ class Schedule:
     name: str
     description: str
     enabled: bool
-    workflow_type: str  # evaluate, generate, email_ingest, rss_ingest, full_workflow, cli_sequence
-    parameters: Dict[str, Any] = None  # Legacy parameters for backward compatibility
-    cli_commands: List[CommandStep] = None  # New CLI command sequence
+    workflow_type: str  # cli_sequence
+    cli_commands: List[CommandStep] = None  # CLI command sequence
     cron_schedule: str = "0 9 * * 1-5"
     timezone: str = "Europe/Berlin"
     created_at: str = ""
@@ -109,8 +108,6 @@ class Schedule:
     def __post_init__(self):
         if self.execution_history is None:
             self.execution_history = []
-        if self.parameters is None:
-            self.parameters = {}
         if self.cli_commands is None:
             self.cli_commands = []
         if self.validation_status is None:
@@ -257,9 +254,9 @@ class SchedulerManager:
             logger.error(f"Error saving schedules: {e}")
 
     def create_schedule(self, name: str, description: str, workflow_type: str,
-                       parameters: Dict[str, Any] = None, cli_commands: List[Dict[str, Any]] = None,
-                       cron_schedule: str = "0 9 * * 1-5", timezone: str = "Europe/Berlin",
-                       metadata: Dict[str, Any] = None) -> Schedule:
+                        cli_commands: List[Dict[str, Any]] = None,
+                        cron_schedule: str = "0 9 * * 1-5", timezone: str = "Europe/Berlin",
+                        metadata: Dict[str, Any] = None) -> Schedule:
         """Create a new schedule"""
         schedule_id = str(uuid.uuid4())
         now = datetime.now().isoformat()
@@ -276,7 +273,6 @@ class SchedulerManager:
             description=description,
             enabled=True,
             workflow_type=workflow_type,
-            parameters=parameters or {},
             cli_commands=command_steps,
             cron_schedule=cron_schedule,
             timezone=timezone,
@@ -367,19 +363,15 @@ class SchedulerManager:
             return None
 
         schedule = self.schedules[schedule_id]
-        job_id = f"job_{schedule_id}"
 
-        # Check if job is already running
-        if self.scheduler.get_job(job_id):
-            # Job exists, trigger it
-            self.scheduler.modify_job(job_id, next_run_time=datetime.now())
-            logger.info(f"Triggered immediate run for schedule: {schedule.name}")
-            return f"Triggered run for {schedule.name}"
-        else:
-            # Job doesn't exist, add it temporarily
-            self._add_schedule_to_scheduler(schedule)
-            logger.info(f"Added and triggered schedule: {schedule.name}")
-            return f"Added and triggered {schedule.name}"
+        # Execute the workflow directly in a separate thread to avoid blocking
+        import threading
+        thread = threading.Thread(target=self._execute_workflow, args=(schedule_id,))
+        thread.daemon = True
+        thread.start()
+
+        logger.info(f"Started immediate execution for schedule: {schedule.name}")
+        return f"Started execution for {schedule.name}"
 
     def get_schedule(self, schedule_id: str) -> Optional[Schedule]:
         """Get a specific schedule"""
@@ -512,20 +504,18 @@ class SchedulerManager:
                 result.add_error(f"Missing required field: {field}")
 
         workflow_type = workflow_config.get('workflow_type')
-        
-        # Validate workflow type
-        valid_types = ['evaluate', 'generate', 'email_ingest', 'rss_ingest', 'full_workflow', 'cli_sequence']
-        if workflow_type not in valid_types:
-            result.add_error(f"Invalid workflow_type. Must be one of: {', '.join(valid_types)}")
 
-        # Validate CLI commands for cli_sequence type
-        if workflow_type == 'cli_sequence':
-            cli_commands = workflow_config.get('cli_commands', [])
-            if not cli_commands:
-                result.add_error("CLI sequence workflow must have at least one command")
-            else:
-                for i, cmd_config in enumerate(cli_commands):
-                    self._validate_command_step(cmd_config, i, result)
+        # Validate workflow type - only cli_sequence is supported
+        if workflow_type != 'cli_sequence':
+            result.add_error("Invalid workflow_type. Only 'cli_sequence' is supported")
+
+        # Validate CLI commands
+        cli_commands = workflow_config.get('cli_commands', [])
+        if not cli_commands:
+            result.add_error("CLI sequence workflow must have at least one command")
+        else:
+            for i, cmd_config in enumerate(cli_commands):
+                self._validate_command_step(cmd_config, i, result)
 
         # Validate cron schedule
         cron_schedule = workflow_config.get('cron_schedule')
@@ -799,18 +789,18 @@ class SchedulerManager:
         }
 
     def _execute_workflow(self, schedule_id: str):
-        """Execute a workflow job (updated to handle both legacy and CLI sequences)"""
+        """Execute a workflow job"""
         if schedule_id not in self.schedules:
             logger.error(f"Schedule not found: {schedule_id}")
             return
 
         schedule = self.schedules[schedule_id]
 
-        # Route to appropriate execution method
+        # Only CLI sequences are supported
         if schedule.workflow_type == 'cli_sequence':
             self._execute_cli_sequence(schedule_id)
         else:
-            self._execute_legacy_workflow(schedule_id)
+            logger.error(f"Unsupported workflow type: {schedule.workflow_type}")
 
     def _execute_cli_sequence(self, schedule_id: str):
         """Execute CLI command sequence"""
@@ -967,205 +957,7 @@ class SchedulerManager:
 
         return step_result
 
-    def _execute_legacy_workflow(self, schedule_id: str):
-        """Execute legacy predefined workflow (original method)"""
-        if schedule_id not in self.schedules:
-            logger.error(f"Schedule not found: {schedule_id}")
-            return
 
-        schedule = self.schedules[schedule_id]
-        run_id = str(uuid.uuid4())
-        started_at = datetime.now().isoformat()
-
-        # Create execution result
-        result = ExecutionResult(
-            run_id=run_id,
-            started_at=started_at,
-            status="running"
-        )
-
-        # Add to execution history
-        schedule.execution_history.insert(0, result)  # Add to beginning
-        schedule.last_run = started_at
-        schedule.last_status = "running"
-
-        # Keep only last 10 executions
-        if len(schedule.execution_history) > 10:
-            schedule.execution_history = schedule.execution_history[:10]
-
-        self._save_schedules()
-
-        logger.info(f"Starting legacy workflow execution: {schedule.name} (run: {run_id})")
-
-        try:
-            # Validate provider config for ingestion workflows
-            if not self._validate_provider_config(schedule.workflow_type, schedule.parameters):
-                result.status = "failed"
-                result.completed_at = datetime.now().isoformat()
-                result.error = "Provider validation failed"
-                schedule.last_status = "failed"
-                self._save_schedules()
-                return
-
-            # Build command
-            command = self._build_workflow_command(schedule.workflow_type, schedule.parameters)
-            working_dir = os.path.dirname(os.path.abspath(__file__))
-
-            logger.debug(f"Executing command: {' '.join(command)}")
-            logger.debug(f"Working directory: {working_dir}")
-
-            # Check if the script exists
-            script_path = os.path.join(working_dir, command[1]) if len(command) > 1 else None
-            if script_path and not os.path.exists(script_path):
-                logger.error(f"Script not found: {script_path}")
-                result.status = "failed"
-                result.completed_at = datetime.now().isoformat()
-                result.error = f"Script not found: {script_path}"
-                schedule.last_status = "failed"
-                self._save_schedules()
-                return
-
-            # Execute command
-            process = subprocess.Popen(
-                command,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                text=True,
-                cwd=working_dir
-            )
-
-            try:
-                stdout, stderr = process.communicate(timeout=JOB_TIMEOUT_SECONDS)
-
-                # Update result
-                result.completed_at = datetime.now().isoformat()
-                result.exit_code = process.returncode
-                result.output = stdout
-                result.error = stderr
-
-                if process.returncode == 0:
-                    result.status = "success"
-                    schedule.last_status = "success"
-                    logger.info(f"Legacy workflow completed successfully: {schedule.name}")
-                    if stdout.strip():
-                        logger.info(f"Workflow output: {stdout.strip()}")
-                    if stderr.strip():
-                        logger.warning(f"Workflow stderr: {stderr.strip()}")
-                else:
-                    result.status = "failed"
-                    schedule.last_status = "failed"
-                    logger.error(f"Legacy workflow failed: {schedule.name} (exit code: {process.returncode})")
-                    if stdout.strip():
-                        logger.info(f"Workflow stdout: {stdout.strip()}")
-                    if stderr.strip():
-                        logger.error(f"Workflow stderr: {stderr.strip()}")
-
-            except subprocess.TimeoutExpired:
-                process.kill()
-                result.status = "timeout"
-                result.completed_at = datetime.now().isoformat()
-                result.error = f"Job timed out after {JOB_TIMEOUT_SECONDS} seconds"
-                schedule.last_status = "timeout"
-                logger.error(f"Legacy workflow timed out: {schedule.name}")
-
-        except Exception as e:
-            result.status = "failed"
-            result.completed_at = datetime.now().isoformat()
-            result.error = str(e)
-            schedule.last_status = "failed"
-            logger.error(f"Legacy workflow execution error: {schedule.name} - {e}")
-
-        # Save updated schedule
-        schedule.updated_at = datetime.now().isoformat()
-        self._save_schedules()
-
-    def _validate_provider_config(self, workflow_type: str, parameters: Dict[str, Any]) -> bool:
-        """Validate provider configuration for ingestion workflows"""
-        if workflow_type not in ("email_ingest", "rss_ingest", "full_workflow"):
-            return True  # No validation needed for other workflows
-
-        provider = parameters.get("provider")
-        if not provider:
-            logger.error(f"Provider not specified for {workflow_type}")
-            return False
-
-        # Try to load config and check provider
-        try:
-            # Import here to avoid circular imports
-            from application_generator import load_application_config
-            config = load_application_config("config.yaml")
-
-            providers = config.get("providers", {})
-            if provider not in providers:
-                logger.error(f"Provider '{provider}' not found in configuration")
-                return False
-
-            if not providers[provider].get("enabled", False):
-                logger.error(f"Provider '{provider}' is disabled in configuration")
-                return False
-
-            # Check if the channel is configured
-            channel = parameters.get("channel", "email" if workflow_type == "email_ingest" else "rss")
-            provider_config = providers[provider]
-            if "channels" not in provider_config or channel not in provider_config["channels"]:
-                logger.error(f"Channel '{channel}' not configured for provider '{provider}'")
-                return False
-
-            logger.debug(f"Provider '{provider}' validation passed for {workflow_type}")
-            return True
-
-        except Exception as e:
-            logger.error(f"Error validating provider config: {e}")
-            return False
-
-    def _build_workflow_command(self, workflow_type: str, parameters: Dict[str, Any]) -> List[str]:
-        """Build the command to execute for a workflow type (legacy support)"""
-        python_exe = sys.executable
-        base_commands = {
-            "evaluate": [python_exe, "evaluate_projects.py"],
-            "generate": [python_exe, "main.py", "--generate-applications"],
-            "email_ingest": [python_exe, "main.py", "--email-ingest"],
-            "rss_ingest": [python_exe, "main.py", "--rss-ingest"],
-            "full_workflow": [python_exe, "main.py", "--full-workflow"]
-        }
-
-        if workflow_type not in base_commands:
-            raise ValueError(f"Unknown workflow type: {workflow_type}")
-
-        command = base_commands[workflow_type].copy()
-
-        # Add parameters based on workflow type
-        if workflow_type == "evaluate":
-            if parameters.get("pre_eval_only"):
-                command.append("--pre-eval-only")
-
-        elif workflow_type == "generate":
-            if parameters.get("all_accepted"):
-                command.append("--all-accepted")
-            if "threshold" in parameters:
-                command.extend(["--application-threshold", str(parameters["threshold"])])
-
-        elif workflow_type in ("email_ingest", "rss_ingest"):
-            # Required parameters
-            if "provider" not in parameters:
-                raise ValueError(f"Provider is required for {workflow_type}")
-            command.extend(["--provider", parameters["provider"]])
-
-            # Optional parameters
-            if "output_dir" in parameters:
-                command.extend(["-o", parameters["output_dir"]])
-            if parameters.get("dry_run"):
-                command.append("--dry-run")
-
-        # Add any custom arguments
-        if "custom_args" in parameters:
-            if isinstance(parameters["custom_args"], list):
-                command.extend(parameters["custom_args"])
-            else:
-                command.extend(parameters["custom_args"].split())
-
-        logger.debug(f"Built command for {workflow_type}: {' '.join(command)}")
-        return command
 
 # Global instance
 scheduler_manager = SchedulerManager()

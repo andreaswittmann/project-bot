@@ -5,10 +5,9 @@
 The scheduler manager and dashboard trigger buttons have been successfully harmonized using a CLI command sequence system. This implementation provides:
 
 - **Unified execution**: Same workflows run whether triggered from dashboard or scheduler
-- **CLI command sequences**: Flexible, configurable multi-step workflows  
+- **CLI command sequences**: Flexible, configurable multi-step workflows
 - **Comprehensive validation**: Commands, providers, schedules, and parameters are validated
 - **Extensive examples**: Complete library of workflow configurations
-- **Backward compatibility**: Existing schedules continue to work
 
 ## Key Features Implemented
 
@@ -256,49 +255,6 @@ python file_purger.py --dry-run
 python file_purger.py --categories logs temp_files
 ```
 
-## Migration from Legacy System
-
-### Automatic Migration
-
-Existing schedules are automatically migrated:
-
-**Before (Legacy):**
-```json
-{
-  "workflow_type": "email_ingest",
-  "parameters": {
-    "provider": "freelancermap",
-    "dry_run": false
-  }
-}
-```
-
-**After (Migrated):**
-```json
-{
-  "workflow_type": "cli_sequence",
-  "cli_commands": [
-    {
-      "command": "python main.py --email-ingest --provider freelancermap",
-      "name": "Email Ingestion",
-      "timeout": 600
-    }
-  ]
-}
-```
-
-### Dashboard Button Migration
-
-**Before:**
-- Hardcoded buttons in `ProjectFilters.vue`
-- Direct API calls to different endpoints
-- Different execution paths than scheduler
-
-**After:**
-- Dynamic `WorkflowButtons` component
-- Workflows loaded from scheduler configuration
-- Same execution path for dashboard and scheduler
-- Configurable button appearance and priority
 
 ## Best Practices
 
@@ -411,19 +367,16 @@ Existing schedules are automatically migrated:
    ```bash
    # Start the enhanced server
    python server_enhanced.py
-   
+
    # Build and serve frontend
    cd frontend && npm run build && cd ..
    ```
 
 2. **Create initial CLI sequence workflows:**
-   - Convert existing dashboard buttons to named workflows
    - Configure dashboard integration settings
    - Test validation and execution
 
-3. **Migration:**
-   - Existing legacy schedules will continue working
-   - Gradually migrate to CLI sequences for better flexibility
+3. **Documentation:**
    - Update user documentation and training
 
 ## Benefits Achieved
@@ -431,9 +384,8 @@ Existing schedules are automatically migrated:
 - ✅ **Unified execution path** for dashboard and scheduler
 - ✅ **Flexible CLI command sequences** instead of rigid predefined workflows
 - ✅ **Comprehensive validation** prevents invalid configurations
-- ✅ **Security controls** prevent malicious command execution  
+- ✅ **Security controls** prevent malicious command execution
 - ✅ **Extensive examples** guide users in creating workflows
 - ✅ **Dashboard integration** with configurable workflow buttons
-- ✅ **Backward compatibility** preserves existing functionality
 
 The harmonized scheduler system successfully addresses all the requirements while providing a much more flexible and secure foundation for workflow automation.

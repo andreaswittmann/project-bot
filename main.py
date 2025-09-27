@@ -534,16 +534,16 @@ if __name__ == "__main__":
         summary = run_full_workflow(config, args.output_dir, args.dry_run)
         print(f"📊 Full workflow summary: {summary}")
     elif args.email_ingest:
-        # Email ingestion for all enabled providers
+        # Email ingestion for specified provider(s)
         mode = "DRY RUN" if args.dry_run else "LIVE"
         print(f"📧 Running email ingestion ({mode})...")
-        summary = run_email_ingestion("all", config, args.output_dir, args.dry_run)
+        summary = run_email_ingestion(args.provider, config, args.output_dir, args.dry_run)
         print(f"📊 Email ingestion summary: {summary}")
     elif args.rss_ingest:
-        # RSS ingestion for all enabled providers
+        # RSS ingestion for specified provider(s)
         mode = "DRY RUN" if args.dry_run else "LIVE"
         print(f"📰 Running RSS ingestion ({mode})...")
-        summary = run_rss_ingestion("all", config, args.output_dir, args.dry_run)
+        summary = run_rss_ingestion(args.provider, config, args.output_dir, args.dry_run)
         print(f"📊 RSS ingestion summary: {summary}")
     else:
         # Default to RSS ingestion workflow (replaces legacy RSS)

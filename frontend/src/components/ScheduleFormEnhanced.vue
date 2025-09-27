@@ -35,42 +35,9 @@
         </div>
       </div>
 
-      <!-- Workflow Type -->
-      <div class="form-section">
-        <h4>Workflow Type</h4>
-        
-        <div class="form-group">
-          <div class="workflow-type-options">
-            <label class="radio-option">
-              <input
-                type="radio"
-                value="cli_sequence"
-                v-model="formData.workflow_type"
-                @change="onWorkflowTypeChange"
-              />
-              <span class="radio-text">
-                <strong>CLI Command Sequence</strong>
-                <small>Configure custom command steps (recommended)</small>
-              </span>
-            </label>
-            <label class="radio-option">
-              <input
-                type="radio"
-                value="legacy"
-                v-model="formData.workflow_type"
-                @change="onWorkflowTypeChange"
-              />
-              <span class="radio-text">
-                <strong>Legacy Predefined</strong>
-                <small>Use predefined workflow types (deprecated)</small>
-              </span>
-            </label>
-          </div>
-        </div>
-      </div>
 
-      <!-- CLI Command Builder (shown when cli_sequence selected) -->
-      <div v-if="formData.workflow_type === 'cli_sequence'" class="form-section">
+      <!-- CLI Command Builder -->
+      <div class="form-section">
         <div class="section-header">
           <h4>Command Steps</h4>
           <div class="section-actions">
@@ -92,17 +59,40 @@
             </button>
           </div>
           
-          <div v-if="workflowExamples" class="template-grid">
-            <button
-              v-for="(example, key) in workflowExamples.basic_examples"
-              :key="key"
-              type="button"
-              @click="loadTemplate(example)"
-              class="template-btn"
-            >
-              <span class="template-icon">{{ example.metadata?.icon || '🔧' }}</span>
-              <span class="template-name">{{ example.name }}</span>
-            </button>
+          <div v-if="workflowExamples">
+            <!-- Basic Examples -->
+            <div v-if="workflowExamples.basic_examples" class="examples-section">
+              <h6 class="section-title">Basic Workflows</h6>
+              <div class="template-grid">
+                <button
+                  v-for="(example, key) in workflowExamples.basic_examples"
+                  :key="key"
+                  type="button"
+                  @click="loadTemplate(example)"
+                  class="template-btn"
+                >
+                  <span class="template-icon">{{ example.metadata?.icon || '🔧' }}</span>
+                  <span class="template-name">{{ example.name }}</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Advanced Examples -->
+            <div v-if="workflowExamples.advanced_examples" class="examples-section">
+              <h6 class="section-title">Advanced Workflows</h6>
+              <div class="template-grid">
+                <button
+                  v-for="(example, key) in workflowExamples.advanced_examples"
+                  :key="key"
+                  type="button"
+                  @click="loadTemplate(example)"
+                  class="template-btn"
+                >
+                  <span class="template-icon">{{ example.metadata?.icon || '🔧' }}</span>
+                  <span class="template-name">{{ example.name }}</span>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -205,25 +195,6 @@
         </div>
       </div>
 
-      <!-- Legacy Workflow Configuration (shown when legacy selected) -->
-      <div v-if="formData.workflow_type === 'legacy'" class="form-section">
-        <h4>Legacy Workflow Configuration</h4>
-        <div class="legacy-warning">
-          ⚠️ Legacy workflows are deprecated. Consider using CLI sequences for better flexibility.
-        </div>
-        
-        <!-- Legacy workflow type selection and parameters would go here -->
-        <div class="form-group">
-          <label>Legacy Workflow Type</label>
-          <select v-model="formData.legacy_workflow_type" class="form-select">
-            <option value="email_ingest">Email Ingestion</option>
-            <option value="rss_ingest">RSS Ingestion</option>
-            <option value="full_workflow">Full Workflow</option>
-            <option value="evaluate">Evaluation Only</option>
-            <option value="generate">Generation Only</option>
-          </select>
-        </div>
-      </div>
 
       <!-- Schedule Configuration -->
       <div class="form-section">
@@ -306,7 +277,7 @@
       </div>
 
       <!-- Global Workflow Validation -->
-      <div v-if="formData.workflow_type === 'cli_sequence'" class="form-section">
+      <div class="form-section">
         <div class="section-header">
           <h4>Workflow Validation</h4>
           <button type="button" @click="validateWorkflow" :disabled="validating" class="validate-workflow-btn">
@@ -373,7 +344,6 @@ const formData = ref({
   name: '',
   description: '',
   workflow_type: 'cli_sequence',
-  legacy_workflow_type: 'email_ingest',
   cli_commands: [],
   cron_schedule: '0 9-17 * * 1-5',
   timezone: 'Europe/Berlin',
@@ -398,22 +368,13 @@ const isEditing = computed(() => !!props.schedule)
 const isFormValid = computed(() => {
   const hasName = formData.value.name.trim().length > 0
   const hasCronSchedule = formData.value.cron_schedule.trim().length > 0
-  
-  if (formData.value.workflow_type === 'cli_sequence') {
-    const hasValidCommands = formData.value.cli_commands.length > 0 &&
-      formData.value.cli_commands.every(cmd => cmd.command.trim().length > 0)
-    return hasName && hasCronSchedule && hasValidCommands
-  }
-  
-  return hasName && hasCronSchedule
+  const hasValidCommands = formData.value.cli_commands.length > 0 &&
+    formData.value.cli_commands.every(cmd => cmd.command.trim().length > 0)
+
+  return hasName && hasCronSchedule && hasValidCommands
 })
 
 // Methods
-const onWorkflowTypeChange = () => {
-  if (formData.value.workflow_type === 'cli_sequence' && formData.value.cli_commands.length === 0) {
-    addCommandStep()
-  }
-}
 
 const addCommandStep = () => {
   formData.value.cli_commands.push({
@@ -504,12 +465,8 @@ const validateCronSchedule = async () => {
 }
 
 const validateWorkflow = async () => {
-  if (formData.value.workflow_type !== 'cli_sequence') {
-    return
-  }
-
   validating.value = true
-  
+
   try {
     const config = {
       name: formData.value.name,
@@ -571,24 +528,16 @@ const handleSubmit = async () => {
       name: formData.value.name,
       description: formData.value.description,
       workflow_type: formData.value.workflow_type,
-      cron_schedule: formData.value.cron_schedule,
-      timezone: formData.value.timezone,
-      metadata: formData.value.metadata
-    }
-
-    if (formData.value.workflow_type === 'cli_sequence') {
-      scheduleData.cli_commands = formData.value.cli_commands.map(cmd => ({
+      cli_commands: formData.value.cli_commands.map(cmd => ({
         command: cmd.command,
         name: cmd.name,
         description: cmd.description,
         timeout: cmd.timeout,
         continue_on_error: cmd.continue_on_error
-      }))
-    } else {
-      // Legacy workflow
-      scheduleData.parameters = {
-        legacy_workflow_type: formData.value.legacy_workflow_type
-      }
+      })),
+      cron_schedule: formData.value.cron_schedule,
+      timezone: formData.value.timezone,
+      metadata: formData.value.metadata
     }
 
     emit('save', scheduleData)
@@ -605,8 +554,7 @@ const initializeForm = () => {
     formData.value = {
       name: props.schedule.name || '',
       description: props.schedule.description || '',
-      workflow_type: props.schedule.workflow_type === 'cli_sequence' ? 'cli_sequence' : 'legacy',
-      legacy_workflow_type: props.schedule.workflow_type !== 'cli_sequence' ? props.schedule.workflow_type : 'email_ingest',
+      workflow_type: 'cli_sequence',
       cli_commands: (props.schedule.cli_commands || []).map(cmd => ({
         ...cmd,
         validation: null
@@ -780,58 +728,6 @@ onMounted(() => {
   margin-top: 0.25rem;
 }
 
-.workflow-type-options {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.radio-option {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
-  padding: 1rem;
-  border: 1px solid #e5e7eb;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.radio-option:hover {
-  border-color: #4f46e5;
-  background: #f8fafc;
-}
-
-.radio-option input[type="radio"] {
-  margin-top: 0.125rem;
-  accent-color: #4f46e5;
-}
-
-.radio-text {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.radio-text strong {
-  color: #374151;
-  font-size: 0.875rem;
-}
-
-.radio-text small {
-  color: #6b7280;
-  font-size: 0.75rem;
-}
-
-.legacy-warning {
-  background: #fffbeb;
-  border: 1px solid #fbbf24;
-  color: #92400e;
-  padding: 0.75rem;
-  border-radius: 6px;
-  font-size: 0.875rem;
-  margin-bottom: 1rem;
-}
 
 .examples-panel {
   background: #f9fafb;
@@ -869,6 +765,23 @@ onMounted(() => {
 
 .load-examples-btn:hover {
   background: #4338ca;
+}
+
+.examples-section {
+  margin-bottom: 1rem;
+}
+
+.examples-section:last-child {
+  margin-bottom: 0;
+}
+
+.section-title {
+  margin: 0 0 0.5rem 0;
+  color: #374151;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .template-grid {

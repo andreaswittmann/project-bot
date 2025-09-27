@@ -239,12 +239,8 @@ const saveSchedule = async (scheduleData) => {
       // Update existing schedule
       await schedulesApi.updateSchedule(editingSchedule.value.id, scheduleData)
     } else {
-      // Create new schedule - use CLI endpoint if it's a CLI sequence
-      if (scheduleData.workflow_type === 'cli_sequence') {
-        await workflowApi.createCliSchedule(scheduleData)
-      } else {
-        await schedulesApi.createSchedule(scheduleData)
-      }
+      // Create new schedule - always use CLI endpoint
+      await workflowApi.createCliSchedule(scheduleData)
     }
 
     closeModal()

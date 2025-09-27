@@ -136,23 +136,23 @@ class CreateManualProjectRequest(BaseModel):
 class ScheduleCreateRequest(BaseModel):
     name: str
     description: str
-    workflow_type: str  # main, evaluate, generate, email_ingest, rss_ingest
-    parameters: Dict[str, Any]
+    workflow_type: str  # cli_sequence
+    cli_commands: List[Dict[str, Any]]
     cron_schedule: str
     timezone: str = "Europe/Berlin"
+    metadata: Optional[Dict[str, Any]] = None
 
     def __init__(self, **data):
         super().__init__(**data)
         # Validate workflow_type
-        valid_types = {"main", "evaluate", "generate", "email_ingest", "rss_ingest", "full_workflow"}
-        if self.workflow_type not in valid_types:
-            raise ValueError(f"Invalid workflow_type '{self.workflow_type}'. Valid types: {', '.join(sorted(valid_types))}")
+        if self.workflow_type != "cli_sequence":
+            raise ValueError("Invalid workflow_type. Only 'cli_sequence' is supported")
 
 class ScheduleUpdateRequest(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
     workflow_type: Optional[str] = None
-    parameters: Optional[Dict[str, Any]] = None
+    cli_commands: Optional[List[Dict[str, Any]]] = None
     cron_schedule: Optional[str] = None
     timezone: Optional[str] = None
 
@@ -162,7 +162,7 @@ class ScheduleResponse(BaseModel):
     description: str
     enabled: bool
     workflow_type: str
-    parameters: Dict[str, Any]
+    cli_commands: List[Dict[str, Any]]
     cron_schedule: str
     timezone: str
     created_at: str
@@ -1218,215 +1218,7 @@ def get_dashboard_stats():
         logger.error(f"Error in get_dashboard_stats: {e}")
         raise
 
-@app.route('/api/v1/workflows/<workflow_name>/run', methods=['POST'])
-@handle_api_errors
-def run_workflow(workflow_name: str):
-    """Execute a complete workflow"""
-    try:
-        logger.info(f"Starting workflow execution: {workflow_name}")
 
-        if workflow_name == 'email_ingest':
-            # Execute email ingestion
-            from email_agent import run_email_ingestion
-            import yaml
-
-            # Load config
-            with open('config.yaml', 'r') as f:
-                config = yaml.safe_load(f)
-
-            # Get provider from request data
-            data = request.get_json() or {}
-            provider_id = data.get('provider_id', 'freelancermap')
-
-            # Run email ingestion
-            result = run_email_ingestion(provider_id, config, output_dir='projects')
-
-            if result.get('errors', 0) == 0:
-                return jsonify({
-                    "success": True,
-                    "message": f"Email ingestion completed for provider '{provider_id}'",
-                    "summary": result,
-                    "timestamp": datetime.now().isoformat()
-                })
-            else:
-                return jsonify(APIErrorResponse(
-                    error="EmailIngestionError",
-                    message=f"Email ingestion failed for provider '{provider_id}'",
-                    code=500,
-                    details=result,
-                    timestamp=datetime.now().isoformat()
-                ).model_dump()), 500
-
-        elif workflow_name == 'main':
-            # Execute the main workflow (scrape → evaluate → generate applications)
-            # subprocess and sys already imported at module level
-
-            # Run main.py with default parameters
-            result = subprocess.run([
-                sys.executable, "main.py", "-n", "10"  # Scrape 10 projects by default
-            ], capture_output=True, text=True, timeout=600)  # 10 minute timeout
-
-            if result.returncode == 0:
-
-                return jsonify({
-                    "success": True,
-                    "message": f"Workflow '{workflow_name}' completed successfully",
-                    "output": result.stdout,
-                    "timestamp": datetime.now().isoformat()
-                })
-            else:
-                return jsonify(APIErrorResponse(
-                    error="WorkflowExecutionError",
-                    message=f"Workflow '{workflow_name}' failed",
-                    code=500,
-                    details={"stdout": result.stdout, "stderr": result.stderr},
-                    timestamp=datetime.now().isoformat()
-                ).model_dump()), 500
-
-        elif workflow_name == 'evaluate':
-            # Execute evaluation only
-            # subprocess and sys already imported at module level
-
-            result = subprocess.run([
-                sys.executable, "evaluate_projects.py"
-            ], capture_output=True, text=True, timeout=300)
-
-            if result.returncode == 0:
-
-                return jsonify({
-                    "success": True,
-                    "message": f"Workflow '{workflow_name}' completed successfully",
-                    "output": result.stdout,
-                    "timestamp": datetime.now().isoformat()
-                })
-            else:
-                return jsonify(APIErrorResponse(
-                    error="WorkflowExecutionError",
-                    message=f"Workflow '{workflow_name}' failed",
-                    code=500,
-                    details={"stdout": result.stdout, "stderr": result.stderr},
-                    timestamp=datetime.now().isoformat()
-                ).model_dump()), 500
-
-        elif workflow_name == 'generate':
-            # Execute application generation only
-            # subprocess and sys already imported at module level
-
-            result = subprocess.run([
-                sys.executable, "main.py", "--generate-applications", "--all-accepted"
-            ], capture_output=True, text=True, timeout=300)
-
-            if result.returncode == 0:
-
-                return jsonify({
-                    "success": True,
-                    "message": f"Workflow '{workflow_name}' completed successfully",
-                    "output": result.stdout,
-                    "timestamp": datetime.now().isoformat()
-                })
-            else:
-                return jsonify(APIErrorResponse(
-                    error="WorkflowExecutionError",
-                    message=f"Workflow '{workflow_name}' failed",
-                    code=500,
-                    details={"stdout": result.stdout, "stderr": result.stderr},
-                    timestamp=datetime.now().isoformat()
-                ).model_dump()), 500
-
-        elif workflow_name == 'rss_ingest':
-            # Execute RSS ingestion
-            from email_agent import run_rss_ingestion
-            import yaml
-
-            # Load config
-            with open('config.yaml', 'r') as f:
-                config = yaml.safe_load(f)
-
-            # Get provider from request data
-            data = request.get_json() or {}
-            provider_id = data.get('provider_id', 'freelancermap')
-
-            # Run RSS ingestion
-            result = run_rss_ingestion(provider_id, config, output_dir='projects')
-
-            if result.get('errors', 0) == 0:
-                return jsonify({
-                    "success": True,
-                    "message": f"RSS ingestion completed for provider '{provider_id}'",
-                    "summary": result,
-                    "timestamp": datetime.now().isoformat()
-                })
-            else:
-                return jsonify(APIErrorResponse(
-                    error="RssIngestionError",
-                    message=f"RSS ingestion failed for provider '{provider_id}'",
-                    code=500,
-                    details=result,
-                    timestamp=datetime.now().isoformat()
-                ).model_dump()), 500
-
-        elif workflow_name == 'full_workflow':
-            # Execute full workflow (RSS + Email ingestion)
-            from email_agent import run_full_workflow
-            import yaml
-
-            # Load config
-            with open('config.yaml', 'r') as f:
-                config = yaml.safe_load(f)
-
-            # Run full workflow
-            result = run_full_workflow(config, output_dir='projects')
-
-            if result.get('total_errors', 0) == 0:
-                return jsonify({
-                    "success": True,
-                    "message": "Full workflow completed successfully",
-                    "summary": result,
-                    "timestamp": datetime.now().isoformat()
-                })
-            else:
-                return jsonify(APIErrorResponse(
-                    error="FullWorkflowError",
-                    message="Full workflow failed",
-                    code=500,
-                    details=result,
-                    timestamp=datetime.now().isoformat()
-                ).model_dump()), 500
-
-        else:
-            return jsonify(APIErrorResponse(
-                error="InvalidWorkflow",
-                message=f"Unknown workflow: {workflow_name}",
-                code=400,
-                timestamp=datetime.now().isoformat()
-            ).model_dump()), 400
-
-    except subprocess.TimeoutExpired:
-        return jsonify(APIErrorResponse(
-            error="TimeoutError",
-            message=f"Workflow '{workflow_name}' timed out",
-            code=408,
-            timestamp=datetime.now().isoformat()
-        ).model_dump()), 408
-    except Exception as e:
-        logger.error(f"Error executing workflow {workflow_name}: {e}")
-        return jsonify(APIErrorResponse(
-            error="InternalServerError",
-            message=f"Failed to execute workflow: {str(e)}",
-            code=500,
-            timestamp=datetime.now().isoformat()
-        ).model_dump()), 500
-
-@app.route('/api/v1/workflows/<workflow_name>/status', methods=['GET'])
-@handle_api_errors
-def get_workflow_status(workflow_name: str):
-    """Get status of a running workflow"""
-    # For now, return a simple status since we don't have background job tracking
-    return jsonify({
-        "workflow": workflow_name,
-        "status": "completed",  # Assume completed since we run synchronously
-        "timestamp": datetime.now().isoformat()
-    })
 
 @app.route('/api/v1/health', methods=['GET'])
 def health_check():
@@ -1586,9 +1378,10 @@ def create_schedule():
         name=create_request.name,
         description=create_request.description,
         workflow_type=create_request.workflow_type,
-        parameters=create_request.parameters,
+        cli_commands=create_request.cli_commands,
         cron_schedule=create_request.cron_schedule,
-        timezone=create_request.timezone
+        timezone=create_request.timezone,
+        metadata=create_request.metadata
     )
 
     # Get next run time
@@ -1624,8 +1417,8 @@ def update_schedule(schedule_id: str):
         updates['description'] = update_request.description
     if update_request.workflow_type is not None:
         updates['workflow_type'] = update_request.workflow_type
-    if update_request.parameters is not None:
-        updates['parameters'] = update_request.parameters
+    if update_request.cli_commands is not None:
+        updates['cli_commands'] = update_request.cli_commands
     if update_request.cron_schedule is not None:
         updates['cron_schedule'] = update_request.cron_schedule
     if update_request.timezone is not None:
