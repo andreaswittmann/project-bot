@@ -352,41 +352,74 @@ class FreelanceAdapter(BaseAdapter):
         return best_paragraph if best_score > 10 else "N/A"
 
     def _clean_extracted_content(self, text: str) -> str:
-        """Clean extracted content by removing noise and formatting."""
+        """Clean extracted content by removing noise and focusing on job content."""
         if not text:
             return ""
 
-        # Remove specific noise patterns
+        # Split into lines for better processing
+        lines = text.split('\n')
+        cleaned_lines = []
+
+        # Stop patterns - when we hit these, we should stop including content
+        stop_patterns = [
+            'ähnliche projekte',
+            'kostenlos registrieren',
+            'als registriertes mitglied',
+            'kategorien und skills',
+            'sie suchen freelancer',
+            'jetzt registrieren',
+            'einloggen',
+            '© 2007 - 2025 freelance.de gmbh'
+        ]
+
+        for line in lines:
+            line_lower = line.lower().strip()
+
+            # Check if we should stop here
+            should_stop = False
+            for stop_pattern in stop_patterns:
+                if stop_pattern in line_lower:
+                    should_stop = True
+                    break
+
+            if should_stop:
+                break
+
+            # Skip obvious metadata lines
+            if len(line.strip()) < 10 and not any(char.isalpha() for char in line):
+                continue
+
+            # Skip registration prompts
+            if 'registrieren' in line_lower or 'einloggen' in line_lower:
+                continue
+
+            # Skip very short lines that are likely not job content
+            if len(line.strip()) < 20 and not any(keyword in line_lower for keyword in ['aufgaben', 'anforderungen', 'start', 'dauer']):
+                continue
+
+            cleaned_lines.append(line)
+
+        # Join and do final cleanup
+        result = '\n'.join(cleaned_lines).strip()
+
+        # Remove remaining noise patterns
         noise_patterns = [
             r'Firmenname\s+für EXPERT-Mitglieder sichtbar',
             r'\d{2}\.\d{2}\.\d{4} \d{2}:\d{2}',
-            r'Jetzt registrieren\s*Einloggen',
-            r'kostenlos registrieren',
-            r'Als registriertes Mitglied.*kann.*bewerben',
-            r'Ähnliche Projekte.*',
-            r'Sie suchen Freelancer\?.*',
-            r'Kategorien und Skills.*',
             r'Projekt Insights.*',
-            r'für einen unserer.*kann.*bewerben',
-            r'95% Remote: Solution.*',
-            r'Java Entwickler.*',
-            r'DevOps Public.*',
-            r'Informations- und Kommunikationstechnologie.*',
-            r'Systementwickler und -analytiker.*',
-            r'Softwareentwicklung.*',
-            r'Bauwesen und Bergbau.*',
-            r'Leiter Kindertagesstätte.*',
+            r'seit wann aktiv\?.*',
+            r'Projektansichten.*',
+            r'Bewerbungen.*',
         ]
 
         for pattern in noise_patterns:
-            text = re.sub(pattern, '', text, flags=re.IGNORECASE | re.DOTALL)
+            result = re.sub(pattern, '', result, flags=re.IGNORECASE | re.DOTALL)
 
         # Clean up formatting
-        text = re.sub(r'\n\s*\n\s*\n', '\n\n', text)  # Multiple newlines to double
-        text = re.sub(r'[ \t]+', ' ', text)  # Multiple spaces to single
-        text = text.strip()
+        result = re.sub(r'\n\s*\n\s*\n', '\n\n', result)
+        result = re.sub(r'[ \t]+', ' ', result)
 
-        return text
+        return result.strip()
 
     def _extract_structured_sections(self, text: str) -> str:
         """Extract structured sections like Aufgaben, Anforderungen from text."""
