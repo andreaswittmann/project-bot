@@ -422,22 +422,25 @@ if __name__ == "__main__":
 4. Run email ingestion for freelancermap provider:
    python main.py --email-ingest --provider freelancermap
 
-5. Run email ingestion for all enabled providers:
+5. Run email ingestion for freelance provider (fetch only, no evaluation):
+   python main.py --email-ingest --provider freelance --skip-evaluation
+
+6. Run email ingestion for all enabled providers:
    python main.py --email-ingest --provider all
 
-6. Run email ingestion for multiple specific providers:
-   python main.py --email-ingest --provider freelancermap,otherprovider
+7. Run email ingestion for multiple specific providers:
+   python main.py --email-ingest --provider freelancermap,freelance
 
-7. Run RSS ingestion for freelancermap provider:
+8. Run RSS ingestion for freelancermap provider:
    python main.py --rss-ingest --provider freelancermap
 
-8. Run RSS ingestion for all enabled providers:
+9. Run RSS ingestion for all enabled providers:
    python main.py --rss-ingest --provider all
 
-9. Run complete workflow (RSS + Email for all enabled providers):
+10. Run complete workflow (RSS + Email for all enabled providers):
    python main.py --full-workflow
 
-9. Save output to a custom directory:
+11. Save output to a custom directory:
    python main.py -o ./output_folder
 """
     )
@@ -485,15 +488,17 @@ if __name__ == "__main__":
 
     # Ingestion arguments (Milestone 1 & 5)
     parser.add_argument("--email-ingest", action="store_true",
-                        help="Run email ingestion for all enabled providers")
+                         help="Run email ingestion for all enabled providers")
     parser.add_argument("--rss-ingest", action="store_true",
-                        help="Run RSS ingestion for all enabled providers")
+                         help="Run RSS ingestion for all enabled providers")
     parser.add_argument("--full-workflow", action="store_true",
-                        help="Run complete workflow: RSS ingestion followed by email ingestion for all enabled providers")
+                         help="Run complete workflow: RSS ingestion followed by email ingestion for all enabled providers")
     parser.add_argument("--provider", default="freelancermap",
-                        help="Provider(s) for ingestion. Use 'all' for all enabled providers, comma-separated list for multiple, or single provider name (default: freelancermap)")
+                         help="Provider(s) for ingestion. Use 'all' for all enabled providers, comma-separated list for multiple, or single provider name (default: freelancermap)")
     parser.add_argument("--dry-run", action="store_true",
-                        help="Validate configuration and simulate ingestion without actual operations")
+                         help="Validate configuration and simulate ingestion without actual operations")
+    parser.add_argument("--skip-evaluation", action="store_true",
+                         help="Skip project evaluation and further processing after ingestion")
 
     args = parser.parse_args()
 
@@ -552,27 +557,30 @@ if __name__ == "__main__":
         summary = run_rss_ingestion(args.provider, config, args.output_dir, args.dry_run)
         print(f"📊 RSS ingestion summary: {summary}")
 
-    # After fetching projects, run the evaluation
-    print("\nStarting project evaluation...")
-    # Clear argv to prevent evaluate_projects.py from parsing parent script's arguments
-    sys.argv = [sys.argv[0]]
-    evaluate_projects.main()
+    # After fetching projects, run the evaluation (unless skipped)
+    if not args.skip_evaluation:
+        print("\nStarting project evaluation...")
+        # Clear argv to prevent evaluate_projects.py from parsing parent script's arguments
+        sys.argv = [sys.argv[0]]
+        evaluate_projects.main()
 
-    # After evaluation, run application generation (unless disabled)
-    if not args.no_applications:
-        try:
-            # Load CV content
-            cv_content = load_cv_content(args.cv_file)
+        # After evaluation, run application generation (unless disabled)
+        if not args.no_applications:
+            try:
+                # Load CV content
+                cv_content = load_cv_content(args.cv_file)
 
-            # Generate applications for accepted projects
-            generate_applications_for_accepted_projects(
-                args.config, cv_content, args.application_threshold
-            )
-        except Exception as e:
-            print(f"⚠️  Warning: Application generation failed: {e}")
-            print("   Continuing with dashboard update...")
+                # Generate applications for accepted projects
+                generate_applications_for_accepted_projects(
+                    args.config, cv_content, args.application_threshold
+                )
+            except Exception as e:
+                print(f"⚠️  Warning: Application generation failed: {e}")
+                print("   Continuing with dashboard update...")
+        else:
+            print("\n⏭️  Skipping application generation (--no-applications flag set)")
     else:
-        print("\n⏭️  Skipping application generation (--no-applications flag set)")
+        print("\n⏭️  Skipping project evaluation and further processing (--skip-evaluation flag set)")
 
 
     # After dashboard update, run automatic file purging (unless disabled)
