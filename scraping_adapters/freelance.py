@@ -110,38 +110,367 @@ class FreelanceAdapter(BaseAdapter):
         return "N/A"
 
     def _extract_description(self, soup: BeautifulSoup) -> str:
-        """Extract project description."""
-        # Look for description in various containers
-        desc_selectors = [
-            '.project-description',
-            '.description',
-            '.project-content',
-            '.content',
-            '.project-text',
-            '.text'
+        """Extract project description using multiple targeted strategies."""
+
+        # Strategy 1: Look for the main project description area
+        main_content = self._extract_main_project_content(soup)
+        if main_content and len(main_content) > 200:
+            return main_content[:2500]  # Limit length
+
+        # Strategy 2: Look for structured content sections
+        structured_content = self._extract_structured_content(soup)
+        if structured_content and len(structured_content) > 200:
+            return structured_content[:2500]
+
+        # Strategy 3: Find content by analyzing the page structure
+        structural_content = self._extract_by_structure(soup)
+        if structural_content and len(structural_content) > 200:
+            return structural_content[:2500]
+
+        # Strategy 4: Final fallback - find any substantial content
+        fallback_content = self._get_fallback_description(soup)
+        return fallback_content[:2500] if fallback_content != "N/A" else "N/A"
+
+    def _extract_main_project_content(self, soup: BeautifulSoup) -> str:
+        """Extract content from the main project description area."""
+        # Strategy: Look for the actual job description text patterns
+        full_text = soup.get_text(separator='\n')
+
+        # Look for the specific pattern that indicates the start of the actual job description
+        # This is typically something like "Für einen unserer" or "Für ein langfristiges"
+        start_patterns = [
+            r'für einen unserer.*?suchen wir',
+            r'für ein.*?suchen wir',
+            r'für.*?suchen wir.*?der die',
+            r'für.*?suchen wir.*?die die'
         ]
 
-        for selector in desc_selectors:
-            desc_elem = soup.select_one(selector)
-            if desc_elem:
-                # Get text content and clean it up
-                text = desc_elem.get_text(separator='\n', strip=True)
-                if text and len(text) > 50:  # Ensure we have substantial content
-                    return text
+        description_text = ""
+        for pattern in start_patterns:
+            match = re.search(pattern, full_text, re.IGNORECASE | re.DOTALL)
+            if match:
+                # Get text starting from the match
+                start_pos = match.start()
+                description_text = full_text[start_pos:start_pos + 2000]  # Get next 2000 chars
+                break
 
-        # Fallback: look for any substantial text content
-        # Find the largest text block that might be the description
-        text_blocks = []
-        for elem in soup.find_all(['div', 'p', 'section']):
-            text = elem.get_text(strip=True)
-            if len(text) > 100:  # Look for substantial text blocks
-                text_blocks.append(text)
+        if description_text:
+            # Get more content after the start pattern
+            start_pos = match.start()
 
-        if text_blocks:
-            # Return the longest text block
-            return max(text_blocks, key=len)
+            # Look for the end of the job description (before footer/sidebar content)
+            full_text_lower = full_text.lower()
+            end_patterns = [
+                'kostenlos registrieren',
+                'ähnliche projekte',
+                'sie suchen freelancer',
+                'kategorien und skills',
+                '© 2007 - 2025 freelance.de gmbh'
+            ]
 
-        return "N/A"
+            end_pos = len(full_text)
+            for pattern in end_patterns:
+                pattern_pos = full_text_lower.find(pattern, start_pos)
+                if pattern_pos > start_pos:
+                    end_pos = min(end_pos, pattern_pos)
+                    break
+
+            # Extract the job description content
+            description_text = full_text[start_pos:end_pos]
+
+            # Clean up the extracted content
+            cleaned = self._clean_extracted_content(description_text)
+
+            # Look for structured sections within this content
+            structured = self._extract_structured_sections(cleaned)
+            if structured and len(structured) > len(cleaned) * 0.8:  # Structured content is substantial
+                return structured
+
+            return cleaned[:2000]  # Limit length
+
+        return ""
+
+    def _extract_structured_content(self, soup: BeautifulSoup) -> str:
+        """Extract content from structured sections like Aufgaben, Anforderungen."""
+        sections = []
+
+        # Look for section headers
+        section_headers = ['aufgaben', 'anforderungen', 'profil', 'erfahrungen', 'qualifikationen']
+
+        for header_text in section_headers:
+            # Find headers
+            headers = soup.find_all(lambda tag: tag.name in ['h2', 'h3', 'h4', 'strong', 'b', 'div']
+                                   and header_text in tag.get_text().lower())
+
+            for header in headers:
+                content = self._get_content_after_header(header)
+                if content:
+                    sections.append(f"**{header_text.title()}:**\n{content}")
+
+        return '\n\n'.join(sections) if sections else ""
+
+    def _extract_by_structure(self, soup: BeautifulSoup) -> str:
+        """Extract content by analyzing HTML structure."""
+        # Look for the main content area - often the largest content div
+        content_divs = []
+
+        for div in soup.find_all('div'):
+            # Skip navigation, footer, etc.
+            div_class = div.get('class', [])
+            if div_class:
+                class_str = ' '.join(div_class).lower()
+                if any(skip in class_str for skip in ['nav', 'footer', 'sidebar', 'menu', 'header']):
+                    continue
+
+            text = div.get_text(separator='\n', strip=True)
+            if len(text) > 300:  # Substantial content
+                cleaned = self._clean_extracted_content(text)
+                if cleaned and len(cleaned) > 200:
+                    content_divs.append(cleaned)
+
+        # Return the best content div
+        if content_divs:
+            # Sort by quality score
+            content_divs.sort(key=self._calculate_content_quality, reverse=True)
+            return content_divs[0]
+
+        return ""
+
+    def _extract_meaningful_content(self, text: str) -> str:
+        """Extract only the meaningful job-related content from text."""
+        if not text:
+            return ""
+
+        lines = text.split('\n')
+        meaningful_lines = []
+
+        for line in lines:
+            line = line.strip()
+            if not line:
+                continue
+
+            # Skip obvious noise
+            noise_indicators = [
+                'kostenlos registrieren', 'jetzt registrieren', 'einloggen',
+                'expert-mitglieder', 'firmenname.*sichtbar',
+                'seit wann aktiv', 'projektansichten', 'bewerbungen',
+                'ähnliche projekte', 'sie suchen freelancer',
+                'kategorien und skills', 'schreiben sie ihr projekt',
+                'erhalten sie noch heute', 'jetzt projekt erstellen'
+            ]
+
+            skip_line = False
+            for indicator in noise_indicators:
+                if indicator.lower() in line.lower():
+                    skip_line = True
+                    break
+
+            if skip_line:
+                continue
+
+            # Skip very short lines that are likely metadata
+            if len(line) < 20 and not any(char.isdigit() for char in line):
+                continue
+
+            # Skip lines that are just dates, locations, or IDs
+            if re.match(r'^[\d\.\s\-/]+$', line):  # Just numbers and punctuation
+                continue
+
+            meaningful_lines.append(line)
+
+        # Join and clean up
+        result = '\n'.join(meaningful_lines)
+        result = re.sub(r'\n\s*\n\s*\n', '\n\n', result)  # Multiple newlines to double
+        return result.strip()
+
+    def _get_content_after_header(self, header_elem) -> str:
+        """Get content that appears after a specific header."""
+        content_parts = []
+
+        # Look at the next few siblings
+        for sibling in header_elem.next_siblings:
+            if sibling.name in ['h1', 'h2', 'h3', 'h4']:  # Stop at next header
+                break
+
+            if sibling.name in ['p', 'div', 'ul', 'li']:
+                text = sibling.get_text(separator='\n', strip=True)
+                if len(text) > 20:
+                    cleaned = self._extract_meaningful_content(text)
+                    if cleaned:
+                        content_parts.append(cleaned)
+
+            # Limit to reasonable amount of content
+            if len(content_parts) >= 3:
+                break
+
+        return '\n\n'.join(content_parts) if content_parts else ""
+
+    def _calculate_content_quality(self, text: str) -> int:
+        """Calculate a quality score for content (higher is better)."""
+        score = 0
+
+        # Positive indicators
+        job_keywords = [
+            'aufgaben', 'anforderungen', 'entwicklung', 'erfahrung',
+            'kenntnisse', 'koordination', 'steuerung', 'mehrjährige',
+            'abgeschlossene', 'zertifizierung', 'start', 'dauer'
+        ]
+
+        for keyword in job_keywords:
+            if keyword in text.lower():
+                score += 10
+
+        # Length bonus
+        score += min(len(text) // 50, 20)  # Up to 20 points for length
+
+        # Avoid noise penalty
+        noise_indicators = ['registrieren', 'kostenlos', 'expert', 'ähnliche']
+        for indicator in noise_indicators:
+            if indicator in text.lower():
+                score -= 15
+
+        return max(score, 0)
+
+    def _get_fallback_description(self, soup: BeautifulSoup) -> str:
+        """Final fallback for description extraction."""
+        # Look for any text that contains job-related keywords
+        all_text = soup.get_text(separator='\n')
+
+        # Find the section with the most job-related content
+        paragraphs = [p.strip() for p in all_text.split('\n\n') if p.strip()]
+
+        best_paragraph = ""
+        best_score = 0
+
+        for para in paragraphs:
+            if len(para) > 100:
+                score = self._calculate_content_quality(para)
+                if score > best_score:
+                    best_score = score
+                    best_paragraph = para
+
+        return best_paragraph if best_score > 10 else "N/A"
+
+    def _clean_extracted_content(self, text: str) -> str:
+        """Clean extracted content by removing noise and formatting."""
+        if not text:
+            return ""
+
+        # Remove specific noise patterns
+        noise_patterns = [
+            r'Firmenname\s+für EXPERT-Mitglieder sichtbar',
+            r'\d{2}\.\d{2}\.\d{4} \d{2}:\d{2}',
+            r'Jetzt registrieren\s*Einloggen',
+            r'kostenlos registrieren',
+            r'Als registriertes Mitglied.*kann.*bewerben',
+            r'Ähnliche Projekte.*',
+            r'Sie suchen Freelancer\?.*',
+            r'Kategorien und Skills.*',
+            r'Projekt Insights.*',
+            r'für einen unserer.*kann.*bewerben',
+            r'95% Remote: Solution.*',
+            r'Java Entwickler.*',
+            r'DevOps Public.*',
+            r'Informations- und Kommunikationstechnologie.*',
+            r'Systementwickler und -analytiker.*',
+            r'Softwareentwicklung.*',
+            r'Bauwesen und Bergbau.*',
+            r'Leiter Kindertagesstätte.*',
+        ]
+
+        for pattern in noise_patterns:
+            text = re.sub(pattern, '', text, flags=re.IGNORECASE | re.DOTALL)
+
+        # Clean up formatting
+        text = re.sub(r'\n\s*\n\s*\n', '\n\n', text)  # Multiple newlines to double
+        text = re.sub(r'[ \t]+', ' ', text)  # Multiple spaces to single
+        text = text.strip()
+
+        return text
+
+    def _extract_structured_sections(self, text: str) -> str:
+        """Extract structured sections like Aufgaben, Anforderungen from text."""
+        sections = []
+
+        # Look for common section headers
+        section_patterns = [
+            (r'Aufgaben\s*(?:\n|\r|\r\n)(.*?)(?=\n\s*(?:Anforderungen|Profil|Erfahrungen|Start|Dauer)|$)',
+             'Aufgaben'),
+            (r'Anforderungen\s*(?:\n|\r|\r\n)(.*?)(?=\n\s*(?:Profil|Erfahrungen|Start|Dauer|Aufgaben)|$)',
+             'Anforderungen'),
+            (r'Profil\s*(?:\n|\r|\r\n)(.*?)(?=\n\s*(?:Erfahrungen|Start|Dauer|Aufgaben|Anforderungen)|$)',
+             'Profil'),
+            (r'Erfahrungen?\s*(?:\n|\r|\r\n)(.*?)(?=\n\s*(?:Start|Dauer|Aufgaben|Anforderungen|Profil)|$)',
+             'Erfahrungen')
+        ]
+
+        for pattern, section_name in section_patterns:
+            match = re.search(pattern, text, re.IGNORECASE | re.DOTALL)
+            if match:
+                content = match.group(1).strip()
+                if len(content) > 20:  # Substantial content
+                    sections.append(f"**{section_name}:**\n{content}")
+
+        # Also look for project details
+        details_match = re.search(r'Start:\s*(.*?)\n.*?Dauer:\s*(.*?)\n.*?Workload:\s*(.*?)(?:\n|$)', text, re.IGNORECASE)
+        if details_match:
+            start, dauer, workload = details_match.groups()
+            sections.append(f"**Projekt Details:**\n- Start: {start.strip()}\n- Dauer: {dauer.strip()}\n- Workload: {workload.strip()}")
+
+        return '\n\n'.join(sections) if sections else text
+
+    def _clean_description_text(self, text: str) -> str:
+        """Clean up extracted description text."""
+        if not text:
+            return ""
+
+        # Remove common noise patterns
+        noise_patterns = [
+            r'Firmenname\s*für EXPERT-Mitglieder sichtbar',
+            r'\d{2}\.\d{2}\.\d{4} \d{2}:\d{2}',
+            r'Jetzt registrieren\s*Einloggen',
+            r'kostenlos registrieren',
+            r'Als registriertes Mitglied.*kann.*bewerben',
+            r'Ähnliche Projekte.*',
+            r'Sie suchen Freelancer\?.*',
+            r'Kategorien und Skills.*',
+            r'Projekt Insights.*',
+        ]
+
+        for pattern in noise_patterns:
+            text = re.sub(pattern, '', text, flags=re.IGNORECASE | re.DOTALL)
+
+        # Clean up whitespace
+        text = re.sub(r'\n\s*\n\s*\n', '\n\n', text)  # Multiple newlines to double
+        text = re.sub(r'[ \t]+', ' ', text)  # Multiple spaces to single
+        text = text.strip()
+
+        return text
+
+    def _is_likely_job_content(self, text: str) -> bool:
+        """Check if text is likely to be actual job description content."""
+        # Positive indicators
+        job_keywords = [
+            'aufgaben', 'anforderungen', 'profil', 'erfahrung',
+            'entwicklung', 'koordination', 'steuerung', 'planung',
+            'mehrjährige erfahrung', 'abgeschlossene', 'kenntnisse',
+            'start:', 'dauer:', 'workload:', 'remote'
+        ]
+
+        # Check for job-related keywords
+        has_job_keywords = any(keyword in text.lower() for keyword in job_keywords)
+
+        # Check for substantial content (not just dates/locations)
+        has_substance = len(text) > 100
+
+        # Avoid obvious noise
+        noise_indicators = [
+            'registrieren', 'einloggen', 'expert-mitglieder',
+            'kostenlos', 'ähnliche projekte', 'sie suchen'
+        ]
+        no_noise = not any(indicator in text.lower() for indicator in noise_indicators)
+
+        return has_job_keywords and has_substance and no_noise
 
     def _extract_company(self, soup: BeautifulSoup) -> str:
         """Extract company/client name."""
