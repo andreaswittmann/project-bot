@@ -14,6 +14,8 @@ services:
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
       - GOOGLE_API_KEY=${GOOGLE_API_KEY}
       - EMAIL_PASSWORD=${EMAIL_PASSWORD}
+      - FREELANCE_USERNAME=${FREELANCE_USERNAME}
+      - FREELANCE_PASSWORD=${FREELANCE_PASSWORD}
       # Optional: Additional API keys if you use multiple Anthropic keys
       - ANTHROPIC_API_KEY2=${ANTHROPIC_API_KEY2:-$ANTHROPIC_API_KEY}
       # Flask settings
