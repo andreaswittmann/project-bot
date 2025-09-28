@@ -1,5 +1,81 @@
 # Release Notes
 
+## v1.7.0 (2025-09-28) - Freelance Scraper Re-engineering and Codebase Cleanup
+
+### 🎉 New Features
+
+#### Freelance.de Scraper Re-engineering
+- **Complete scraper rewrite**: Replaced complex regex-based extraction with targeted CSS selectors
+- **Enhanced login reliability**: Improved authentication process for full content access
+- **Better description extraction**: Uses specific HTML selectors instead of error-prone text analysis
+- **Consistent error handling**: Standardized error handling and logging across all scraping operations
+
+#### Provider Documentation
+- **Comprehensive provider guide**: Added detailed documentation for all supported platforms
+- **Access requirements**: Clear documentation of login needs and limitations for each provider
+- **Usage limitations**: Transparent information about subscription requirements and data quality
+
+### 🔧 Technical Improvements
+
+#### Scraping Architecture
+- **Targeted extraction**: Adopted CSS selector-based parsing similar to successful solcom adapter
+- **Login-first approach**: Prioritizes authenticated access for complete project data
+- **Fallback mechanisms**: Graceful degradation when login fails or content is unavailable
+- **Unified schema**: Consistent data normalization across all scraping adapters
+
+#### Codebase Cleanup
+- **Massive cleanup**: Removed 131+ unnecessary files including development artifacts
+- **Development file removal**: Eliminated plan documents, test files, and temporary data
+- **Cache cleanup**: Removed Python bytecode cache and system files
+- **Log cleanup**: Cleared accumulated log files for fresh start
+
+### 🧹 Repository Maintenance
+
+#### File Organization
+- **Trash removal**: Deleted `projects_trash/` and `projects_trash2/` directories with old project data
+- **Plan file cleanup**: Removed all development planning documents and TODO files
+- **Test file removal**: Cleaned up test scripts and temporary files
+- **Empty directory removal**: Eliminated empty directories and incorrect file structures
+
+#### Performance Improvements
+- **Reduced repository size**: Significant reduction in tracked files and repository size
+- **Cleaner git history**: Removed development artifacts that cluttered version control
+- **Faster operations**: Eliminated unnecessary files that slowed down git operations
+
+### 📋 Provider Support Details
+
+#### FreelancerMap.de (Primary)
+- **Access**: Free RSS feeds, no authentication required
+- **Quality**: High-quality project data with complete descriptions
+- **Usage**: Unlimited, recommended for primary project discovery
+
+#### Freelance.de (Enhanced)
+- **Access**: Requires free account registration and login
+- **Quality**: Mixed - full content with login, teaser-only without
+- **Limitations**: Very limited without premium subscription (low volume, potential restrictions)
+- **Complexity**: Advanced scraping with authentication handling
+
+#### Solcom.de (Stable)
+- **Access**: Anonymous access, no login required
+- **Quality**: Good structured data with reliable extraction
+- **Usage**: Moderate volume, excellent supplementary source
+
+### 📈 Performance & Reliability
+
+#### Scraping Improvements
+- **Higher success rate**: CSS selector-based extraction is more reliable than regex patterns
+- **Complete content access**: Login ensures full project descriptions instead of teasers
+- **Better error recovery**: Improved fallback mechanisms for failed extractions
+- **Consistent data quality**: Standardized parsing across all providers
+
+#### Development Experience
+- **Cleaner codebase**: Removed clutter and development artifacts
+- **Better maintainability**: Simplified scraper architecture following proven patterns
+- **Easier debugging**: Consolidated logging and error handling
+- **Faster development**: Reduced repository complexity
+
+---
+
 ## v1.6.0 (2025-09-27) - Enhanced Dashboard for 4K Monitors and Mobile Devices
 
 ### 🎉 New Features
