@@ -44,9 +44,32 @@ The Project Bot workflow diagram illustrates an automated freelance job applicat
 ## Features
 
 ### 🤖 Automated Project Scraping
-- Fetches projects from FreelancerMap RSS feeds across multiple regions
-- Parses project details from HTML pages
+- Fetches projects from multiple freelance platforms using specialized adapters
+- Parses project details from HTML pages with provider-specific logic
 - Prevents duplicate processing with automatic logging
+
+### Supported Providers
+
+The bot supports multiple freelance platforms through modular scraping adapters:
+
+#### FreelancerMap.de (Primary)
+- **Data Source**: RSS feeds across multiple German regions
+- **Access**: Free RSS feeds, no login required
+- **Quality**: High-quality project data with detailed descriptions
+- **Usage**: Unlimited, recommended for primary scraping
+
+#### Freelance.de
+- **Data Source**: Direct HTML scraping from project pages
+- **Access**: Requires login credentials (free account registration)
+- **Quality**: Mixed - descriptions can be incomplete or teaser-only without full access
+- **Limitations**: Without premium subscription, usage is very limited (low project volume, potential rate limiting)
+- **Complexity**: Advanced scraping logic required due to login requirements and dynamic content
+
+#### Solcom.de
+- **Data Source**: Direct HTML scraping with custom parsing
+- **Access**: Anonymous access possible, no login required
+- **Quality**: Good project data with structured information
+- **Usage**: Moderate volume, suitable for supplementary scraping
 
 ### ➕ Manual Project Creation
 - **Dashboard Integration**: Create custom projects directly from the web interface
