@@ -207,12 +207,25 @@
             v-model="formData.cron_schedule"
             type="text"
             required
+            list="cron-presets"
             placeholder="0 9-17 * * 1-5"
             class="form-input"
-            @blur="validateCronSchedule"
+            @input="validateCronSchedule"
           />
+          <datalist id="cron-presets">
+            <option value="0 9,12,15,18 * * 1-5">Run 4x per day on weekdays</option>
+            <option value="0 10 * * 0,6">Run 1x per day on weekends</option>
+            <option value="0 9,15 * * 1">Run 2x every Monday</option>
+            <option value="15 */2 * * *">Run 15 min past every 2 hours</option>
+            <option value="0 * * * *">Run every hour</option>
+            <option value="0 0 * * *">Run daily at midnight</option>
+            <option value="0 0 * * 0">Run weekly on Sunday</option>
+            <option value="0 0 1 * *">Run monthly on the 1st</option>
+            <option value="*/30 * * * *">Run every 30 minutes</option>
+            <option value="0 0 31 2 *">Don't run at all</option>
+          </datalist>
           <small class="form-help">
-            Examples: "0 9-17 * * 1-5" (hourly 9-17, weekdays), "0 9,12,15,18 * * *" (4 times daily)
+            Choose from presets or enter custom cron expression (minute hour day month day-of-week)
           </small>
           <div v-if="cronValidation" class="cron-validation">
             <span v-if="cronValidation.valid" class="validation-success">✅ Valid cron schedule</span>
@@ -345,7 +358,7 @@ const formData = ref({
   description: '',
   workflow_type: 'cli_sequence',
   cli_commands: [],
-  cron_schedule: '0 9-17 * * 1-5',
+  cron_schedule: '0 9,12,15,18 * * 1-5',
   timezone: 'Europe/Berlin',
   metadata: {
     dashboard_button: false,
@@ -559,7 +572,7 @@ const initializeForm = () => {
         ...cmd,
         validation: null
       })),
-      cron_schedule: props.schedule.cron_schedule || '0 9-17 * * 1-5',
+      cron_schedule: props.schedule.cron_schedule || '0 9,12,15,18 * * 1-5',
       timezone: props.schedule.timezone || 'Europe/Berlin',
       metadata: {
         dashboard_button: props.schedule.metadata?.dashboard_button || false,
