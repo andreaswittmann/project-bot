@@ -74,7 +74,7 @@ export const useProjectsStore = defineStore('projects', {
         if (this.filters.llm_score_min !== null) params.append('llm_score_min', this.filters.llm_score_min)
         if (this.filters.llm_score_max !== null) params.append('llm_score_max', this.filters.llm_score_max)
         if (this.filters.page !== 1) params.append('page', this.filters.page)
-        if (this.filters.page_size !== 300) params.append('page_size', this.filters.page_size)
+        params.append('page_size', this.filters.page_size)
 
         const response = await api.get(`/api/v1/projects?${params.toString()}`)
         console.log('📦 Raw API response:', response.data)

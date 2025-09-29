@@ -210,7 +210,7 @@
     </div>
 
     <!-- Pagination -->
-    <div v-if="!loading && !error && projects.length > 0" class="pagination">
+    <div v-if="!loading && !error && projects.length > 0 && Math.ceil(pagination.total / pagination.page_size) > 1" class="pagination">
       <button
         @click="goToPage(pagination.page - 1)"
         :disabled="!pagination.has_prev"
@@ -321,6 +321,7 @@ const sortedProjects = computed(() => {
     return 0
   })
 })
+
 
 // Methods
 const sortBy = (field) => {
