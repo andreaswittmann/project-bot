@@ -1,5 +1,63 @@
 # Release Notes
 
+## v1.8.0 (2025-10-01) - GULP Provider Integration and URL Routing Fix
+
+### 🎉 New Features
+
+#### GULP Provider Integration
+- **Complete GULP provider integration**: Added comprehensive support for GULP (Randstad) project emails
+- **Email filtering and URL extraction**: Implemented robust email processing for GULP project notifications
+- **Advanced HTML scraping**: Developed headless browser-based scraping for dynamic GULP project pages
+- **German content support**: Full localization support for German project content and metadata
+- **Comprehensive data extraction**: Automated extraction of project titles, descriptions, skills, contact info, dates, and locations
+- **Pattern-based parsing**: Intelligent CSS selector identification for reliable data extraction across different project types
+
+### 🔧 Technical Improvements
+
+#### Frontend URL Routing Fix
+- **Query parameter routing**: Changed editor routing from path params to query params to avoid frontend server 404s
+- **Special character support**: Fixed URL encoding issues with project names containing commas and special characters
+- **Vue Router optimization**: Updated routing configuration for better compatibility with encoded IDs
+- **Component props handling**: Modified MarkdownEditor to receive projectId via router query instead of route params
+
+#### Backend Enhancements
+- **Enhanced email agent**: Improved move_to_processed functionality for reliable email processing
+- **HTML content collection**: Automated system for collecting and analyzing project page content
+- **Error handling improvements**: Robust error handling and debugging for email processing workflows
+- **Validation scripts**: Added comprehensive testing and validation for GULP adapter functionality
+
+### 🧹 Repository Maintenance
+
+#### Development Cleanup
+- **Temporary file removal**: Eliminated development artifacts including analysis scripts, test files, and sample data
+- **HTML content cleanup**: Removed saved HTML files and analysis results from repository
+- **Plan documentation removal**: Cleaned up outdated development planning documents
+- **Codebase optimization**: Streamlined repository structure by removing unnecessary helper scripts
+
+### 📋 Provider Support Details
+
+#### GULP (Randstad) (New)
+- **Access**: Email notifications with project URLs (requires account registration)
+- **Quality**: High-quality structured project data with complete German content
+- **Features**: Full project details including skills, contact persons, start dates, and locations
+- **Integration**: Seamless integration with existing email processing pipeline
+
+### 📈 Performance & Reliability
+
+#### Scraping Improvements
+- **Dynamic content handling**: Headless browser support for JavaScript-rendered project pages
+- **Pattern recognition**: Automated identification of CSS selectors for consistent data extraction
+- **Error recovery**: Enhanced fallback mechanisms for failed extractions and network issues
+- **Data normalization**: Consistent schema mapping for all extracted project information
+
+#### Development Experience
+- **Clean repository**: Removed clutter and development artifacts for better maintainability
+- **Documentation updates**: Updated setup and configuration documentation
+- **Testing framework**: Comprehensive validation scripts for adapter functionality
+- **Code quality**: Improved error handling and logging throughout the integration
+
+---
+
 ## v1.7.0 (2025-09-28) - Freelance Scraper Re-engineering and Codebase Cleanup
 
 ### 🎉 New Features
