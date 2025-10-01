@@ -71,6 +71,13 @@ The bot supports multiple freelance platforms through modular scraping adapters:
 - **Quality**: Good project data with structured information
 - **Usage**: Moderate volume, suitable for supplementary scraping
 
+#### Gulp.de (Randstad Professional)
+- **Data Source**: Email notifications with project links
+- **Access**: Email-based notifications, no login required for basic access
+- **Quality**: High-quality project data with detailed descriptions
+- **Partner Portals**: Gulp also uses partner portals via `https://gulp.de/robi/backend/tracker/url.*` URLs, but these will not be tracked because they are not scraped properly this way. SOLCOM projects are retrieved separately through dedicated SOLCOM scraping.
+- **Usage**: Email-based ingestion, suitable for comprehensive project monitoring
+
 ### ➕ Manual Project Creation
 - **Dashboard Integration**: Create custom projects directly from the web interface
 - **Template Generation**: Automatic markdown template with all required fields
