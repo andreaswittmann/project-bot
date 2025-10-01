@@ -116,6 +116,13 @@ docker compose logs --tail=10
 ** Update Docker Installation
 [2025-09-15 Mon 16:19] This section demonstrates how to update the project-bot installation on my MacBook Pro home server with Docker.
 
+
+
+An integration of a new porject provider requires the direct editing of the file config.yaml in the docker-volumes directory.
+
+
+
+
 #+BEGIN_src bash
 ssh asamadhi
 whoami
