@@ -1,0 +1,30 @@
+[
+  {
+    "filepath": "html_content/gulp/rendered_C01187473_20250930_175637.html",
+    "file_size": 560362,
+    "extracted_data": {
+      "title": "SAP HCM Consultant / Developer (m/f/d)",
+      "description": "<p>For our client we are looking for a freelance SAP HCM Consultant / Developer (m/f/d),</p>\\n<p></p>\\n<p>Start: asap</p>\\n<p>Duration: 31.12.25 (option to extend)</p>\\n<p>Location: Remote, possibly individual stays with the customer in the Mainz area</p><br><p>Support, optimization and further development of the SAP HCM system landscape. The focus here is on close cooperation with the HR Management department in order to digitize and automate processes.</p>\\n<p><strong>Support and customizing:</strong> Ensuring the smooth operation and adaptation of the SAP HCM modules, in particular Payroll (PY), Time Management (PT), Personnel Administration (PA) and Organizational Management (OM).</p>\\n<p><strong>Development:</strong> Conception and implementation of in-house developments using ABAP and ABAP OO as well as the design of interfaces with SAP Fiori/UI5.</p>\\n<p><strong>Process optimization:</strong> Analysis of existing personnel processes, identification of potentials and implementation of optimizations in SAP.</p>\\n<p><strong>Support &amp; training:</strong> Providing 2nd and 3rd level support and carrying out user training.</p>\\n<p><strong>Project work:</strong> Active participation in IT projects in the HR environment, from conception to go-live.</p><br><ul>\\n <li>Extensive practical experience in the SAP HCM environment (esp. PY, PT, PA, OM).</li>\\n <li>Sound knowledge of ABAP and ABAP OO development.</li>\\n <li>Ideally experience in development with SAP Fiori/UI5.</li>\\n <li>Expertise in the analysis and optimization of HR processes.</li>\\n <li>An independent, solution-oriented and communicative way of working.</li>\\n</ul>",
+      "skills": "\\n",
+      "start_date": "",
+      "location": ""
+    },
+    "has_dynamic_content": true,
+    "title_found": true,
+    "description_found": true
+  },
+  {
+    "filepath": "html_content/gulp/rendered_68da5cd9d9ed6d211f21c9ee_20250930_175642.html",
+    "file_size": 554592,
+    "extracted_data": {
+      "title": "C Developer Life Insurance (m/f/d) (Insurance, remote/Hamburg)",
+      "description": "Tasks: \\n- Development and maintenance of components in the life computing core based mainly on C and partly PL/I\\n- Technical implementation of functional requirements in close cooperation with business analysts and the product owner\\n- Development of interfaces to peripheral systems in accordance with applicable architectural specifications\\n- Ensuring the quality and structured documentation of the developed solutions\\n- Support with technical tests and the implementation of direct data extracts\\n\\nRequirements:\\n- Sound knowledge of C and the host environment (e.g. TSO, JCL) (+++).\\n- Experience with interface architectures (+++)\\n- Basic knowledge of databases (e.g. SQL, DB2) (+++)\\n- Basic know-how in operational activities (e.g. Automic, SFTP) (+)\\n- Basic knowledge of PL/I is an advantage (++)\\n- Understanding of the technical processes in the life area (application, contract, service). (+)\\n- Analytical thinking, structured way of working and good communication skills. (++)\\n- Skills in business analysis would be an advantage, as well as actuarial understanding. (++)\\n- First experience with agile methods and tools (e.g. JIRA, Confluence). (+)\\n- Good written and spoken German language skills are required. (++)\\n- First experience in agile working methods is an advantage. (+)\\n\\nStart: asap\\nEnd: 31.12.2026\\nUtilization: 50% with 2.5 PT per week \\nLocation: Remote, training (partly) on site in Hamburg",
+      "skills": "Meistgesuchte Skills",
+      "start_date": "",
+      "location": ""
+    },
+    "has_dynamic_content": true,
+    "title_found": true,
+    "description_found": true
+  }
+]

@@ -326,12 +326,166 @@ class EmailAgent:
             True if successful, False otherwise
         """
         try:
-            # Copy to processed folder
-            mail.copy(message_id, processed_folder)
-            # Mark as deleted in current folder
-            mail.store(message_id, '+FLAGS', '\\Deleted')
-            # Expunge to permanently remove
-            mail.expunge()
+            # Ensure message_id is properly encoded
+            if isinstance(message_id, str):
+                message_id = message_id.encode('utf-8')
+
+            self.logger.debug("Starting email move operation", extra={
+                'message_id': message_id,
+                'processed_folder': processed_folder
+            })
+
+            # First, check if the processed folder exists, and create it if it doesn't
+            try:
+                # Try to select the folder to check if it exists
+                self.logger.debug("Checking if processed folder exists", extra={
+                    'processed_folder': processed_folder
+                })
+                status, data = mail.select(processed_folder, readonly=True)
+                if status != 'OK':
+                    # Folder doesn't exist, try to create it
+                    self.logger.info("Processed folder doesn't exist, attempting to create it", extra={
+                        'processed_folder': processed_folder
+                    })
+
+                    # Try different folder naming conventions
+                    folder_candidates = [
+                        processed_folder,  # Original name
+                        f'INBOX.{processed_folder}',  # INBOX prefixed
+                        'Processed',  # Standard name
+                        'INBOX.Processed',  # Standard INBOX prefixed
+                        'Archive',  # Alternative name
+                        'INBOX.Archive'  # Alternative INBOX prefixed
+                    ]
+
+                    created_folder = None
+                    for candidate in folder_candidates:
+                        self.logger.debug("Trying to create folder", extra={'candidate': candidate})
+                        try:
+                            create_status, create_data = mail.create(candidate)
+                            if create_status == 'OK':
+                                created_folder = candidate
+                                self.logger.info("Successfully created processed folder", extra={
+                                    'created_folder': created_folder
+                                })
+                                break
+                            else:
+                                self.logger.debug("Failed to create folder", extra={
+                                    'candidate': candidate,
+                                    'create_status': create_status,
+                                    'create_data': create_data
+                                })
+                        except Exception as create_error:
+                            self.logger.debug("Exception creating folder", extra={
+                                'candidate': candidate,
+                                'error': str(create_error)
+                            })
+
+                    if created_folder:
+                        processed_folder = created_folder
+                    else:
+                        self.logger.error("Could not create any processed folder, emails will remain in inbox", extra={
+                            'original_folder': processed_folder,
+                            'tried_folders': folder_candidates,
+                            'recommendation': 'Consider disabling move_processed for this provider or check IMAP server permissions'
+                        })
+                        # Continue with original folder name, let the copy operation fail gracefully
+                        # The copy operation will fail, but the email processing will continue
+            except Exception as folder_check_error:
+                self.logger.warning("Error checking/creating processed folder", extra={
+                    'processed_folder': processed_folder,
+                    'error': str(folder_check_error)
+                })
+
+            # Try to copy to processed folder
+            self.logger.debug("Attempting to copy email to processed folder", extra={
+                'message_id': message_id,
+                'processed_folder': processed_folder
+            })
+
+            # Ensure we're still in the correct source folder before copying
+            try:
+                current_folder_status, current_folder_data = mail.select()
+                current_folder = current_folder_data[0] if current_folder_data else 'Unknown'
+                self.logger.debug("Current folder before copy operation", extra={
+                    'current_folder': current_folder
+                })
+            except Exception as folder_error:
+                self.logger.warning("Could not determine current folder", extra={
+                    'error': str(folder_error)
+                })
+
+            copy_status, copy_data = mail.copy(message_id, processed_folder)
+            if copy_status != 'OK':
+                self.logger.error("Failed to copy email to processed folder", extra={
+                    'message_id': message_id,
+                    'processed_folder': processed_folder,
+                    'copy_status': copy_status,
+                    'copy_data': copy_data
+                })
+
+                # Try to understand why the copy failed
+                try:
+                    # Check if the folder exists by trying to select it
+                    select_status, select_data = mail.select(processed_folder, readonly=True)
+                    self.logger.debug("Target folder select status", extra={
+                        'processed_folder': processed_folder,
+                        'select_status': select_status,
+                        'select_data': select_data
+                    })
+                except Exception as select_error:
+                    self.logger.error("Could not check target folder", extra={
+                        'processed_folder': processed_folder,
+                        'error': str(select_error)
+                    })
+
+                # If copy fails, don't mark as deleted - leave email in inbox
+                return False
+
+            # If copy succeeded, mark as deleted in current folder
+            self.logger.debug("Email copied successfully, marking as deleted", extra={
+                'message_id': message_id
+            })
+            delete_status, delete_data = mail.store(message_id, '+FLAGS', '\\Deleted')
+            if delete_status != 'OK':
+                self.logger.error("Failed to mark email as deleted", extra={
+                    'message_id': message_id,
+                    'delete_status': delete_status,
+                    'delete_data': delete_data
+                })
+                # Email was copied but not deleted - this is a problem
+                # Try to delete the copied email to avoid duplicates
+                try:
+                    # Switch to processed folder and delete the copied message
+                    mail.select(processed_folder)
+                    # Find the copied message (this is tricky, we'll just log the issue)
+                    self.logger.warning("Email copied but not deleted from inbox - manual cleanup may be needed", extra={
+                        'message_id': message_id,
+                        'processed_folder': processed_folder
+                    })
+                except Exception as cleanup_error:
+                    self.logger.error("Failed to cleanup after partial move", extra={
+                        'message_id': message_id,
+                        'error': str(cleanup_error)
+                    })
+                return False
+
+            # Expunge to permanently remove from current folder
+            self.logger.debug("Marking email as deleted, now expunging", extra={
+                'message_id': message_id
+            })
+            expunge_status, expunge_data = mail.expunge()
+            if expunge_status != 'OK':
+                self.logger.warning("Failed to expunge deleted emails", extra={
+                    'expunge_status': expunge_status,
+                    'expunge_data': expunge_data
+                })
+                # Email was copied and marked deleted, but expunge failed
+                # This means the email might still appear in the inbox until expunge is called later
+                self.logger.warning("Email moved but expunge failed - email may still appear in inbox", extra={
+                    'message_id': message_id
+                })
+
             self.logger.info("Email moved to processed folder", extra={
                 'message_id': message_id,
                 'processed_folder': processed_folder
@@ -362,11 +516,22 @@ class EmailAgent:
         urls_skipped_dedupe = 0
 
         try:
+            # Ensure message_id is properly formatted for IMAP operations
+            if isinstance(message_id, bytes):
+                message_id_str = message_id.decode('utf-8')
+            else:
+                message_id_str = str(message_id)
+
+            self.logger.debug("Processing email with message_id", extra={
+                'message_id': message_id_str,
+                'message_id_type': type(message_id).__name__
+            })
+
             # Fetch the email
             status, msg_data = mail.fetch(message_id, '(RFC822)')
             if status != 'OK':
                 self.logger.error("Failed to fetch email", extra={
-                    'message_id': message_id,
+                    'message_id': message_id_str,
                     'status': status
                 })
                 return {
@@ -383,14 +548,14 @@ class EmailAgent:
             sender = message.get('From', '')
             subject = message.get('Subject', '')
             self.logger.info("Email metadata", extra={
-                'message_id': message_id,
+                'message_id': message_id_str,
                 'email_date': email_date,
                 'sender': sender,
                 'subject': subject
             })
 
             self.logger.debug(f"Processing email: {sender} - {subject}", extra={
-                'message_id': message_id
+                'message_id': message_id_str
             })
 
             senders = provider_config.get('senders', [])
@@ -401,7 +566,7 @@ class EmailAgent:
 
             # Add detailed logging for debugging
             self.logger.info(f"Email matching check: sender='{sender}', subject='{subject}'", extra={
-                'message_id': message_id,
+                'message_id': message_id_str,
                 'sender_match': sender_match,
                 'subject_match': subject_match,
                 'senders_config': senders,
@@ -410,7 +575,7 @@ class EmailAgent:
 
             if not (sender_match and subject_match):
                 self.logger.warning(f"Email filtered out: sender='{sender}' subject='{subject}' (sender_match: {sender_match}, subject_match: {subject_match})", extra={
-                    'message_id': message_id,
+                    'message_id': message_id_str,
                     'senders_config': senders,
                     'subject_patterns_config': subject_patterns
                 })
@@ -421,7 +586,7 @@ class EmailAgent:
                 }
 
             self.logger.info("Processing matching email", extra={
-                'message_id': message_id,
+                'message_id': message_id_str,
                 'sender': sender,
                 'subject': subject
             })
@@ -432,7 +597,7 @@ class EmailAgent:
 
             if not urls:
                 self.logger.info("No URLs found in email", extra={
-                    'message_id': message_id
+                    'message_id': message_id_str
                 })
                 return {
                     'projects_saved': 0,
@@ -458,7 +623,7 @@ class EmailAgent:
             for url in urls:
                 try:
                     self.logger.debug(f"Starting to scrape project URL: {url}", extra={
-                        'message_id': message_id
+                        'message_id': message_id_str
                     })
 
                     # Canonicalize URL for dedupe
@@ -470,7 +635,7 @@ class EmailAgent:
                         self.logger.info("URL already processed, skipping", extra={
                             'url': url,
                             'canonical_url': canonical_url,
-                            'message_id': message_id
+                            'message_id': message_id_str
                         })
                         continue
 
@@ -530,7 +695,7 @@ class EmailAgent:
                             'filepath': filepath,
                             'url': url,
                             'canonical_url': canonical_url,
-                            'message_id': message_id
+                            'message_id': message_id_str
                         })
                     else:
                         self.logger.warning("Failed to initialize project state", extra={
@@ -541,7 +706,7 @@ class EmailAgent:
                     import traceback
                     self.logger.error("Failed to process project URL", extra={
                         'url': url,
-                        'message_id': message_id,
+                        'message_id': message_id_str,
                         'error': str(e),
                         'traceback': traceback.format_exc()
                     })
@@ -550,13 +715,30 @@ class EmailAgent:
             move_processed = provider_config.get('move_processed', True)
             if move_processed:
                 processed_folder = provider_config.get('processed_folder', 'Processed')
+                self.logger.debug("Attempting to move email to processed folder", extra={
+                    'message_id': message_id_str,
+                    'processed_folder': processed_folder,
+                    'move_processed': move_processed
+                })
                 moved = self.move_to_processed(mail, message_id, processed_folder)
+                self.logger.debug("Email move operation completed", extra={
+                    'message_id': message_id_str,
+                    'moved': moved
+                })
+
+                # If move failed, suggest disabling move_processed for this provider
+                if not moved:
+                    self.logger.warning("Email move failed - consider setting move_processed=false for this provider", extra={
+                        'message_id': message_id_str,
+                        'provider_id': provider_config.get('provider_id'),
+                        'suggestion': 'Add "move_processed": false to provider config if this persists'
+                    })
             else:
                 self.logger.debug("Skipping email move (move_processed=false)")
                 moved = False
 
             self.logger.info("Email processing complete", extra={
-                'message_id': message_id,
+                'message_id': message_id_str,
                 'projects_saved': projects_saved,
                 'urls_skipped_dedupe': urls_skipped_dedupe,
                 'moved_to_processed': moved if move_processed else 'disabled'
@@ -565,10 +747,10 @@ class EmailAgent:
         except Exception as e:
             import traceback
             tb = traceback.format_exc()
-            print(f"DEBUG: Failed to process email {message_id}: {str(e)}")
+            print(f"DEBUG: Failed to process email {message_id_str}: {str(e)}")
             print(f"DEBUG: Traceback: {tb}")
             self.logger.error("Failed to process email", extra={
-                'message_id': message_id,
+                'message_id': message_id_str,
                 'error': str(e),
                 'traceback': tb
             })
