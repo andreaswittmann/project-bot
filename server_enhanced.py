@@ -1940,17 +1940,17 @@ def serve_frontend(filename):
     print(f"🎯 CATCH-ALL ROUTE: Serving frontend file: {filename}")
 
     # First try to serve the requested file
-    response = send_from_directory('frontend/dist', filename)
-    logger.info(f"📁 Response status for {filename}: {response.status_code}")
-    print(f"📁 Response status for {filename}: {response.status_code}")
-
-    # If the file doesn't exist (404), serve index.html for SPA routing
-    if response.status_code == 404 and not filename.startswith('api/'):
-        logger.info(f"🔄 Serving index.html for SPA route: {filename}")
-        print(f"🔄 Serving index.html for SPA route: {filename}")
-        return send_from_directory('frontend/dist', 'index.html')
-
-    return response
+    try:
+        return send_from_directory('frontend/dist', filename)
+    except:
+        # If the file doesn't exist, serve index.html for SPA routing (unless it's an API call)
+        if not filename.startswith('api/'):
+            logger.info(f"🔄 Serving index.html for SPA route: {filename}")
+            print(f"🔄 Serving index.html for SPA route: {filename}")
+            return send_from_directory('frontend/dist', 'index.html')
+        else:
+            # For API calls that don't exist, return 404
+            abort(404)
 
 # Flask app lifecycle management for scheduler
 def startup():
