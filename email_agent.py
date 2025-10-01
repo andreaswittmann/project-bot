@@ -326,9 +326,6 @@ class EmailAgent:
             True if successful, False otherwise
         """
         try:
-            # Ensure message_id is properly encoded
-            if isinstance(message_id, str):
-                message_id = message_id.encode('utf-8')
 
             self.logger.debug("Starting email move operation", extra={
                 'message_id': message_id,
@@ -415,7 +412,7 @@ class EmailAgent:
                     'error': str(folder_error)
                 })
 
-            copy_status, copy_data = mail.copy(message_id, processed_folder)
+            copy_status, copy_data = mail.uid('copy', message_id, processed_folder)
             if copy_status != 'OK':
                 self.logger.error("Failed to copy email to processed folder", extra={
                     'message_id': message_id,
@@ -446,7 +443,7 @@ class EmailAgent:
             self.logger.debug("Email copied successfully, marking as deleted", extra={
                 'message_id': message_id
             })
-            delete_status, delete_data = mail.store(message_id, '+FLAGS', '\\Deleted')
+            delete_status, delete_data = mail.uid('store', message_id, '+FLAGS', '\\Deleted')
             if delete_status != 'OK':
                 self.logger.error("Failed to mark email as deleted", extra={
                     'message_id': message_id,
@@ -528,7 +525,7 @@ class EmailAgent:
             })
 
             # Fetch the email
-            status, msg_data = mail.fetch(message_id, '(RFC822)')
+            status, msg_data = mail.uid('fetch', message_id, '(RFC822)')
             if status != 'OK':
                 self.logger.error("Failed to fetch email", extra={
                     'message_id': message_id_str,
@@ -849,15 +846,15 @@ class EmailAgent:
             since_date = since_datetime.strftime('%d-%b-%Y')
             search_criteria = f'SINCE {since_date}'
             self.logger.info(f"Email search parameters: max_age_days={max_age_days}, current_datetime={now.isoformat()}, since_datetime={since_datetime.isoformat()}, since_date_formatted={since_date}, search_criteria={search_criteria}, timezone_info={str(now.tzinfo)}")
-            status, messages = mail.search(None, search_criteria)
+            status, messages = mail.uid('search', None, search_criteria)
             if status != 'OK':
                 self.logger.error("Failed to search emails", extra={
                     'status': status
                 })
                 return summary
 
-            message_ids = messages[0].split()
-            self.logger.info(f"Emails found by search: total_emails_found={len(message_ids)}, search_criteria={search_criteria}, message_ids_sample={[mid.decode() if isinstance(mid, bytes) else mid for mid in message_ids[:5]]}")
+            message_ids = [mid.decode('utf-8') for mid in messages[0].split()]
+            self.logger.info(f"Emails found by search: total_emails_found={len(message_ids)}, search_criteria={search_criteria}, message_ids_sample={message_ids[:5]}")
 
             # Limit the number of emails to process
             max_emails = provider_config.get('max_emails', 50)  # Default to 50 emails
@@ -889,11 +886,11 @@ class EmailAgent:
                     summary['urls_found'] += urls_found
                 except Exception as e:
                     summary['errors'] += 1
-                    print(f"DEBUG: Error processing email {message_id.decode()}: {str(e)}")
+                    print(f"DEBUG: Error processing email {message_id}: {str(e)}")
                     import traceback
                     print(f"DEBUG: Traceback: {traceback.format_exc()}")
                     self.logger.error("Error processing email", extra={
-                        'message_id': message_id.decode(),
+                        'message_id': message_id,
                         'error': str(e)
                     })
 
