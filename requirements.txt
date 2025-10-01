@@ -23,3 +23,6 @@ langchain-openai>=0.1.7
 langchain-anthropic>=0.1.15
 langchain-google-genai>=1.0.0
 tiktoken>=0.5.2
+
+# Playwright for headless browser scraping (GULP provider)
+playwright>=1.40.0
