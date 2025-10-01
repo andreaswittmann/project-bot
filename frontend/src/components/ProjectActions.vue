@@ -224,7 +224,7 @@ const viewProject = () => {
 const editProject = () => {
   // Open markdown editor in new tab
   const encodedProjectId = encodeURIComponent(props.project.id)
-  const editorUrl = `/editor/${encodedProjectId}`
+  const editorUrl = `/editor?project=${encodedProjectId}`
   window.open(editorUrl, '_blank')
 }
 

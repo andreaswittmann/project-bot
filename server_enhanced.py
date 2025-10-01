@@ -1924,12 +1924,7 @@ def dashboard():
     """Serve the Vue3 frontend"""
     return send_from_directory('frontend/dist', 'index.html')
 
-@app.route('/editor/<path:project_id>')
-def serve_editor(project_id):
-    """Serve Vue3 frontend for editor routes"""
-    logger.info(f"🎯 EDITOR ROUTE: Serving editor for project: {project_id}")
-    print(f"🎯 EDITOR ROUTE: Serving editor for project: {project_id}")
-    return send_from_directory('frontend/dist', 'index.html')
+# Editor route removed - now handled by frontend server with query parameters
 
 @app.route('/test')
 def test_route():

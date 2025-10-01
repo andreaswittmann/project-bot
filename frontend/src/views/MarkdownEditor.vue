@@ -195,8 +195,13 @@ const router = useRouter()
 // Store
 const projectsStore = useProjectsStore()
 
-// Props - Vue Router automatically decodes URL parameters
-const projectId = route.params.projectId
+// Props - projectId is passed via router props and is already decoded
+const props = defineProps({
+  projectId: {
+    type: String,
+    required: true
+  }
+})
 
 // Local state
 const markdownContent = ref('')
@@ -277,12 +282,13 @@ const availableTransitions = computed(() => {
 })
 
 // Methods
+// Methods
 const loadMarkdownContent = async () => {
   try {
     loading.value = true
     error.value = null
 
-    const response = await markdownApi.getProjectMarkdown(projectId)
+    const response = await markdownApi.getProjectMarkdown(props.projectId)
     markdownContent.value = response.content
     originalContent.value = response.content
     filename.value = response.filename
@@ -295,7 +301,7 @@ const loadMarkdownContent = async () => {
     if (titleMatch) {
       projectTitle.value = titleMatch[1].trim()
     } else {
-      projectTitle.value = `Project ${projectId}`
+      projectTitle.value = `Project ${props.projectId}`
     }
 
     // Fetch project status
@@ -320,7 +326,7 @@ const saveContent = async () => {
 
   try {
     isSaving.value = true
-    await markdownApi.updateProjectMarkdown(projectId, markdownContent.value)
+    await markdownApi.updateProjectMarkdown(props.projectId, markdownContent.value)
     originalContent.value = markdownContent.value
 
     // Show success feedback (could be enhanced with toast notifications)
@@ -355,7 +361,7 @@ const handleStatusChanged = (data) => {
 
 const openStatusModal = () => {
   console.log('🔍 Status button clicked');
-  console.log('📊 Current projectId:', projectId);
+  console.log('📊 Current projectId:', props.projectId);
   console.log('📊 Current project:', project.value);
   console.log('📊 Current status:', currentStatus.value);
   console.log('📊 Loading state:', loading.value);
@@ -526,7 +532,7 @@ const generateApplication = async () => {
 
   isGenerating.value = true
   try {
-    await projectsStore.generateApplication(projectId)
+    await projectsStore.generateApplication(props.projectId)
 
     // Reload content to show the generated application
     await reloadContent()
@@ -551,7 +557,7 @@ const reevaluateProject = async () => {
 
   isReevaluating.value = true
   try {
-    await projectsStore.reevaluateProject(projectId, true) // Pass true for force evaluation
+    await projectsStore.reevaluateProject(props.projectId, true) // Pass true for force evaluation
 
     // Reload content to show the new evaluation results
     await reloadContent()
@@ -603,11 +609,11 @@ const sendApplication = async () => {
 
   // Update state to sent
   try {
-    const project = await projectsStore.fetchProjectById(projectId)
+    const project = await projectsStore.fetchProjectById(props.projectId)
     if (project.status === 'sent') {
       alert('Project is already marked as sent.')
     } else {
-      await projectsStore.updateProjectState(projectId, project.status, 'sent', 'Sent from editor', false)
+      await projectsStore.updateProjectState(props.projectId, project.status, 'sent', 'Sent from editor', false)
       currentStatus.value = 'sent'
       alert('Project status updated to sent.')
     }
@@ -628,7 +634,7 @@ const reloadContent = async () => {
     loading.value = true
     error.value = null
 
-    const response = await markdownApi.getProjectMarkdown(projectId)
+    const response = await markdownApi.getProjectMarkdown(props.projectId)
     markdownContent.value = response.content
     originalContent.value = response.content
     filename.value = response.filename
@@ -639,12 +645,12 @@ const reloadContent = async () => {
     if (titleMatch) {
       projectTitle.value = titleMatch[1].trim()
     } else {
-      projectTitle.value = `Project ${projectId}`
+      projectTitle.value = `Project ${props.projectId}`
     }
 
     // Fetch project status
     try {
-      project.value = await projectsStore.fetchProjectById(projectId)
+      project.value = await projectsStore.fetchProjectById(props.projectId)
       currentStatus.value = project.value.status
     } catch (error) {
       console.error('Failed to fetch project status:', error)

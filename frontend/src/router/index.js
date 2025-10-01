@@ -14,10 +14,10 @@ const router = createRouter({
       component: Dashboard
     },
     {
-      path: '/editor/:projectId',
+      path: '/editor',
       name: 'markdown-editor',
       component: MarkdownEditor,
-      props: true
+      props: route => ({ projectId: route.query.project })
     },
     {
       path: '/schedules',
